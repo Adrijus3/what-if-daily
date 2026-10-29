@@ -49,6 +49,12 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
 - **Funny ones are still factual.** The premise can be silly, but every number and consequence in the narration must be real, researched science. Exaggerate the tone and jokes, never the facts.
 - **Tone:** fun, punchy and family-friendly. No gore, nothing scary for kids, no politics, real people, brands, tragedies, medical advice or anything that encourages dangerous challenges. For eating or drinking extremes, frame it as "don't try this" and keep it light.
 - **Keep it fresh:** also use timely angles when they fit, like seasons or holidays (Halloween, Christmas, summer heat) and big science news. Never copy another creator's video; the premise and script must be original.
+- **No repeats (every session starts with no memory, so the repo is the memory):**
+  1. Before choosing, read ALL of `topics_used.txt`, plus the captions in `episodes/*/CAPTION.txt` and `post_log.txt`.
+  2. Reject any candidate with the same core premise as a past topic, even if it's reworded ("the Moon vanished" = "the Moon disappeared" = "we lost the Moon"). Also reject the same main consequence or twist (e.g. two episodes that both end in "you'd float in the middle").
+  3. Also reject anything too close in theme to the last 7 topics, e.g. no two Sun or space-disaster episodes within 7 days.
+  4. **Claim the topic immediately.** Before producing anything, append `<date> | <topic> | IN PROGRESS` to topics_used.txt, then commit and push. A crashed or retried run then can't pick it again. At the end, replace IN PROGRESS with DONE (or FAILED, which may be retried later).
+  5. Use `ideas_backlog.txt` for inspiration. When you use an idea from it, delete that line in the same commit.
 - **Record it:** write the chosen topic, its kind (science or funny) and its scores in post_log.txt.
 - **Structure:**
   - 0–3 s: a hook question that is short, bold and about YOU ("What if you…?"). No intro, and no "Hey guys". The first frame already shows the mascot in the situation.
@@ -57,6 +63,7 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
   - A "but here's the crazy part" twist.
   - A CTA question asking viewers to comment, then "follow for a new What If every day".
 - **Length:** about 160–180 words, giving roughly 60–65 s of narration.
+- **Double-booking check:** at the start of the run, also call Metricool getScheduledPosts for today. If a TikTok post is already scheduled for today, stop.
 - **Fact-check every number** with WebSearch and keep the source URL in post_log.txt. If a fact can't be verified, drop it.
 - Use eleven_v4 audio tags sparingly, e.g. `[excited]` and `[whispers]`. See `scripts/script_text.txt` for the style.
 
