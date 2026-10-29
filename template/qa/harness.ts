@@ -111,6 +111,28 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
       }
     }
   }
+  // feet gliding across the ground while standing (or slowly shrinking/growing while standing) = authoring bug
+  if (doMotion) {
+    let run = 0, runS = 0;
+    for (let i = 1; i < sk.length; i++) {
+      const a = sk[i - 1], b = sk[i];
+      if (a.scene !== b.scene) { run = 0; runS = 0; continue; }
+      const footY = (q: Sk) => Math.max(q.pts.aL.y, q.pts.aR.y) + 34 * q.s;
+      const grounded = Math.abs(footY(b) - 1153) < 30 && Math.abs(footY(b) - footY(a)) < 1.2;
+      const vx = Math.abs((b.pts.aL.x + b.pts.aR.x) - (a.pts.aL.x + a.pts.aR.x)) / 2 / dts;
+      run = grounded && vx > 25 ? run + dts : 0;
+      if (run > 0.3) { flagOnce('slide', b.t, () => add('foot-slide', 'FAIL', b.t, `feet glide across the ground at ${Math.round(vx)} px/s while he is standing (no walk)`)); run = 0; }
+      const ds = Math.abs(b.s - a.s) / dts;
+      runS = grounded && ds > 0.015 ? runS + dts : 0;
+      if (runS > 0.4) { flagOnce('shrink', b.t, () => add('scale-drift', 'FAIL', b.t, `he slowly ${b.s < a.s ? 'shrinks' : 'grows'} while standing still`)); runS = 0; }
+    }
+  }
+  // anatomy: an elbow must never point INTO the chest (reads as a snapped / broken arm), held or moving
+  if (doMotion) for (const q of sk) for (const [side, sh, el, h] of [[-1, 'shL', 'elL', 'hL'], [1, 'shR', 'elR', 'hR']] as const) {
+    const inward = -side * (q.pts[el].x - q.pts[sh].x) / (156 * q.s);
+    if (inward > 0.25) flagOnce('inw' + el, q.t, () => add('elbow-inward', 'FAIL', q.t, `${side < 0 ? 'left' : 'right'} elbow points into the chest (${Math.round(inward * 100)}% of the upper arm) — looks like a snapped arm`));
+    void h;
+  }
   // limbs crossing through the head/torso centre line wildly (hand passes through face)
   if (doMotion) for (const q of sk) for (const h of ['hL', 'hR']) {
     const d = Math.hypot(q.pts[h].x - q.pts.head.x, q.pts[h].y - q.pts.head.y);

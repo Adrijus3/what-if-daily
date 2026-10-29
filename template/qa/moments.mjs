@@ -25,6 +25,6 @@ async function sheet(name, times, labels, w = 300) {
   await page.evaluate(async (b64) => { const f = new FontFace('Lilita One', `url(data:font/woff2;base64,${b64})`); document.fonts.add(await f.load()); }, font);
   await page.addScriptTag({content: fs.readFileSync(path.join(root, 'qa/.bundle.js'), 'utf8')});
 }
-const ts = process.argv.slice(2).map(Number); await sheet('moments.png', ts, ts.map(String), 240);
+const ts = process.argv.slice(2).map(Number); await sheet('moments.png', ts, ts.map(String), Number(process.env.W || 240));
 await browser.close();
 console.log('sheets written to qa/sheets');

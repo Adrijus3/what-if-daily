@@ -37,7 +37,17 @@ export function ikInfo(q: PP, side: -1 | 1) {
   const s1 = sol(1), s2 = sol(-1);
   // natural preference: elbow out to the side and a little down
   const score = (E: V) => side * (E.x - sh.x) + 0.35 * (E.y - sh.y);
-  return {w: side < 0 ? q.iLw : q.iRw, A: (A * 180) / Math.PI, s1, s2, pref: score(s1.E) >= score(s2.E) ? 1 : -1};
+  /** arm with the hand pushed `ext` (0..1) of the way out to full reach along the same line: used while the elbow swaps sides,
+   *  so the arm straightens and re-bends (like a real arm) instead of folding through the hand */
+  const at = (sg: number, ext: number) => {
+    // ext = 0: the solved bend; ext = 1: arm straight. The ELBOW ANGLE changes linearly with ext, so the swap moves at an even speed.
+    const beta0 = Math.acos(clamp((a * a + b * b - L * L) / (2 * a * b), -1, 1)), beta = beta0 + (Math.PI - beta0) * ext;
+    const Lx = Math.max(Math.abs(a - b) + 1e-3, Math.sqrt(Math.max(0, a * a + b * b - 2 * a * b * Math.cos(beta))));
+    const Ax = Math.acos(clamp((a * a + Lx * Lx - b * b) / (2 * a * Lx), -1, 1));
+    const E = v(sh.x + a * Math.cos(base + sg * Ax), sh.y + a * Math.sin(base + sg * Ax)), H = add(sh, mul(d, Lx / L));
+    return {E, H};
+  };
+  return {w: side < 0 ? q.iLw : q.iRw, A: (A * 180) / Math.PI, s1, s2, sh, at, pref: score(s1.E) >= score(s2.E) ? 1 : -1};
 }
 const angDiff = (a: number, b: number) => { let d = (b - a) % 360; if (d > 180) d -= 360; if (d < -180) d += 360; return d; };
 /** which solution is closest to the arm's current FK pose (used when IK fades in, so the arm never swings round) */
@@ -57,18 +67,24 @@ export function resolvePP(q: PP, signs?: [number, number]): PP {
   for (const side of [-1, 1] as const) {
     const k = ikInfo(q, side);
     if (k.w < 0.001) continue;
-    const sg = signs ? signs[side < 0 ? 0 : 1] : k.pref;
-    const s = sg > 0 ? k.s1 : k.s2, w = k.w;
+    // m in [-1, 1]: which elbow solution. |m| < 1 means the elbow is swapping sides: the arm extends towards straight
+    // (m = 0 is fully straight) and re-bends the other way, so the joint never folds or snaps.
+    const m = signs ? signs[side < 0 ? 0 : 1] : k.pref, w = k.w, sh = k.sh;
+    const g = k.at(m >= 0 ? 1 : -1, 1 - Math.abs(m));
+    const eI = g.E, hI = g.H;
     // blend JOINT POSITIONS (not angles): angle blending flips direction when FK and IK are ~180 deg apart
-    const sh = add(hip, mul(rot(v(side * SHX, SHY), q.rot), S));
     const ua0 = side < 0 ? q.aLa : q.aRa, fa0 = side < 0 ? q.aLb : q.aRb;
     const eF = add(sh, mul(dir(ua0), UP * S)), hF = add(eF, mul(dir(fa0), FORE * S));
-    const hI = add(s.E, mul(dir(s.fa), FORE * S));
-    const E = v(eF.x + (s.E.x - eF.x) * w, eF.y + (s.E.y - eF.y) * w), Hd = v(hF.x + (hI.x - hF.x) * w, hF.y + (hI.y - hF.y) * w);
+    const E = v(eF.x + (eI.x - eF.x) * w, eF.y + (eI.y - eF.y) * w), Hd = v(hF.x + (hI.x - hF.x) * w, hF.y + (hI.y - hF.y) * w);
     const ua = ang(sub(E, sh)), fa = ang(sub(Hd, E));
     if (side < 0) { p.aLa = ua; p.aLb = fa; } else { p.aRa = ua; p.aRb = fa; }
   }
   return p;
+}
+/** anatomical score of an elbow position: out to the side and a little down is natural; pointing into the chest is not */
+export function elbowScore(q: PP, side: -1 | 1, E: V) {
+  const sh = add(v(q.x, q.y), mul(rot(v(side * SHX, SHY), q.rot), q.s));
+  return (side * (E.x - sh.x) + 0.35 * (E.y - sh.y)) / (UP * q.s);
 }
 
 export function geom(p: PP) {

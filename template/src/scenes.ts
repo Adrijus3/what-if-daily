@@ -1,7 +1,7 @@
-import {Ctx, softShadow, disc, rad} from './lib/draw';
+import {Ctx, softShadow, disc, rad, lin} from './lib/draw';
 import {v, clamp, smooth, lerp, TAU} from './lib/math';
 import {Rig, Keys, sinw, TIMELINE, hold} from './anim';
-import {DEF, PP, resolvePP, drawPuppet, Sim, geom, ikInfo, closestSign} from './puppet';
+import {DEF, PP, resolvePP, drawPuppet, Sim, geom, ikInfo, elbowScore} from './puppet';
 import {add, mul, rot as rotV} from './lib/math';
 import {drawBG, FLOOR} from './backgrounds';
 import {drawBurst, sparkle, steamPuff} from './props';
@@ -57,7 +57,7 @@ const scrollAt = (t: number) => { const f = clamp(t * 60, 0, SCROLL.length - 1.0
 // ------------------------------------------------------------ 1. HOOK: a hole in a field
 const hook: SceneDef = (() => {
   const keys: Keys<PP> = [
-    [0, {x: 330, y: 770, ...STAND, ...NEUTRAL, ...HIPS, smile: 0.8, ex: 6, hx: 6}, 'step'],
+    [0, {x: 290, y: 770, ...STAND, ...NEUTRAL, ...HIPS, smile: 0.8, ex: 6, hx: 6}, 'step'],
     [1.4, {...HIPS, brow: 0.4}], [2.4, {iRx: 160, iRy: -60, hr: 0.12, ex: 7, ey: 4, brow: 0.7, smile: 0.3}],
     [K.three - 2.2, hold('iRx', 'iRy', 'hr', 'ex', 'ey', 'brow', 'smile')], [K.three - 1.7, {...WIDE, hr: 0, ey: 0, brow: 0.8, open: 0.3, smile: 0.9}],
   ];
@@ -74,31 +74,38 @@ const hook: SceneDef = (() => {
 const FALLER = {x: 540, y: 900, ...FALL, ...NEUTRAL, s: 0.78};
 /** draw the puppet so anything below the hole's rim is hidden, except what is inside the hole opening */
 function inHoleClip(ctx: Ctx, draw: () => void) {
-  ctx.save(); ctx.beginPath(); ctx.rect(-200, -200, 1480, HOLE.y + 200); ctx.ellipse(HOLE.x, HOLE.y, HOLE.rx - 3, HOLE.ry - 3, 0, 0, TAU); ctx.clip(); draw(); ctx.restore();
+  const {x, y, rx, ry} = HOLE;
+  // 1) the part of him that is down inside the opening, darkened with depth
+  ctx.save(); ctx.beginPath(); ctx.ellipse(x, y, rx - 3, ry - 3, 0, 0, TAU); ctx.clip(); draw();
+  ctx.fillStyle = lin(ctx, 0, y - ry * 0.2, 0, y + ry, [[0, 'rgba(5,3,10,0)'], [0.5, 'rgba(5,3,10,0.75)'], [1, 'rgba(5,3,10,0.98)']]); ctx.fillRect(x - rx, y - ry, rx * 2, ry * 2);
+  ctx.restore();
+  // 2) the part still above the far rim
+  ctx.save(); ctx.beginPath(); ctx.rect(-200, -200, 1480, y - ry * 0.2 + 200); ctx.clip(); draw(); ctx.restore();
+  ctx.lineWidth = 6; ctx.strokeStyle = '#8a5a34'; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0.05, Math.PI - 0.05); ctx.stroke();   // near rim in front of him
 }
 const countdown: SceneDef = (() => {
   const t0 = S('countdown').t0, J = K.jump;
   // crouch arms bend the SAME way as the falling pose, so the arm swing never passes through itself
-  const crouch = {iLw: 0, iRw: 0, aLa: -34, aLb: -62, aRa: 34, aRb: 62, lLa: -30, lLb: 30, lRa: 30, lRb: -30, y: 816, brow: 0.6, smile: 0.4};
+  const crouch = {iLw: 0, iRw: 0, aLa: -34, aLb: -62, aRa: 34, aRb: 62, lLa: -30, lLb: 30, lRa: 30, lRb: -30, y: 816, x: 300, s: 0.9, brow: 0.6, smile: 0.4};   // x/s pinned: no sliding or shrinking while he waits
   const keys: Keys<PP> = [
-    [t0, {x: 330, y: 770, ...STAND, ...NEUTRAL, ...WIDE, smile: 0.9, brow: 0.8, open: 0.3}, 'step'],
+    [t0, {x: 290, y: 770, ...STAND, ...NEUTRAL, ...WIDE, smile: 0.9, brow: 0.8, open: 0.3}, 'step'],
     [t0 + 0.4, {brow: 0.6, open: 0}],
-    [K.three - 0.3, {x: 430, ...HIPS, smile: 0.8}], [K.one, hold('x', 'iLw', 'iRw', 'iLx', 'iLy', 'iRx', 'iRy', 'aLa', 'aLb', 'aRa', 'aRb', 'lLa', 'lLb', 'lRa', 'lRb', 'y')],
+    [K.three - 0.3, {x: 300, s: 0.9, ...HIPS, smile: 0.8}], [K.one, hold('x', 'iLw', 'iRw', 'iLx', 'iLy', 'iRx', 'iRy', 'aLa', 'aLb', 'aRa', 'aRb', 'lLa', 'lLb', 'lRa', 'lRb', 'y')],
     [K.one + 0.5, crouch], [J - 0.02, crouch, 'lin'],
-    [J + 0.28, {x: 560, y: 760, s: 0.84, ...FALL, open: 1, es: 1, smile: 1, brow: 0.9}, 'out'],
-    [J + 0.5, {x: FALLER.x, y: FALLER.y, s: FALLER.s}],
+    [J + 0.24, {x: 440, y: 730, s: 0.84, ...FALL, open: 1, es: 1, smile: 1, brow: 0.9}, 'out'],   // up and over the rim
+    [J + 0.5, {x: FALLER.x, y: 1070, s: FALLER.s}, 'lin'],                                       // ...and straight down INTO the hole (waist-deep at the cut)
   ];
   return {
     id: 'countdown', rig: new Rig(DEF, keys), cam: GCAM,
     proc: (t, p) => { if (t < K.one) p.y += 2.5 * loopw(t, 2.4) - 26 * (bump(t, K.three, 0.3) + bump(t, K.two, 0.3)); },
     draw: (ctx, t, p, sim) => {
       drawBG(ctx, 'field'); holeBack(ctx); intoHole(ctx, () => {});
-      if (t > J + 0.36) inHoleClip(ctx, () => drawPuppet(ctx, p, sim, t)); else { shadow(ctx, p.x); drawPuppet(ctx, p, sim, t); }
+      if (t > J + 0.34) inHoleClip(ctx, () => drawPuppet(ctx, p, sim, t)); else { shadow(ctx, p.x); drawPuppet(ctx, p, sim, t); }
       // 3-2-1 to the right of his head, each gone before the next appears
       const nums: [string, number, number][] = [['3', K.three, K.two], ['2', K.two, K.one], ['1', K.one, J]];
       for (const [n, ta, tb] of nums) { const on = t >= ta && t < Math.min(ta + 0.9, tb - 0.06); bigWord(ctx, n, 760, 430, 220, on ? Math.min(1, (t - ta) / 0.35) + 1e-3 : 0, n === '1' ? '#ff5c9d' : '#ffd23f'); }
     },
-    hud: (ctx, t) => { const dj = t - J; if (dj > 0 && dj < 0.9) { ctx.save(); ctx.globalAlpha = 1 - smooth((t - J - 0.55) / 0.3); bigWord(ctx, 'JUMP!', 540, 330, 150, Math.min(1, dj / 0.18), '#ff5c9d', -0.06); ctx.restore(); } },
+    hud: (ctx, t) => { const dj = t - J; if (dj > 0 && dj < 0.9) { ctx.save(); ctx.globalAlpha = 1 - smooth((t - J - 0.55) / 0.3); bigWord(ctx, 'JUMP!', 540, 300, 150, Math.min(1, dj / 0.18), '#ff5c9d', -0.06); ctx.restore(); } },
   };
 })();
 
@@ -135,7 +142,7 @@ function tunnelHud(ctx: Ctx, t: number) {
   if (spA > 0.001) speedo(ctx, 800, 420, speedAt(t), spA);
   const k = (t - K.sun) / 0.4, out = fadeOut(t, K.sun + 1.6, 0.35);
   if (k > 0 && out > 0.001) { ctx.save(); ctx.globalAlpha = out; ctx.translate(290, 1100); ctx.scale(0.45, 0.45); drawBurst(ctx, '= THE SUN', 0, 0, Math.min(1, k), '#ffd23f'); ctx.restore(); }
-  const dj = t - K.jump; if (dj > 0 && dj < 0.9) { ctx.save(); ctx.globalAlpha = fadeOut(t, K.jump + 0.55, 0.3); bigWord(ctx, 'JUMP!', 540, 330, 150, 1, '#ff5c9d', -0.06); ctx.restore(); }
+  const dj = t - K.jump; if (dj > 0 && dj < 0.9) { ctx.save(); ctx.globalAlpha = fadeOut(t, K.jump + 0.55, 0.3); bigWord(ctx, 'JUMP!', 540, 300, 150, 1, '#ff5c9d', -0.06); ctx.restore(); }
 }
 function tunnelExtras(ctx: Ctx, t: number) {
   insetAt(ctx, t);
@@ -158,7 +165,8 @@ function tunnelExtras(ctx: Ctx, t: number) {
 // facial beats follow the narration; every change eases over ~0.35 s (never on a cut)
 const ez = (t: number) => t + 0.35;
 const fall = tunnelScene('fall', [
-  [TS, {...FALLER, open: 1, es: 1, smile: 1, brow: 0.9}, 'step'],
+  [TS, {...FALLER, y: 1070, open: 1, es: 1, smile: 1, brow: 0.9}, 'step'],
+  [TS + 0.1, {y: 1105}, 'out'], [TS + 0.85, {y: FALLER.y}],                                     // still plunging, then the camera catches up
   [TS + 0.6, {open: 1, es: 0, ew: 1.2, pr: 5.5, brow: 1, smile: 0.2}],
   [K.fall + 1.5, {open: 0.7, smile: 0.6, brow: 0.8}],
   [ez(K.glow), {open: 0.6, ew: 1.15, pr: 6, brow: 0.9, smile: -0.2, sweat: 0.6}],
@@ -181,13 +189,13 @@ const pop: SceneDef = (() => {
     [t0, {...FALLER, open: 0.6, ew: 1.15, brow: 0.8, smile: 0.6}, 'step'],
     [t0 + 0.45, {y: standY - 170, es: 1, open: 1, smile: 1, brow: 0.9}, 'out'],
     [t0 + 1.15, {y: standY - 150}], [t0 + 1.75, {y: standY, ...STAND, ...WIDE, x: 520, es: 0, open: 0.3, smile: 1}, 'in'],
-    [K.nz - 0.2, {iLw: 1, iRw: 1, iLx: -104, iLy: -48, iRx: 300, iRy: -120, ex: 7, hr: 0.1, smile: 0.9, open: 0}],   // point out at the sign (arm extended)
-    [FB - 0.35, {...WIDE, ex: 0, hr: 0, brow: 0.7, smile: 0.7}],
+    [K.nz - 0.2, {iLw: 1, iRw: 1, iLx: -104, iLy: -48, iRx: 330, iRy: 60, ex: 7, ey: 4, hr: 0.1, smile: 0.9, open: 0}],   // point straight at the sign (down-right, arm extended)
+    [FB - 0.35, {iLw: 0, iRw: 0, aLa: -22, aLb: -34, aRa: 22, aRb: 34, ex: 0, ey: 0, hr: 0, brow: 0.7, smile: 0.7}],   // arms drop to his sides (same bend as the hop's falling pose)
     [FB + 0.05, {y: standY + 30, lLa: -25, lLb: 25, lRa: 25, lRb: -25}],
     [FB + 0.3, {y: standY - 90, x: 540, ...FALL, open: 1, es: 1, smile: 1, brow: 0.9}, 'out'],
-    [T1, {y: FALLER.y, x: FALLER.x, s: FALLER.s}, 'in'],
+    [T1, {y: 1070, x: FALLER.x, s: FALLER.s}, 'lin'],                       // straight down INTO the islet hole (waist-deep at the cut)
   ];
-  const clipped = (t: number) => t < t0 + 0.35 || t > FB + 0.38;
+  const clipped = (t: number) => t < t0 + 0.35 || t > FB + 0.3;
   return {
     id: 'pop', rig: new Rig(DEF, keys), cam: GCAM,
     proc: (t, p) => { if (t > t0 + 1.9 && t < FB - 0.4) p.y += 2.2 * loopw(t, 2.4) * smooth((t - t0 - 1.9) / 0.5) * (1 - smooth((t - FB + 0.9) / 0.5)); },
@@ -210,7 +218,8 @@ const uY = (t: number) => Math.cos(tauY(t) * Math.PI);
 const yoyoSpeed = (t: number) => Math.abs(Math.sin(tauY(t) * Math.PI));
 const yoyoScroll = (t: number) => 1500 * (1 - Math.cos(tauY(t) * Math.PI)) * 0.5;   // walls rush one way, then back: continuous every pass
 const yoyo = tunnelScene('yoyo', [
-  [S('yoyo').t0, {open: 1, es: 1, smile: 1, brow: 0.9}],
+  [S('yoyo').t0, {y: 1070, open: 1, es: 1, smile: 1, brow: 0.9}, 'step'],
+  [S('yoyo').t0 + 0.1, {y: 1105}, 'out'], [S('yoyo').t0 + 0.85, {y: FALLER.y}],      // still plunging, then the camera catches up
 ], (ctx, t) => {
   globe(ctx, uY(t), 1, Array.from({length: 10}, (_, k) => uY(t - (10 - k) * 0.03)));
   const trips = Math.floor(tauY(t)) + 1, ta = smooth((t - S('yoyo').t0 - 0.3) / 0.3) * (1 - smooth((t - S('stuck').t0 + 0.5) / 0.3));
@@ -250,11 +259,11 @@ const stuck: SceneDef = (() => {
 // ------------------------------------------------------------ 11. OUTRO -> LOOP: he pops back up out of the hole in the field and ends in EXACTLY the opening pose
 const outro: SceneDef = (() => {
   const t0 = S('outro').t0, D = TIMELINE.duration;
-  const START = {x: 330, y: 770, ...STAND, ...NEUTRAL, ...HIPS, smile: 0.8, ex: 6, hx: 6};    // == hook frame 0
+  const START = {x: 290, y: 770, ...STAND, ...NEUTRAL, ...HIPS, smile: 0.8, ex: 6, hx: 6};    // == hook frame 0
   const keys: Keys<PP> = [
     [t0, {x: FALLER.x, y: FALLER.y, s: FALLER.s, ...SHRUG, rot: 0, hr: 0}, 'step'],
-    [t0 + 0.32, {y: 700, x: 470, s: 0.84, smile: 0.5, eye: 1, brow: 0.3, tilt: 0, lLa: -18, lLb: 26, lRa: 16, lRb: -24}, 'out'],
-    [t0 + 0.75, {x: 330, y: 770, s: 0.9}, 'in'],
+    [t0 + 0.32, {y: 690, x: 420, s: 0.84, smile: 0.5, eye: 1, brow: 0.3, tilt: 0, lLa: -18, lLb: 26, lRa: 16, lRb: -24}, 'out'],
+    [t0 + 0.75, {x: 290, y: 770, s: 0.9}, 'in'],
     [t0 + 0.8, {...STAND}],                                 // arms settle on their own smooth curve (not the landing's fast ease)
     [t0 + 1.4, {...START, smile: 0.9, brow: 0.4}],
     [Math.max(K.your - 0.1, t0 + 1.9), {iRx: 160, iRy: -60, hr: 0.12, ex: 7, ey: 4, brow: 0.7, smile: 0.6}],
@@ -289,29 +298,33 @@ function rawPose(t: number): PP {
 // ---- time-continuous IK elbow choice: precomputed once (deterministic for any render order), two passes so the
 //      loop seam (end -> start) uses the same elbow solution on both sides
 const IKSR = 240;
-let IKSIGN: Int8Array | null = null;
+let IKSIGN: Float32Array | null = null;
+// Elbow solution per arm, as a continuous value m in [-1, 1]. It always heads for the ANATOMICALLY natural
+// solution (elbow out to the side), with hysteresis so it never chatters, and glides there over ~1.1 s
+// instead of snapping, so a changing hand target can never leave the elbow pointing into the chest.
 function ikSigns() {
   if (IKSIGN) return IKSIGN;
-  const n = Math.ceil(TIMELINE.duration * IKSR) + 2, a = new Int8Array(n * 2);
-  let prev: [number, number] = [0, 0], prevW: [number, number] = [0, 0];
+  const n = Math.ceil(TIMELINE.duration * IKSR) + 2, a = new Float32Array(n * 2);
+  const m: [number, number] = [0, 0], tgt: [number, number] = [0, 0], prevW: [number, number] = [0, 0];
+  const rate = 2 / 1.1 / IKSR;   // a full elbow swap (bent -> straight -> bent the other way) takes ~1.1 s
   for (let pass = 0; pass < 2; pass++) {
     for (let i = 0; i < n; i++) {
       const t = Math.min(i / IKSR, TIMELINE.duration - 1e-4), p = rawPose(t);
       for (const side of [-1, 1] as const) {
         const j = side < 0 ? 0 : 1, k = ikInfo(p, side);
-        let sg: number;
-        if (k.w < 0.001) sg = prev[j] || k.pref;
-        else if (prevW[j] < 0.001 || prev[j] === 0) sg = closestSign(p, side);
-        else if (k.A < 4 && k.pref !== prev[j]) sg = k.pref;     // only switch when the arm is straight (invisible)
-        else sg = prev[j];
-        a[i * 2 + j] = sg; prev[j] = sg; prevW[j] = k.w;
+        const sc1 = elbowScore(p, side, k.s1.E), sc2 = elbowScore(p, side, k.s2.E);
+        const best = sc1 >= sc2 ? 1 : -1;
+        if (k.w < 0.001 || prevW[j] < 0.001 || tgt[j] === 0) { tgt[j] = best; if (k.w < 0.05) m[j] = best; }   // fading in from FK: start natural
+        else if ((tgt[j] > 0 ? sc2 : sc1) > (tgt[j] > 0 ? sc1 : sc2) + 0.15) tgt[j] = -tgt[j];                   // hysteresis
+        m[j] += Math.max(-rate, Math.min(rate, tgt[j] - m[j]));
+        a[i * 2 + j] = m[j]; prevW[j] = k.w;
       }
     }
   }
   return (IKSIGN = a);
 }
 export function ppAt(t: number): PP {
-  const a = ikSigns(), i = Math.max(0, Math.min(a.length / 2 - 1, Math.round(t * IKSR)));
-  return resolvePP(rawPose(t), [a[i * 2], a[i * 2 + 1]]);
+  const a = ikSigns(), f = Math.max(0, Math.min(a.length / 2 - 1.001, t * IKSR)), i = Math.floor(f), r = f - i;
+  return resolvePP(rawPose(t), [a[i * 2] * (1 - r) + a[i * 2 + 2] * r, a[i * 2 + 1] * (1 - r) + a[i * 2 + 3] * r]);
 }
 void disc; void v; void commentBubble; void followButton; void sinw; void CAMDEF; void clamp; void depthBar;

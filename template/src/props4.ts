@@ -10,7 +10,7 @@ const label = (ctx: Ctx, s: string, x: number, y: number, size = 34, col = '#fff
 };
 
 // ---------------------------------------------------------------- the hole in the field
-export const HOLE = {x: 650, y: 1178, rx: 175, ry: 50};
+export const HOLE = {x: 540, y: 1178, rx: 175, ry: 50};   // centred under the tunnel framing, so the jump lands IN it
 export function holeBack(ctx: Ctx) {
   const {x, y, rx, ry} = HOLE;
   softShadow(ctx, x, y + 6, rx * 1.25, ry * 1.4, 0.35);

@@ -108,7 +108,7 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
   - **Script:** the last line leads into the hook question, e.g. "…but before you grab that shovel… ask yourself…" → "What if you dug a hole…?". Put the comment CTA in the second-to-last line ("So comment where YOUR… would come out."). Don't use "follow for more" at the end; that's in the post caption.
   - **Visuals:** the final scene ends in EXACTLY the hook's frame-0 state: same background, position, pose, face and props. Hold it for the last ~0.5 s. Idle motion uses `loopw()`, which has a whole number of cycles over the video, and the camera breathing is periodic over the full duration.
   - **Timing:** `build_timeline.py` sets the duration to a whole number of beats, leaving a 0.4–0.9 s pause from the last word back to the first. The last caption clears 0.12 s before the end.
-- **Arms must look natural.**
+- **Arms must look natural.** The rig now handles elbows anatomically: it always heads for the natural elbow (out to the side), and when it has to swap, the arm extends and re-bends over about 1.1 s.
   - Never author poses that make an elbow rotate through itself. The FK and IK bends on either side of a transition should have the same sign (see the template's crouch, which matches FALL).
   - IK hand targets must be far enough away that the arm reads (pointing: about 300 px out).
   - The rig picks IK elbows from a time-continuous table and blends joint *positions*, so do not bypass `ppAt()`/`resolvePP()`.
@@ -149,8 +149,16 @@ The owner saw unpolished results before: hands rotating unnaturally, unclean tra
    - On-screen elements popping on or off exactly on a cut.
    - One-frame flashes or glitches.
    - The pixel step at the loop seam.
+   - Anatomy: an elbow pointing INTO the chest (reads as a snapped arm), held or moving.
+   - Feet gliding across the ground while standing, and slowly shrinking or growing while standing (authoring slips).
    WARN items must each be looked at and judged deliberate (e.g. arms flinging on "JUMP!").
-2. **`node qa/sheets.mjs`** writes `qa/sheets/cut_XX_*.png` (frames -2, -1, 0, +1 around every cut), `loop.png` (end → start) and `scenes.png`. **Open and look at every sheet.** A cut passes only if, apart from the background, frames -1 and 0 look like consecutive frames of one shot. Also look at 6–10 in-between moments with `qa/moments.mjs` (countdown, big reveals, the twist, the landing, the outro) for odd poses, clutter or messy text.
+   The tests were proven against real bugs: the owner's screenshots of a folded arm and a jump that missed the hole both FAIL them. Never edit a test to pass. Fix the animation.
+2. **`node qa/sheets.mjs`** writes `qa/sheets/cut_XX_*.png` (frames -2, -1, 0, +1 around every cut), `loop.png` (end → start) and `scenes.png`. **Open and look at every sheet.** A cut passes only if, apart from the background, frames -1 and 0 look like consecutive frames of one shot. Then go FRAME BY FRAME through every action beat with `W=172 node qa/moments.mjs t1 t2 …` (6–9 frames 0.05–0.15 s apart): every jump, landing, entering or leaving a hole or door, pointing gesture, and arm change. Check each beat for these:
+   - **Actions visibly complete before the cut.** Jumping into a hole means he is waist-deep in it at the cut, not standing on the rim.
+   - **Gestures aim at their subject.** A point goes at the sign, not into the air.
+   - **Nothing slides or shrinks while he waits.** He doesn't drift toward the target before moving.
+   - **Elbows stay out to the side.** Arms straighten and re-bend rather than folding through the hand.
+   - **Faces and props make sense.**
 3. **`python3 qa/audio_qa.py out/final_loud.wav dl/narration.mp3`** must pass. It checks for clipping, harshness (energy above 6 kHz under 3%), the loop seam's level, click and tone, that there's no fade, and that the last word isn't cut by the loop.
 4. After encoding: **`python3 qa/video_qa.py <final.mp4> out/final_loud.wav`** must pass. It checks 1080×1920, one-frame glitches, the visual loop seam on the real file, and A/V sync.
 5. Save `qa/report.txt` and the cut/loop sheets into `episodes/<date>-<slug>/qa/`, so every posted episode has its test evidence.
