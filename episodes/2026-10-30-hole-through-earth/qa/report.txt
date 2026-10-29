@@ -1,5 +1,6 @@
-FRAME QA — 1935 frames, 64.5s — 0 FAIL, 2 WARN
+FRAME QA — 1935 frames, 64.5s — 1 FAIL, 6 WARN
 LOOP SEAM: pixel step 0.1 vs normal 0.1
+BUSIEST ARMS (deg per 2 s): {"left":{"deg":491,"t":5.5},"right":{"deg":409,"t":5.75}}
 
 CUTS:
   cut    4.433s hook → countdown: head moves 5px, size ×1, zoom ×1, arms turn 9°
@@ -9,11 +10,16 @@ CUTS:
   cut   24.933s fall → fall: head moves 1px, size ×1, zoom ×1, arms turn 1°
   cut   30.933s fall → fall: head moves 1px, size ×1, zoom ×1, arms turn 1°
   cut   39.433s fall → pop: head moves 5px, size ×1, zoom ×1, arms turn 0°
-  cut   46.933s pop → yoyo: head moves 3px, size ×1, zoom ×1, arms turn 0°
+  cut   46.933s pop → yoyo: head moves 6px, size ×1, zoom ×1, arms turn 0°
   cut   51.433s yoyo → stuck: head moves 2px, size ×1, zoom ×1, arms turn 4°
   cut   58.933s stuck → outro: head moves 1px, size ×1, zoom ×1, arms turn 0°
   loop       0s outro → hook: head moves 0px, size ×1, zoom ×1, arms turn 0°
 
 ISSUES:
+  WARN     4.5s (f135) [arm-busy] left arm moves 341° in 2 s — check it reads as one clear gesture
+  FAIL    5.25s (f158) [arm-busy] left arm moves 457° in 2 s — too busy / flailing (limit 420)
+  WARN     5.5s (f165) [arm-busy] right arm moves 389° in 2 s — check it reads as one clear gesture
+  WARN    6.25s (f188) [arm-busy] left arm moves 407° in 2 s — check it reads as one clear gesture
   WARN   8.933s (f268) [limb-fast] fL rotates 924°/s — check it reads as a deliberate move
   WARN   8.933s (f268) [limb-fast] fR rotates 924°/s — check it reads as a deliberate move
+  WARN      43s (f1290) [arm-busy] left arm moves 346° in 2 s — check it reads as one clear gesture

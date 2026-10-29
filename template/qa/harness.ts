@@ -17,6 +17,7 @@ type Issue = {check: string; severity: 'FAIL' | 'WARN'; t: number; frame: number
 
 const rec: TextRec[] = [];
 let seamInfo: any = null;
+const armMax: Record<string, {deg: number; t: number}> = {};
 let layer = 'scene';
 function patchText() {
   const P = CanvasRenderingContext2D.prototype as any;
@@ -109,6 +110,18 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
           break;
         }
       }
+    }
+  }
+  // busy arms: total arm rotation in any 2 s window. One clean gesture there and back is ~250 deg. The owner rejected a version at 457 deg
+  // (arms swinging out, pointing, dangling just to reach the hips), so the limit sits below that.
+  if (doMotion) for (const [side, u, f] of [['left', 'uL', 'fL'], ['right', 'uR', 'fR']] as const) {
+    const win = Math.round(2 / dts), acc: number[] = [0];
+    for (let i = 1; i < sk.length; i++) { const a = sk[i - 1], b = sk[i]; acc.push(acc[i - 1] + (a.scene === b.scene && !nearCut(b.t) ? Math.abs(wrap(b.segs[u] - a.segs[u])) + Math.abs(wrap(b.segs[f] - a.segs[f])) : 0)); }
+    for (let i = win; i < sk.length; i += Math.round(0.25 / dts)) {
+      const tot = acc[i] - acc[i - win], t = sk[i].t;
+      if (!armMax[side] || tot > armMax[side].deg) armMax[side] = {deg: Math.round(tot), t: +t.toFixed(2)};
+      if (tot > 420) flagOnce('busy' + side, t, () => add('arm-busy', 'FAIL', t, `${side} arm moves ${Math.round(tot)}° in 2 s — too busy / flailing (limit 420)`));
+      else if (tot > 340) flagOnce('busyw' + side, t, () => add('arm-busy', 'WARN', t, `${side} arm moves ${Math.round(tot)}° in 2 s — check it reads as one clear gesture`));
     }
   }
   // feet gliding across the ground while standing (or slowly shrinking/growing while standing) = authoring bug
@@ -238,7 +251,7 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
   }
 
   const fails = issues.filter((i) => i.severity === 'FAIL').length;
-  return {seam: seamInfo, spans: byText, frames: N, duration: TIMELINE.duration, fails, warns: issues.length - fails, issues: issues.sort((a, b) => a.t - b.t), cuts: cutRep};
+  return {armMax, seam: seamInfo, spans: byText, frames: N, duration: TIMELINE.duration, fails, warns: issues.length - fails, issues: issues.sort((a, b) => a.t - b.t), cuts: cutRep};
 }
 (window as any).runQA = runQA;
 

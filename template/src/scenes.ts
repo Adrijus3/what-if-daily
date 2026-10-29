@@ -23,8 +23,13 @@ const S = (id: string) => TIMELINE.scenes.find((s) => s.id === id)!;
 const bump = (t: number, t0: number, d: number) => (t < t0 || t > t0 + d ? 0 : Math.sin(((t - t0) / d) * Math.PI));
 const STAND = {aLa: -12, aLb: -8, aRa: 12, aRb: 8, lLa: -3, lLb: -2, lRa: 3, lRb: 2};
 const NEUTRAL = {es: 0, eye: 1, ew: 1, pr: 8, ex: 0, ey: 0, hx: 0, hy: 0, hr: 0, brow: 0, tilt: 0, open: 0, teeth: 0, tear: 0, sweat: 0, blush: 0, bags: 0, shades: 0, frost: 0, iLw: 0, iRw: 0, rot: 0, droop: 0, s: 0.9};
-const HIPS = {iLw: 1, iRw: 1, iLx: -104, iLy: -48, iRx: 104, iRy: -48};
-const WIDE = {iLw: 1, iRw: 1, iLx: -175, iLy: -215, iRx: 175, iRy: -215};
+// Arm poses are posed DIRECTLY (FK), so every change is one clean arc between two poses, never a solver re-configuring the arm.
+const HIPS = {iLw: 0, iRw: 0, aLa: -65, aLb: 56, aRa: 65, aRb: -56};                 // hands on hips, elbows out
+const WIDE = {iLw: 0, iRw: 0, aLa: -100, aLb: -162, aRa: 100, aRb: 162};             // "ta-da": arms up, elbows down (same bend as the falling pose)
+const L_HIP = {iLw: 0, aLa: -65, aLb: 56}, R_HIP = {iRw: 0, aRa: 65, aRb: -56};
+const R_POINT_HOLE = {iRw: 0, aRa: 22, aRb: 12};                                     // right arm points down at the hole (from the standing spot)
+const R_POINT_SIGN = {iRw: 0, aRa: 40, aRb: 30};                                     // right arm points at the New Zealand sign
+const ARMS = ['aLa', 'aLb', 'aRa', 'aRb'] as const;
 const FALL = {iLw: 0, iRw: 0, aLa: -74, aLb: -150, aRa: 74, aRb: 150, lLa: -22, lLb: 18, lRa: 14, lRb: -26};
 // ONE continuous camera for the whole video (never resets at a cut) with a gentle breathing push that is
 // periodic over the full duration, so the last frame flows straight back into the first (seamless loop).
@@ -58,8 +63,10 @@ const scrollAt = (t: number) => { const f = clamp(t * 60, 0, SCROLL.length - 1.0
 const hook: SceneDef = (() => {
   const keys: Keys<PP> = [
     [0, {x: 290, y: 770, ...STAND, ...NEUTRAL, ...HIPS, smile: 0.8, ex: 6, hx: 6}, 'step'],
-    [1.4, {...HIPS, brow: 0.4}], [2.4, {iRx: 160, iRy: -60, hr: 0.12, ex: 7, ey: 4, brow: 0.7, smile: 0.3}],
-    [K.three - 2.2, hold('iRx', 'iRy', 'hr', 'ex', 'ey', 'brow', 'smile')], [K.three - 1.7, {...WIDE, hr: 0, ey: 0, brow: 0.8, open: 0.3, smile: 0.9}],
+    [0.9, {...HIPS, brow: 0.4}],
+    [1.35, {...R_POINT_HOLE, hr: 0.1, ex: 7, ey: 4, brow: 0.7, smile: 0.5}],          // "...a hole" -> points at it
+    [2.9, hold(...ARMS)], [3.35, {...R_HIP, hr: 0, ey: 0, ex: 6}],                    // back on the hip
+    [3.9, {brow: 0.9, open: 0.3, smile: 0.9}],                                         // "...and jumped in?"
   ];
   return {
     id: 'hook', rig: new Rig(DEF, keys), cam: GCAM,
@@ -88,7 +95,7 @@ const countdown: SceneDef = (() => {
   // crouch arms bend the SAME way as the falling pose, so the arm swing never passes through itself
   const crouch = {iLw: 0, iRw: 0, aLa: -34, aLb: -62, aRa: 34, aRb: 62, lLa: -30, lLb: 30, lRa: 30, lRb: -30, y: 816, x: 300, s: 0.9, brow: 0.6, smile: 0.4};   // x/s pinned: no sliding or shrinking while he waits
   const keys: Keys<PP> = [
-    [t0, {x: 290, y: 770, ...STAND, ...NEUTRAL, ...WIDE, smile: 0.9, brow: 0.8, open: 0.3}, 'step'],
+    [t0, {x: 290, y: 770, ...STAND, ...NEUTRAL, ...HIPS, smile: 0.9, brow: 0.9, open: 0.3, ex: 6, hx: 6}, 'step'],
     [t0 + 0.4, {brow: 0.6, open: 0}],
     [K.three - 0.3, {x: 300, s: 0.9, ...HIPS, smile: 0.8}], [K.one, hold('x', 'iLw', 'iRw', 'iLx', 'iLy', 'iRx', 'iRy', 'aLa', 'aLb', 'aRa', 'aRb', 'lLa', 'lLb', 'lRa', 'lRb', 'y')],
     [K.one + 0.5, crouch], [J - 0.02, crouch, 'lin'],
@@ -188,9 +195,11 @@ const pop: SceneDef = (() => {
   const keys: Keys<PP> = [
     [t0, {...FALLER, open: 0.6, ew: 1.15, brow: 0.8, smile: 0.6}, 'step'],
     [t0 + 0.45, {y: standY - 170, es: 1, open: 1, smile: 1, brow: 0.9}, 'out'],
-    [t0 + 1.15, {y: standY - 150}], [t0 + 1.75, {y: standY, ...STAND, ...WIDE, x: 520, es: 0, open: 0.3, smile: 1}, 'in'],
-    [K.nz - 0.2, {iLw: 1, iRw: 1, iLx: -104, iLy: -48, iRx: 330, iRy: 60, ex: 7, ey: 4, hr: 0.1, smile: 0.9, open: 0}],   // point straight at the sign (down-right, arm extended)
-    [FB - 0.35, {iLw: 0, iRw: 0, aLa: -22, aLb: -34, aRa: 22, aRb: 34, ex: 0, ey: 0, hr: 0, brow: 0.7, smile: 0.7}],   // arms drop to his sides (same bend as the hop's falling pose)
+    [t0 + 1.15, {y: standY - 150}], [t0 + 1.75, {y: standY, x: 520, es: 0, open: 0.3, smile: 1}, 'in'],
+    [t0 + 1.75, {aLa: -22, aLb: -34, aRa: 22, aRb: 34}],                                 // arms settle at his sides as he lands
+    [K.uk - 0.45, hold(...ARMS)], [K.uk, {...L_HIP}],                                    // "From the UK," left hand to hip
+    [K.nz - 0.45, hold(...ARMS)], [K.nz, {...R_POINT_SIGN, ex: 7, ey: 4, hr: 0.1, smile: 0.9, open: 0}],   // "...New Zealand" -> points at the sign
+    [FB - 0.75, hold(...ARMS, 'ex', 'ey', 'hr')], [FB - 0.35, {aLa: -22, aLb: -34, aRa: 22, aRb: 34, ex: 0, ey: 0, hr: 0, brow: 0.7, smile: 0.7}],   // arms down, ready to hop
     [FB + 0.05, {y: standY + 30, lLa: -25, lLb: 25, lRa: 25, lRb: -25}],
     [FB + 0.3, {y: standY - 90, x: 540, ...FALL, open: 1, es: 1, smile: 1, brow: 0.9}, 'out'],
     [T1, {y: 1070, x: FALLER.x, s: FALLER.s}, 'lin'],                       // straight down INTO the islet hole (waist-deep at the cut)
@@ -265,9 +274,9 @@ const outro: SceneDef = (() => {
     [t0 + 0.32, {y: 690, x: 420, s: 0.84, smile: 0.5, eye: 1, brow: 0.3, tilt: 0, lLa: -18, lLb: 26, lRa: 16, lRb: -24}, 'out'],
     [t0 + 0.75, {x: 290, y: 770, s: 0.9}, 'in'],
     [t0 + 0.8, {...STAND}],                                 // arms settle on their own smooth curve (not the landing's fast ease)
-    [t0 + 1.4, {...START, smile: 0.9, brow: 0.4}],
-    [Math.max(K.your - 0.1, t0 + 1.9), {iRx: 160, iRy: -60, hr: 0.12, ex: 7, ey: 4, brow: 0.7, smile: 0.6}],
-    [K.shovel - 0.3, {...HIPS, hr: 0, ey: 0, ex: 6, brow: 0.5, smile: 0.7}],
+    [t0 + 1.4, {...L_HIP, aRa: 22, aRb: 34, smile: 0.9, brow: 0.4}],                    // left hand to hip; right arm stays relaxed until it points
+    [Math.max(K.your - 0.4, t0 + 1.6), hold(...ARMS)], [Math.max(K.your + 0.05, t0 + 2.05), {...R_POINT_HOLE, hr: 0.1, ex: 7, ey: 4, brow: 0.7, smile: 0.6}],   // "YOUR tunnel" -> the hole
+    [K.shovel - 0.7, hold(...ARMS)], [K.shovel - 0.25, {...R_HIP, hr: 0, ey: 0, ex: 6, brow: 0.5, smile: 0.7}],
     [Math.min(D - 0.6, K.ask + 0.2), START],
     [D, START],
   ];
