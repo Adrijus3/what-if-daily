@@ -25,6 +25,10 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
 2. Chromium for Remotion is at `/opt/pw-browsers/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell`. Pass it with `--browser-executable`.
 3. Shell commands are limited to about 300 s, and background renders get killed. Render in the foreground in chunks of 300 frames each with `--concurrency=1 --jpeg-quality=96 --muted`, then join them with ffmpeg concat (`-c copy`).
 
+## 0. Learning loop (read first)
+- **`analytics/insights.md`:** written weekly by the performance analyst from real TikTok numbers. Follow its "Current guidance" for topic mix, hook style, caption style and length, within `analytics/GUARDRAILS.md`. It can never override the quality rules in sections 2–5b.
+- **`ideas_backlog.txt`:** the trend scout adds fresh, scored, sourced ideas each morning (marked `[SCOUT <date> score=X/25]`). Prefer a high-scoring scout idea that fits the current guidance, but run it through the viral checklist and no-repeat rules yourself.
+
 ## 1. Topic + script
 - **Pick a VIRAL topic.** It must not be in topics_used.txt or be a near-copy of one. Score each candidate 1–5 on every test below, and only use one that scores 4+ on all of them:
   1. **Instant curiosity:** a stranger scrolling would stop within 1 second. The premise fits in under 10 words.
@@ -167,7 +171,8 @@ The owner saw unpolished results before: hands rotating unnaturally, unclean tra
 3. **`python3 qa/audio_qa.py out/final_loud.wav dl/narration.mp3`** must pass. It checks for clipping, harshness (energy above 6 kHz under 3%), the loop seam's level, click and tone, that there's no fade, and that the last word isn't cut by the loop.
 4. After encoding: **`python3 qa/video_qa.py <final.mp4> out/final_loud.wav`** must pass. It checks 1080×1920, one-frame glitches, the visual loop seam on the real file, and A/V sync.
 5. Save `qa/report.txt` and the cut/loop sheets into `episodes/<date>-<slug>/qa/`, so every posted episode has its test evidence.
-If you cannot get a clean pass, do NOT post. Tell the owner what failed.
+6. **Independent review:** after the tests pass, spawn a SEPARATE reviewer agent with the Agent tool (model "sonnet"; owner's rule: helper agents use Sonnet). It must not have helped make the video. Give it only the contact sheets, the action-beat strips, `qa/report.txt` and sections 3 and 5b of this recipe. Ask it to list anything that looks unnatural, busy, unclear, off-model, or wrong at a cut or the loop seam. Fix everything it raises (re-run the tests) until it approves. Save its verdict to `episodes/<date>-<slug>/qa/review.md`.
+If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owner what failed.
 
 ## 6. Post (fully hands-off)
 - **Post caption (text field):** write it fresh for each episode.
