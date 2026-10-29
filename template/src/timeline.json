@@ -1,0 +1,1209 @@
+{
+ "duration": 65.033,
+ "scenes": [
+  {
+   "id": "hook",
+   "t0": 0.0,
+   "t1": 4.629,
+   "stamp": null
+  },
+  {
+   "id": "countdown",
+   "t0": 4.629,
+   "t1": 9.129,
+   "stamp": null
+  },
+  {
+   "id": "fall",
+   "t0": 9.129,
+   "t1": 14.629,
+   "stamp": "FREEFALL"
+  },
+  {
+   "id": "glow",
+   "t0": 14.629,
+   "t1": 18.129,
+   "stamp": "MANTLE"
+  },
+  {
+   "id": "core",
+   "t0": 18.129,
+   "t1": 24.129,
+   "stamp": "THE CORE"
+  },
+  {
+   "id": "race",
+   "t0": 24.129,
+   "t1": 29.629,
+   "stamp": "28,800 KM/H"
+  },
+  {
+   "id": "crazy",
+   "t0": 29.629,
+   "t1": 36.629,
+   "stamp": "GRAVITY: REVERSED"
+  },
+  {
+   "id": "pop",
+   "t0": 36.629,
+   "t1": 43.629,
+   "stamp": "38 MINUTES"
+  },
+  {
+   "id": "yoyo",
+   "t0": 43.629,
+   "t1": 50.129,
+   "stamp": "FOREVER"
+  },
+  {
+   "id": "stuck",
+   "t0": 50.129,
+   "t1": 57.129,
+   "stamp": "STUCK IN THE MIDDLE"
+  },
+  {
+   "id": "cta",
+   "t0": 57.129,
+   "t1": 65.033,
+   "stamp": "WHAT IF DAILY"
+  }
+ ],
+ "captions": [
+  {
+   "t0": 0.16,
+   "t1": 1.73,
+   "words": [
+    {
+     "w": "What",
+     "t": 0.16
+    },
+    {
+     "w": "if",
+     "t": 0.32
+    },
+    {
+     "w": "you",
+     "t": 0.48
+    },
+    {
+     "w": "dug",
+     "t": 0.68
+    },
+    {
+     "w": "a",
+     "t": 0.88
+    },
+    {
+     "w": "hole...",
+     "t": 1.04
+    }
+   ],
+   "text": "What if you dug a hole...",
+   "hi": [
+    5
+   ],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 1.76,
+   "t1": 3.09,
+   "words": [
+    {
+     "w": "straight",
+     "t": 1.76
+    },
+    {
+     "w": "through",
+     "t": 2.28
+    },
+    {
+     "w": "the",
+     "t": 2.44
+    },
+    {
+     "w": "Earth...",
+     "t": 2.56
+    }
+   ],
+   "text": "straight through the Earth...",
+   "hi": [
+    0,
+    3
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 3.12,
+   "t1": 4.53,
+   "words": [
+    {
+     "w": "and",
+     "t": 3.12
+    },
+    {
+     "w": "jumped",
+     "t": 3.44
+    },
+    {
+     "w": "in?",
+     "t": 3.76
+    }
+   ],
+   "text": "and jumped in?",
+   "hi": [
+    1
+   ],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 4.76,
+   "t1": 6.05,
+   "words": [
+    {
+     "w": "Let\u2019s",
+     "t": 4.76
+    },
+    {
+     "w": "find",
+     "t": 4.96
+    },
+    {
+     "w": "out.",
+     "t": 5.36
+    }
+   ],
+   "text": "Let\u2019s find out.",
+   "hi": [],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 6.08,
+   "t1": 7.13,
+   "words": [
+    {
+     "w": "Three...",
+     "t": 6.08
+    }
+   ],
+   "text": "Three...",
+   "hi": [
+    0
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 7.16,
+   "t1": 7.97,
+   "words": [
+    {
+     "w": "two...",
+     "t": 7.16
+    }
+   ],
+   "text": "two...",
+   "hi": [
+    0
+   ],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 8.0,
+   "t1": 8.599,
+   "words": [
+    {
+     "w": "one...",
+     "t": 8.0
+    }
+   ],
+   "text": "one...",
+   "hi": [
+    0
+   ],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 8.629,
+   "t1": 9.481,
+   "words": [
+    {
+     "w": "JUMP!",
+     "t": 8.629
+    }
+   ],
+   "text": "JUMP!",
+   "hi": [
+    0
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 9.511,
+   "t1": 11.45,
+   "words": [
+    {
+     "w": "You\u2019d",
+     "t": 9.511
+    },
+    {
+     "w": "fall",
+     "t": 9.76
+    },
+    {
+     "w": "through",
+     "t": 10.0
+    },
+    {
+     "w": "solid",
+     "t": 10.32
+    },
+    {
+     "w": "rock...",
+     "t": 10.8
+    }
+   ],
+   "text": "You\u2019d fall through solid rock...",
+   "hi": [
+    4
+   ],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 11.48,
+   "t1": 14.45,
+   "words": [
+    {
+     "w": "faster,",
+     "t": 11.48
+    },
+    {
+     "w": "and",
+     "t": 12.24
+    },
+    {
+     "w": "faster,",
+     "t": 12.48
+    },
+    {
+     "w": "and",
+     "t": 13.28
+    },
+    {
+     "w": "faster.",
+     "t": 13.52
+    }
+   ],
+   "text": "faster, and faster, and faster.",
+   "hi": [
+    0,
+    2,
+    4
+   ],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 14.48,
+   "t1": 16.21,
+   "words": [
+    {
+     "w": "The",
+     "t": 14.48
+    },
+    {
+     "w": "walls",
+     "t": 14.64
+    },
+    {
+     "w": "start",
+     "t": 15.04
+    },
+    {
+     "w": "glowing.",
+     "t": 15.36
+    }
+   ],
+   "text": "The walls start glowing.",
+   "hi": [
+    3
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 16.24,
+   "t1": 17.73,
+   "words": [
+    {
+     "w": "Hotter",
+     "t": 16.24
+    },
+    {
+     "w": "than",
+     "t": 16.64
+    },
+    {
+     "w": "lava.",
+     "t": 16.88
+    }
+   ],
+   "text": "Hotter than lava.",
+   "hi": [
+    2
+   ],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 17.76,
+   "t1": 19.33,
+   "words": [
+    {
+     "w": "Then",
+     "t": 17.76
+    },
+    {
+     "w": "you",
+     "t": 18.24
+    },
+    {
+     "w": "hit",
+     "t": 18.4
+    },
+    {
+     "w": "the",
+     "t": 18.6
+    },
+    {
+     "w": "core.",
+     "t": 18.72
+    }
+   ],
+   "text": "Then you hit the core.",
+   "hi": [
+    4
+   ],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 19.36,
+   "t1": 21.49,
+   "words": [
+    {
+     "w": "About",
+     "t": 19.36
+    },
+    {
+     "w": "five",
+     "t": 19.76
+    },
+    {
+     "w": "thousand",
+     "t": 20.24
+    },
+    {
+     "w": "degrees.",
+     "t": 20.72
+    }
+   ],
+   "text": "About five thousand degrees.",
+   "hi": [
+    1,
+    2,
+    3
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 21.52,
+   "t1": 24.05,
+   "words": [
+    {
+     "w": "Roughly",
+     "t": 21.52
+    },
+    {
+     "w": "as",
+     "t": 21.92
+    },
+    {
+     "w": "hot",
+     "t": 22.08
+    },
+    {
+     "w": "as",
+     "t": 22.32
+    },
+    {
+     "w": "the",
+     "t": 22.48
+    },
+    {
+     "w": "surface",
+     "t": 22.72
+    },
+    {
+     "w": "of",
+     "t": 23.08
+    },
+    {
+     "w": "the",
+     "t": 23.2
+    },
+    {
+     "w": "Sun.",
+     "t": 23.44
+    }
+   ],
+   "text": "Roughly as hot as the surface of the Sun.",
+   "hi": [
+    8
+   ],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 24.08,
+   "t1": 27.13,
+   "words": [
+    {
+     "w": "And",
+     "t": 24.08
+    },
+    {
+     "w": "you\u2019re",
+     "t": 24.2
+    },
+    {
+     "w": "racing",
+     "t": 24.44
+    },
+    {
+     "w": "through",
+     "t": 24.88
+    },
+    {
+     "w": "it",
+     "t": 25.08
+    },
+    {
+     "w": "at",
+     "t": 25.2
+    },
+    {
+     "w": "eight",
+     "t": 25.52
+    },
+    {
+     "w": "kilometres",
+     "t": 25.76
+    },
+    {
+     "w": "a",
+     "t": 26.32
+    },
+    {
+     "w": "second...",
+     "t": 26.48
+    }
+   ],
+   "text": "And you\u2019re racing through it at eight kilometres a second...",
+   "hi": [
+    6,
+    7,
+    9
+   ],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 27.16,
+   "t1": 29.783,
+   "words": [
+    {
+     "w": "faster",
+     "t": 27.16
+    },
+    {
+     "w": "than",
+     "t": 27.6
+    },
+    {
+     "w": "the",
+     "t": 27.76
+    },
+    {
+     "w": "International",
+     "t": 27.92
+    },
+    {
+     "w": "Space",
+     "t": 28.64
+    },
+    {
+     "w": "Station.",
+     "t": 28.96
+    }
+   ],
+   "text": "faster than the International Space Station.",
+   "hi": [
+    0,
+    3,
+    4,
+    5
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 29.813,
+   "t1": 31.41,
+   "words": [
+    {
+     "w": "But",
+     "t": 29.813
+    },
+    {
+     "w": "here\u2019s",
+     "t": 29.92
+    },
+    {
+     "w": "the",
+     "t": 30.24
+    },
+    {
+     "w": "crazy",
+     "t": 30.4
+    },
+    {
+     "w": "part.",
+     "t": 30.88
+    }
+   ],
+   "text": "But here\u2019s the crazy part.",
+   "hi": [
+    3
+   ],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 31.44,
+   "t1": 32.53,
+   "words": [
+    {
+     "w": "After",
+     "t": 31.44
+    },
+    {
+     "w": "the",
+     "t": 31.76
+    },
+    {
+     "w": "centre,",
+     "t": 31.92
+    }
+   ],
+   "text": "After the centre,",
+   "hi": [],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 32.56,
+   "t1": 34.13,
+   "words": [
+    {
+     "w": "gravity",
+     "t": 32.56
+    },
+    {
+     "w": "pulls",
+     "t": 33.04
+    },
+    {
+     "w": "you",
+     "t": 33.4
+    },
+    {
+     "w": "BACK.",
+     "t": 33.72
+    }
+   ],
+   "text": "gravity pulls you BACK.",
+   "hi": [
+    0,
+    3
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 34.16,
+   "t1": 35.49,
+   "words": [
+    {
+     "w": "You",
+     "t": 34.16
+    },
+    {
+     "w": "slow",
+     "t": 34.4
+    },
+    {
+     "w": "down...",
+     "t": 34.72
+    }
+   ],
+   "text": "You slow down...",
+   "hi": [],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 35.52,
+   "t1": 36.61,
+   "words": [
+    {
+     "w": "and",
+     "t": 35.52
+    },
+    {
+     "w": "down...",
+     "t": 35.68
+    }
+   ],
+   "text": "and down...",
+   "hi": [],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 36.64,
+   "t1": 37.89,
+   "words": [
+    {
+     "w": "Thirty-eight",
+     "t": 36.64
+    },
+    {
+     "w": "minutes",
+     "t": 37.04
+    },
+    {
+     "w": "later,",
+     "t": 37.36
+    }
+   ],
+   "text": "Thirty-eight minutes later,",
+   "hi": [
+    0,
+    1
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 37.92,
+   "t1": 40.29,
+   "words": [
+    {
+     "w": "you",
+     "t": 37.92
+    },
+    {
+     "w": "pop",
+     "t": 38.08
+    },
+    {
+     "w": "out",
+     "t": 38.4
+    },
+    {
+     "w": "on",
+     "t": 38.56
+    },
+    {
+     "w": "the",
+     "t": 38.68
+    },
+    {
+     "w": "other",
+     "t": 38.88
+    },
+    {
+     "w": "side",
+     "t": 39.12
+    },
+    {
+     "w": "of",
+     "t": 39.4
+    },
+    {
+     "w": "the",
+     "t": 39.48
+    },
+    {
+     "w": "world!",
+     "t": 39.68
+    }
+   ],
+   "text": "you pop out on the other side of the world!",
+   "hi": [
+    1,
+    9
+   ],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 40.32,
+   "t1": 41.41,
+   "words": [
+    {
+     "w": "From",
+     "t": 40.32
+    },
+    {
+     "w": "the",
+     "t": 40.52
+    },
+    {
+     "w": "UK,",
+     "t": 40.64
+    }
+   ],
+   "text": "From the UK,",
+   "hi": [
+    2
+   ],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 41.44,
+   "t1": 43.458,
+   "words": [
+    {
+     "w": "that\u2019s",
+     "t": 41.44
+    },
+    {
+     "w": "the",
+     "t": 41.64
+    },
+    {
+     "w": "ocean",
+     "t": 41.76
+    },
+    {
+     "w": "near",
+     "t": 42.08
+    },
+    {
+     "w": "New",
+     "t": 42.32
+    },
+    {
+     "w": "Zealand.",
+     "t": 42.48
+    }
+   ],
+   "text": "that\u2019s the ocean near New Zealand.",
+   "hi": [
+    2,
+    4,
+    5
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 43.488,
+   "t1": 44.29,
+   "words": [
+    {
+     "w": "And",
+     "t": 43.488
+    },
+    {
+     "w": "then...",
+     "t": 43.6
+    }
+   ],
+   "text": "And then...",
+   "hi": [],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 44.32,
+   "t1": 45.49,
+   "words": [
+    {
+     "w": "you",
+     "t": 44.32
+    },
+    {
+     "w": "fall",
+     "t": 44.48
+    },
+    {
+     "w": "back",
+     "t": 44.72
+    },
+    {
+     "w": "in.",
+     "t": 44.96
+    }
+   ],
+   "text": "you fall back in.",
+   "hi": [
+    2
+   ],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 45.52,
+   "t1": 46.61,
+   "words": [
+    {
+     "w": "And",
+     "t": 45.52
+    },
+    {
+     "w": "back",
+     "t": 45.76
+    },
+    {
+     "w": "out.",
+     "t": 46.0
+    }
+   ],
+   "text": "And back out.",
+   "hi": [
+    1
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 46.64,
+   "t1": 47.81,
+   "words": [
+    {
+     "w": "And",
+     "t": 46.64
+    },
+    {
+     "w": "back",
+     "t": 46.96
+    },
+    {
+     "w": "in.",
+     "t": 47.28
+    }
+   ],
+   "text": "And back in.",
+   "hi": [
+    1
+   ],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 47.84,
+   "t1": 49.17,
+   "words": [
+    {
+     "w": "Like",
+     "t": 47.84
+    },
+    {
+     "w": "a",
+     "t": 48.08
+    },
+    {
+     "w": "yo-yo...",
+     "t": 48.24
+    }
+   ],
+   "text": "Like a yo-yo...",
+   "hi": [
+    2
+   ],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 49.2,
+   "t1": 50.13,
+   "words": [
+    {
+     "w": "forever.",
+     "t": 49.2
+    }
+   ],
+   "text": "forever.",
+   "hi": [
+    0
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 50.4,
+   "t1": 51.89,
+   "words": [
+    {
+     "w": "Unless",
+     "t": 50.4
+    },
+    {
+     "w": "there\u2019s",
+     "t": 50.56
+    },
+    {
+     "w": "air",
+     "t": 50.92
+    },
+    {
+     "w": "in",
+     "t": 51.08
+    },
+    {
+     "w": "the",
+     "t": 51.2
+    },
+    {
+     "w": "tunnel.",
+     "t": 51.32
+    }
+   ],
+   "text": "Unless there\u2019s air in the tunnel.",
+   "hi": [
+    2
+   ],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 51.92,
+   "t1": 53.89,
+   "words": [
+    {
+     "w": "Then",
+     "t": 51.92
+    },
+    {
+     "w": "you\u2019d",
+     "t": 52.24
+    },
+    {
+     "w": "slowly",
+     "t": 52.64
+    },
+    {
+     "w": "lose",
+     "t": 53.04
+    },
+    {
+     "w": "speed...",
+     "t": 53.44
+    }
+   ],
+   "text": "Then you\u2019d slowly lose speed...",
+   "hi": [],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 53.92,
+   "t1": 55.29,
+   "words": [
+    {
+     "w": "and",
+     "t": 53.92
+    },
+    {
+     "w": "end",
+     "t": 54.08
+    },
+    {
+     "w": "up",
+     "t": 54.24
+    },
+    {
+     "w": "stuck...",
+     "t": 54.48
+    }
+   ],
+   "text": "and end up stuck...",
+   "hi": [
+    3
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 55.32,
+   "t1": 57.15,
+   "words": [
+    {
+     "w": "floating",
+     "t": 55.32
+    },
+    {
+     "w": "in",
+     "t": 55.56
+    },
+    {
+     "w": "the",
+     "t": 55.68
+    },
+    {
+     "w": "middle",
+     "t": 55.96
+    },
+    {
+     "w": "of",
+     "t": 56.12
+    },
+    {
+     "w": "the",
+     "t": 56.24
+    },
+    {
+     "w": "Earth.",
+     "t": 56.4
+    }
+   ],
+   "text": "floating in the middle of the Earth.",
+   "hi": [
+    0,
+    3,
+    6
+   ],
+   "color": "#3ff0d6"
+  },
+  {
+   "t0": 57.18,
+   "t1": 57.89,
+   "words": [
+    {
+     "w": "So",
+     "t": 57.18
+    },
+    {
+     "w": "tell",
+     "t": 57.28
+    },
+    {
+     "w": "me.",
+     "t": 57.44
+    }
+   ],
+   "text": "So tell me.",
+   "hi": [],
+   "color": "#ffd23f"
+  },
+  {
+   "t0": 57.92,
+   "t1": 59.65,
+   "words": [
+    {
+     "w": "Where",
+     "t": 57.92
+    },
+    {
+     "w": "would",
+     "t": 58.12
+    },
+    {
+     "w": "YOUR",
+     "t": 58.32
+    },
+    {
+     "w": "tunnel",
+     "t": 58.56
+    },
+    {
+     "w": "come",
+     "t": 58.88
+    },
+    {
+     "w": "out?",
+     "t": 59.12
+    }
+   ],
+   "text": "Where would YOUR tunnel come out?",
+   "hi": [
+    2
+   ],
+   "color": "#ff5c9d"
+  },
+  {
+   "t0": 59.68,
+   "t1": 64.32,
+   "words": [
+    {
+     "w": "Comment",
+     "t": 59.68
+    },
+    {
+     "w": "below,",
+     "t": 60.04
+    },
+    {
+     "w": "and",
+     "t": 60.52
+    },
+    {
+     "w": "follow",
+     "t": 60.8
+    },
+    {
+     "w": "for",
+     "t": 61.04
+    },
+    {
+     "w": "a",
+     "t": 61.2
+    },
+    {
+     "w": "new",
+     "t": 61.36
+    },
+    {
+     "w": "what-if,",
+     "t": 61.6
+    },
+    {
+     "w": "every",
+     "t": 62.32
+    },
+    {
+     "w": "day!",
+     "t": 62.56
+    }
+   ],
+   "text": "Comment below, and follow for a new what-if, every day!",
+   "hi": [
+    0,
+    3,
+    6,
+    7
+   ],
+   "color": "#3ff0d6"
+  }
+ ],
+ "cues": {
+  "jump": 8.629,
+  "three": 6.08,
+  "two": 7.16,
+  "one": 8.0,
+  "fall": 9.511,
+  "glow": 14.64,
+  "lava": 16.24,
+  "core": 18.4,
+  "sun": 22.72,
+  "race": 24.2,
+  "iss": 27.92,
+  "crazy": 29.92,
+  "back": 33.72,
+  "slow": 34.4,
+  "pop": 38.08,
+  "world": 39.4,
+  "uk": 40.32,
+  "nz": 42.32,
+  "fallback": 44.48,
+  "backout": 45.76,
+  "backin": 46.96,
+  "yoyo": 48.24,
+  "forever": 49.2,
+  "air": 50.4,
+  "losespeed": 53.04,
+  "stuck": 54.48,
+  "floating": 55.32,
+  "cta": 57.18,
+  "your": 58.32,
+  "comment": 59.68,
+  "follow": 60.8
+ }
+}

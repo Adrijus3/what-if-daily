@@ -1,0 +1,16 @@
+export const C = {
+  ink: '#110c19',
+  rimL: '#ffb24d',
+  rimR: '#a47cff',
+  head: '#17121f',
+  hair: '#7b4a27', hairHi: '#bd8247', hairLo: '#4a2a15',
+  hood: '#10b5a4', hoodHi: '#7cf4e0', hoodLo: '#087a73', hoodDeep: '#065651',
+  band: '#ff4a8a', bandHi: '#ffa3c4', bandLo: '#bf2a66',
+  skin: '#18131f',
+  shoe: '#f6f2ee', shoeLo: '#cfc8c6',
+  stick: '#ebbf88', stickLo: '#8b5a31',
+  shell: '#f2a431', shellHi: '#ffd987', shellLo: '#a85a15', shellDeep: '#6e3410',
+  skinHead: '#f1e0bd', skinHeadLo: '#d6bb8c',
+  chrome: '#dfe3ec', chromeLo: '#8a90a4', chromeDark: '#3a3548',
+  brass: '#f6d067', brassHi: '#fff1b0', brassLo: '#b0802a',
+};
