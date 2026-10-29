@@ -1,1 +1,1 @@
-2026-10-30 | What If - Hole Through the Earth | 18:30 Europe/London | scheduled via Metricool (full-quality master) | source: https://www.livescience.com/50312-how-long-to-fall-through-earth.html
+2026-10-30 | What If - Hole Through the Earth | 18:30 Europe/London | scheduled via Metricool (full-quality master, v2: match cuts + seamless loop, QA 0 FAIL) | source: https://www.livescience.com/50312-how-long-to-fall-through-earth.html

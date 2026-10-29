@@ -18,31 +18,55 @@ export type PP = typeof DEF;
 const SHX = 86, SHY = -198, HEADY = -322, UP = 156, FORE = 150, THIGH = 190, SHIN = 190, HIPX = 36, HIPY = 14;
 export const dir = (a: number): V => v(Math.sin(deg(a)), Math.cos(deg(a)));
 
-/** blend FK arm angles toward IK so a hand can be placed at a target (offsets relative to the hip, unscaled) */
-export function resolvePP(q: PP): PP {
+/** the two possible elbow solutions for an IK arm (sign +1 / -1), the bend half-angle A (deg) and the solver's natural preference */
+export function ikInfo(q: PP, side: -1 | 1) {
+  const S = q.s, hip = v(q.x, q.y);
+  const sh = add(hip, mul(rot(v(side * SHX, SHY), q.rot), S));
+  const tg = add(hip, mul(v(side < 0 ? q.iLx : q.iRx, side < 0 ? q.iLy : q.iRy), S));
+  let d = sub(tg, sh), L = Math.hypot(d.x, d.y);
+  const reach = (UP + FORE) * S * 0.995;
+  if (L > reach) { d = mul(d, reach / L); L = reach; }
+  L = Math.max(L, Math.abs(UP - FORE) * S + 1);
+  const a = UP * S, b = FORE * S, base = Math.atan2(d.y, d.x);
+  const A = Math.acos(clamp((a * a + L * L - b * b) / (2 * a * L), -1, 1));
+  const ang = (u: V) => (Math.atan2(u.x, u.y) * 180) / Math.PI;
+  const sol = (sg: number) => {
+    const E = v(sh.x + a * Math.cos(base + sg * A), sh.y + a * Math.sin(base + sg * A)), Hd = add(sh, d);
+    return {E, ua: ang(sub(E, sh)), fa: ang(sub(Hd, E))};
+  };
+  const s1 = sol(1), s2 = sol(-1);
+  // natural preference: elbow out to the side and a little down
+  const score = (E: V) => side * (E.x - sh.x) + 0.35 * (E.y - sh.y);
+  return {w: side < 0 ? q.iLw : q.iRw, A: (A * 180) / Math.PI, s1, s2, pref: score(s1.E) >= score(s2.E) ? 1 : -1};
+}
+const angDiff = (a: number, b: number) => { let d = (b - a) % 360; if (d > 180) d -= 360; if (d < -180) d += 360; return d; };
+/** which solution is closest to the arm's current FK pose (used when IK fades in, so the arm never swings round) */
+export function closestSign(q: PP, side: -1 | 1) {
+  const k = ikInfo(q, side), ua = side < 0 ? q.aLa : q.aRa, fa = side < 0 ? q.aLb : q.aRb;
+  const c = (s: {ua: number; fa: number}) => Math.abs(angDiff(ua, s.ua)) + 0.6 * Math.abs(angDiff(fa, s.fa));
+  return c(k.s1) <= c(k.s2) ? 1 : -1;
+}
+
+/** blend FK arm angles toward IK so a hand can be placed at a target (offsets relative to the hip, unscaled).
+ *  `signs` picks the elbow solution per arm; the scene layer supplies it from a precomputed, time-continuous
+ *  table so the elbow can never flip between frames. */
+export function resolvePP(q: PP, signs?: [number, number]): PP {
   if (q.iLw < 0.001 && q.iRw < 0.001) return q;
-  const p = {...q}, S = p.s, hip = v(p.x, p.y);
-  for (const side of [-1, 1]) {
-    const w = side < 0 ? p.iLw : p.iRw;
-    if (w < 0.001) continue;
-    const sh = add(hip, mul(rot(v(side * SHX, SHY), p.rot), S));
-    const tg = add(hip, mul(v(side < 0 ? p.iLx : p.iRx, side < 0 ? p.iLy : p.iRy), S));
-    let d = sub(tg, sh), L = Math.hypot(d.x, d.y);
-    const reach = (UP + FORE) * S * 0.995;
-    if (L > reach) { d = mul(d, reach / L); L = reach; }
-    L = Math.max(L, Math.abs(UP - FORE) * S + 1);
-    const a = UP * S, b = FORE * S, base = Math.atan2(d.y, d.x);
-    const A = Math.acos(clamp((a * a + L * L - b * b) / (2 * a * L), -1, 1));
-    const c1 = v(sh.x + a * Math.cos(base + A), sh.y + a * Math.sin(base + A));
-    const c2 = v(sh.x + a * Math.cos(base - A), sh.y + a * Math.sin(base - A));
-    const mid = v(sh.x + d.x / 2, sh.y + d.y / 2), pole = v(side * 0.55, 1);
-    const sc = (e: V) => (e.x - mid.x) * pole.x + (e.y - mid.y) * pole.y;
-    const E = sc(c1) > sc(c2) ? c1 : c2, Hd = add(sh, d);
-    const ang = (u: V) => (Math.atan2(u.x, u.y) * 180) / Math.PI;
+  const p = {...q}, S = q.s, hip = v(q.x, q.y);
+  const ang = (u: V) => (Math.atan2(u.x, u.y) * 180) / Math.PI;
+  for (const side of [-1, 1] as const) {
+    const k = ikInfo(q, side);
+    if (k.w < 0.001) continue;
+    const sg = signs ? signs[side < 0 ? 0 : 1] : k.pref;
+    const s = sg > 0 ? k.s1 : k.s2, w = k.w;
+    // blend JOINT POSITIONS (not angles): angle blending flips direction when FK and IK are ~180 deg apart
+    const sh = add(hip, mul(rot(v(side * SHX, SHY), q.rot), S));
+    const ua0 = side < 0 ? q.aLa : q.aRa, fa0 = side < 0 ? q.aLb : q.aRb;
+    const eF = add(sh, mul(dir(ua0), UP * S)), hF = add(eF, mul(dir(fa0), FORE * S));
+    const hI = add(s.E, mul(dir(s.fa), FORE * S));
+    const E = v(eF.x + (s.E.x - eF.x) * w, eF.y + (s.E.y - eF.y) * w), Hd = v(hF.x + (hI.x - hF.x) * w, hF.y + (hI.y - hF.y) * w);
     const ua = ang(sub(E, sh)), fa = ang(sub(Hd, E));
-    const wrap = (from: number, to: number) => { let dd = (to - from) % 360; if (dd > 180) dd -= 360; if (dd < -180) dd += 360; return from + dd * w; };
-    if (side < 0) { p.aLa = wrap(p.aLa, ua + 0 * 360); p.aLb = wrap(p.aLb, fa); }
-    else { p.aRa = wrap(p.aRa, ua); p.aRb = wrap(p.aRb, fa); }
+    if (side < 0) { p.aLa = ua; p.aLb = fa; } else { p.aRa = ua; p.aRb = fa; }
   }
   return p;
 }
@@ -75,7 +99,8 @@ export function buildSims(ppAt: (t: number) => PP) {
   const B = ch.map((a) => new Samples(a, dt));
   const base = (t: number) => ({hx: B[0].at(t), hy: B[1].at(t), hr: B[2].at(t), ox: B[3].at(t), oy: B[4].at(t), tr: B[5].at(t), s: B[6].at(t), d: B[7].at(t)});
   type F = Samples2;
-  const segs = TIMELINE.scenes.map((sc) => {
+  // one continuous simulation for the whole video: every cut is a match cut, so hair/ribbons must not reset
+  const segs = [{t0: 0, t1: TIMELINE.duration}].map((sc) => {
     const t0 = sc.t0, T = sc.t1 - sc.t0 + 0.1;
     const tailT = (dx: number, dy: number) => (tau: number) => {
       const b = base(t0 + tau);

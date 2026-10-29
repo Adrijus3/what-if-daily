@@ -36,6 +36,10 @@ export class Rig<P extends Record<string, number>> {
   private ch: Record<string, {t: number; v: number; e: Ease}[]> = {};
   constructor(private def: P, keys: Keys<P>) {
     for (const k of Object.keys(def)) this.ch[k] = [{t: -1e9, v: def[k], e: 'smooth'}];
+    // IK hand targets: before their first key a target HOLDS that key's value (never drifts in from the hip centre)
+    for (const [t, p] of [...keys].sort((a, b) => a[0] - b[0])) for (const k of ['iLx', 'iLy', 'iRx', 'iRy'])
+      if ((p as any)[k] !== undefined && !Number.isNaN((p as any)[k]) && this.ch[k] && this.ch[k].length === 1 && !(this.ch[k] as any).held) { this.ch[k][0].v = (p as any)[k]; (this.ch[k] as any).held = true; }
+    void 0;
     for (const [t, p, e] of [...keys].sort((a, b) => a[0] - b[0]))
       for (const k of Object.keys(p)) {
         const a = (this.ch[k] ??= []);

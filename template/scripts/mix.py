@@ -58,10 +58,8 @@ duck = np.maximum(duck, np.exp(-((tt_ - J) / 0.45) ** 2))            # let the d
 for extra in [float(x) for x in sys.argv[4:]]: duck = np.maximum(duck, np.exp(-((tt_ - extra) / 0.35) ** 2))
 import os
 mus = music * float(os.environ.get("MUSIC_GAIN", "0.30")) * duck[:, None]
-mus[:int(0.6 * SR)] *= np.linspace(0, 1, int(0.6 * SR))[:, None]
 v2 = np.stack([voice, voice], 1) * 1.15
 mix = v2 + mus + sfx * 0.36
-mix *= np.clip(np.minimum(1, tt_ / 0.02) * np.clip((D - tt_) / 1.6, 0, 1), 0, 1)[:, None] ** 1.2
 mix = np.tanh(mix * 1.1) / np.tanh(1.1)                              # soft glue, no hard clipping
 mix *= 0.80 / np.abs(mix).max()
 rms = 20 * np.log10(np.sqrt((mix ** 2).mean()))

@@ -58,23 +58,28 @@ rum = lp(rng.standard_normal(n), 90, 2) * 3.0 * glow ** 1.5 * (0.8 + 0.2 * np.si
 bus[:, 0] += rum; bus[:, 1] += rum
 # 4. the space station falls behind (soft doppler whoosh)
 put(swoosh(1.4, 1500, 250, 0.45), K['iss'] + 0.2, pan=-0.4)
-# 5. pop out: bloop + splash + bubbles
-P = K['pop']
+# 5. pop out: bloop + splash + bubbles (on the match cut where he bursts out)
+P = SC['pop']['t0']
 put(bloop(260, 700, 0.18, 0.9), P); put(splash(1.1, 0.6), P + 0.02)
 for k in range(6): put(bloop(float(rng.uniform(380, 700)), float(rng.uniform(700, 1000)), 0.08, 0.25), P + 0.25 + k * 0.11, pan=float(rng.uniform(-0.5, 0.5)))
-put(thump(0.3, 80, 50, 0.5), P + 1.9)                                   # lands on the islet
+put(thump(0.3, 80, 50, 0.5), P + 1.75)                                  # lands on the islet
+FB = K['fallback']; put(swoosh(0.6, 1200, 300, 0.4), FB + 0.25); put(splash(0.8, 0.35), SC['yoyo']['t0'] - 0.08)   # hops back into the hole
 # 6. yo-yo passes
-T0b = J + round((K['fallback'] - J) / 0.5) * 0.5
+T0b = SC['yoyo']['t0']
 t = T0b; k = 0
 while t < SC['stuck']['t0'] - 0.3:
     put(swoosh(0.7, 400 if k % 2 == 0 else 1200, 1200 if k % 2 == 0 else 400, 0.35), t + 0.15, pan=-0.3 if k % 2 == 0 else 0.3); t += 1.0; k += 1
-# 7. CTA bloops
-put(bloop(300, 620, 0.12, 0.6), K['comment'], pan=-0.3); put(bloop(380, 800, 0.14, 0.7), K['follow'] + 0.2, pan=0.3)
-# 8. soft thud for every stamp slam
-for sc in TL['scenes']:
-    if sc['stamp']: put(thump(0.3, 85, 52, 0.45), sc['t0'] + 0.5)
+# 7. outro: he hops back out of the hole onto the grass (then the video loops)
+O = SC['outro']['t0']; put(swoosh(0.45, 300, 1400, 0.35), O); put(thump(0.28, 85, 52, 0.4), O + 0.75)
+# yo-yo wind: rises and falls with every pass
+yy = (tt >= T0b) & (tt < SC['stuck']['t0'])
+ysp = np.abs(np.sin(np.clip(tt - T0b, 0, None) * np.pi)) * yy
+yw = lp(bp(rng.standard_normal(n), 200, 1600, 2), 1800) * ysp ** 1.3 * 0.45
+bus[:, 0] += yw; bus[:, 1] += np.roll(yw, 700)
 
-bus = np.stack([lp(bus[:, 0], 7000), lp(bus[:, 1], 7000)], 1)[:int(D * SR)]
+bus = np.stack([lp(bus[:, 0], 7000), lp(bus[:, 1], 7000)], 1)
+# seamless loop: anything still ringing after the end wraps around onto the start
+Dn = int(round(D * SR)); tail = bus[Dn:]; bus = bus[:Dn].copy(); bus[:len(tail)] += tail[:Dn]
 bus *= 0.8 / max(1e-6, np.abs(bus).max())
 with wave.open('public/sfx_soft.wav', 'wb') as o:
     o.setnchannels(2); o.setsampwidth(2); o.setframerate(SR); o.writeframes((bus * 32767).astype('<i2').tobytes())

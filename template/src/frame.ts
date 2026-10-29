@@ -12,7 +12,6 @@ let small: HTMLCanvasElement | null = null;
 const CQ = TIMELINE.cues as Record<string, number>;
 const SHAKES: [number, number, number][] = [
   [CQ.jump, 18, 0.4], [CQ.back, 12, 0.3], [CQ.pop, 14, 0.3],
-  ...TIMELINE.scenes.filter((sc) => sc.stamp).map((sc): [number, number, number] => [sc.t0 + 0.5, 6, 0.2]),
 ];
 function shake(t: number) {
   let sx = 0, sy = 0;
@@ -65,8 +64,6 @@ export function drawFrame(ctx: Ctx, t: number) {
   ctx.fillStyle = rad(ctx, 540, 960, 600, 1350, [[0, 'rgba(8,3,16,0)'], [1, 'rgba(8,3,16,0.5)']]);
   ctx.fillRect(0, 0, W, H);
 
-  const end = TIMELINE.duration;
-  const fade = smooth((t - (end - 0.45)) / 0.4) * 1;
-  if (fade > 0) { ctx.fillStyle = `rgba(8,3,16,${fade})`; ctx.fillRect(0, 0, W, H); }
+  // no fade-out: the video loops seamlessly back to frame 0
   void SCENES; void clamp;
 }

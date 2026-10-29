@@ -55,12 +55,15 @@ T = {k: SC[k]['t0'] for k in SC}; END = D
 # 1. HOOK: curious plucked strings over a soft pad
 put('pad', pad([n + 12 for n in CH['Am'][1:]], T['countdown'] + 0.2, 0.7, cut=900, a=1.0, r=0.8), 0.0)
 arp = [69, 72, 76, 72, 69, 72, 76, 79]
-t = g(0.3); k = 0
-while t < T['countdown'] - 0.05:
-    put('keys', pizz(arp[k % 8], 0.28, 0.75), t, pan=-0.2 + 0.4 * ((k % 4) / 3))
+A0 = (J % (BEAT / 2))                                   # first 8th-note grid point at/after 0
+def arp_note(t, v=0.75):                                # same figure index formula at the start and the end => seamless loop
+    k = int(round((t - A0) / (BEAT / 2))) % 8 if t < D / 2 else int(round((t - A0 - D) / (BEAT / 2))) % 8
+    put('keys', pizz(arp[k], 0.28, v), t, pan=-0.2 + 0.4 * ((k % 4) / 3))
     if k % 2: put('drums', shaker(0.3), t, pan=0.4)
     if k % 4 == 0: put('bass', bass(33, 0.5, 0.6), t)
-    t += BEAT / 2; k += 1
+t = A0
+while t < T['countdown'] - 0.05:
+    arp_note(t); t += BEAT / 2
 
 # 2. COUNTDOWN: building tension, drum hits on 3-2-1, a held breath before JUMP
 put('pad', pad([n + 12 for n in CH['Am'][1:]], K['three'] - T['countdown'], 0.8, cut=1000, a=0.4, r=0.3), T['countdown'])
@@ -111,8 +114,8 @@ while t < K['pop'] - 1.0:
 put('keys', womp(55, 48, 0.7, 1.0), K['slow']); put('keys', womp(48, 40, 1.0, 1.0), K['slow'] + 0.9)
 put('fx', riser(1.2, 0.5), K['pop'] - 1.25)                                         # a shimmer as he nears the far surface
 
-# 6. POP out the other side: bright release into a happy major groove
-P = g(K['pop'])
+# 6. POP out the other side: bright release into a happy major groove (on the match cut)
+P = T['pop']
 clear(P, END)
 put('drums', boom(0.7, 1.6), P); put('drums', crash_soft(0.8), P)
 put('pad', pad([n + 12 for n in CH['C']], 1.4, 1.1, cut=1700, a=0.02, r=0.6), P)
@@ -122,7 +125,7 @@ for i, t0 in enumerate(bars(P + BAR - 1e-3, T['yoyo'])):
     bar_groove(t0, prog[i % 4], mel=(MEL_A if (i // 2) % 2 == 0 else MEL_B)[(i % 2) * 8:(i % 2) * 8 + 8] + [None] * 8)
 
 # 7. YO-YO: bouncy, every pass of the tunnel is a pizz run (one pass = half a bar)
-T0b = g(K['fallback'])
+T0b = T['yoyo']
 for i, t0 in enumerate(bars(T['yoyo'], T['stuck'])):
     bar_groove(t0, prog[i % 4], mel=None, stab=0.5)
 t = T0b; n = 0
@@ -132,21 +135,19 @@ while t < T['stuck'] - 0.3:
     t += 1.0; n += 1
 
 # 8. STUCK in the middle: drums vanish, a warm floaty pad and slow bells
-for i, t0 in enumerate(bars(T['stuck'], T['cta'])):
+for i, t0 in enumerate(bars(T['stuck'], T['outro'])):
     put('pad', pad([n + 12 for n in CH['Fmaj7']], BAR, 0.9, cut=1100, a=0.6, r=0.8), t0)
     put('bass', bass(29, 1.6, 0.6), t0)
     for k, m in enumerate([77, 72, 76, 69] if i % 2 == 0 else [74, 69, 72, 65]): put('fx', bell(m, 1.6, 0.4), t0 + k * BEAT, pan=-0.3 + 0.2 * k)
 put('keys', womp(55, 50, 0.6, 0.9), K['stuck'] + 0.25)
 
-# 9. CTA: happy finale, last chord rings out
-fin = gbar(END - 1.6)
-for i, t0 in enumerate(bars(T['cta'], fin)):
-    bar_groove(t0, prog[i % 4], mel=(MEL_A if i % 2 == 0 else MEL_B)[:8] + (MEL_A if i % 2 == 0 else MEL_B)[8:], melv=0.8)
-clear(fin, END)
-put('drums', boom(0.6, 2.0), fin); put('drums', crash_soft(0.5, 2.0), fin)
-put('pad', pad([n + 12 for n in CH['C']], 1.2, 1.1, cut=1600, a=0.02, r=0.6), fin)
-for k, m in enumerate([72, 76, 79, 84]): put('fx', bell(m, 2.0, 0.6), fin + k * 0.07, pan=-0.3 + 0.2 * k)
-put('bass', bass(36, 1.6, 1.0), fin)
+# 9. OUTRO -> LOOP: the hook's curious pizz figure returns and runs straight into frame 0 (no ending, no fade)
+put('pad', pad([n + 12 for n in CH['Fmaj7']], T['outro'] + 0.6 - T['outro'], 0.8, cut=1000, a=0.1, r=0.6), T['outro'])
+put('pad', pad([n + 12 for n in CH['Am'][1:]], END - T['outro'] + 1.0, 0.7, cut=900, a=0.8, r=0.8), T['outro'] + 0.3)
+t = A0 + np.ceil((T['outro'] + 0.5 - A0) / (BEAT / 2)) * (BEAT / 2)
+while t < END - 1e-3:
+    arp_note(t, 0.75 * min(1.0, (t - T['outro']) / 1.5 + 0.35)); t += BEAT / 2
+put('fx', bell(81, 1.4, 0.35), K['shovel'], pan=0.3)
 
 # ------------------------------------------------------------ mixdown
 def room(x, seed, ln=1.2, damp=4500):
@@ -159,9 +160,8 @@ for k, x in bus.items():
     wet = 0.22 if k in ('keys', 'pad', 'fx') else 0.08
     mix += np.stack([x[:, c] * (1 - wet) + room(x[:, c], c + 1) * wet for c in range(2)], 1) * G_[k]
 for c in range(2): mix[:, c] = lp(hp(mix[:, c], 28), 9000)
-mix = mix[:int(D * SR)]
-tt = np.arange(len(mix)) / SR
-mix *= (np.minimum(1, tt / 0.3) * np.clip((D - tt) / 0.4, 0, 1))[:, None]
+# seamless loop: wrap the tail (pad releases, reverb) around onto the start instead of fading in/out
+Dn = int(round(D * SR)); tail = mix[Dn:]; mix = mix[:Dn].copy(); mix[:len(tail)] += tail[:Dn]
 mix = np.tanh(mix * 1.6) / np.tanh(1.6); mix *= 0.85 / np.abs(mix).max()
 with wave.open('out/score.wav', 'wb') as w:
     w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes((mix * 32767).astype('<i2').tobytes())
