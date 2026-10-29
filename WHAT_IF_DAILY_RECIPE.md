@@ -27,7 +27,13 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
 
 ## 0. Learning loop (read first)
 - **`analytics/insights.md`:** written weekly by the performance analyst from real TikTok numbers. Follow its "Current guidance" for topic mix, hook style, caption style and length, within `analytics/GUARDRAILS.md`. It can never override the quality rules in sections 2–5b.
-- **`ideas_backlog.txt`:** the trend scout adds fresh, scored, sourced ideas each morning (marked `[SCOUT <date> score=X/25]`). Prefer a high-scoring scout idea that fits the current guidance, but run it through the viral checklist and no-repeat rules yourself.
+- **`analytics/plan.md`:** the ranked plan for the next episodes, merged daily from trend-scout ideas `[SCOUT]`, viewer comment ideas `[VIEWER @name]` and analytics. **Take the top unused item**, after checking it against the viral checklist and no-repeat rules. If you use a `[VIEWER @name]` idea, credit them in the caption ("Idea by @name 💡"). This still counts within the 5-hashtag rule; the credit isn't a hashtag.
+- **`ideas_backlog.txt`:** the full pool, used when plan.md is empty.
+- **`analytics/retention_playbook.md`:** apply every tactic when writing the script and staging the visuals. Before producing anything, spawn a **retention editor** (Agent tool, model "sonnet"). Give it the draft script, the playbook and `analytics/comments.md` feedback themes. It returns a tightened script; keep the facts, the voice tags and the loop line.
+- **`episodes/<date>-<slug>/features.json`:** after the timeline is built, write the episode's measured structure so the analyst can link structure to retention:
+  - `duration_s`, `kind`, `hook_words`, `hook_end_s` (when the hook question ends), `first_payoff_s`
+  - `twist_at_pct`, `words_per_min`, `max_gap_without_visual_change_s`, `open_loop_by_s`
+  - `scenes`, `caption_chars`, `viewer_idea` (true or false)
 
 ## 1. Topic + script
 - **Pick a VIRAL topic.** It must not be in topics_used.txt or be a near-copy of one. Score each candidate 1–5 on every test below, and only use one that scores 4+ on all of them:
