@@ -25,10 +25,34 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
 3. Shell commands are limited to about 300 s, and background renders get killed. Render in the foreground in chunks of 300 frames each with `--concurrency=1 --jpeg-quality=96 --muted`, then join them with ffmpeg concat (`-c copy`).
 
 ## 1. Topic + script
-- **Pick the topic:** a bright, surprising, science-based "What if…?" with a strong visual hook and a twist ending. It must not be in topics_used.txt.
-  - Good examples: the Moon disappeared, humans could photosynthesise, Earth stopped spinning, all ice melted, you shrank to ant size.
+- **Pick a VIRAL topic.** It must not be in topics_used.txt or be a near-copy of one. Score each candidate 1–5 on every test below, and only use one that scores 4+ on all of them:
+  1. **Instant curiosity:** a stranger scrolling would stop within 1 second. The premise fits in under 10 words.
+  2. **Relatable or personal:** it's about "you", everyday life, your body, your food, your phone or your planet. "What if YOU…" beats "What if scientists…".
+  3. **A surprising answer:** the real outcome is NOT what most people guess, and there's a twist ending.
+  4. **Very visual:** easy to animate with the mascot in fun, clear scenes.
+  5. **Easy to comment on:** people will argue, guess or share their own answer.
+- **Rotate between two kinds** (check post_log.txt so it's never the same kind 3 days in a row):
+  - **Epic science what-ifs.** Examples: the Moon disappeared; Earth stopped spinning; you fell into a black hole; all the ice melted; the Earth was flat; you could only see in infrared; dinosaurs never went extinct.
+  - **Funny theoretical what-ifs**, absurd premises answered with real science. Examples:
+    - Everyone sneezed at once.
+    - You ate only pizza for a year.
+    - Cats were the size of tigers.
+    - You never stopped running.
+    - Your phone battery lasted 100 years.
+    - You had to fight 100 ducks.
+    - Gravity switched off for 5 seconds.
+    - You drank only coffee.
+    - Everyone on Earth flushed the toilet at the same time.
+    - You were the size of a Lego figure.
+    - It rained Coca-Cola.
+    - You had to sneeze but never could.
+- **Funny ones are still factual.** The premise can be silly, but every number and consequence in the narration must be real, researched science. Exaggerate the tone and jokes, never the facts.
+- **Tone:** fun, punchy and family-friendly. No gore, nothing scary for kids, no politics, real people, brands, tragedies, medical advice or anything that encourages dangerous challenges. For eating or drinking extremes, frame it as "don't try this" and keep it light.
+- **Keep it fresh:** also use timely angles when they fit, like seasons or holidays (Halloween, Christmas, summer heat) and big science news. Never copy another creator's video; the premise and script must be original.
+- **Record it:** write the chosen topic, its kind (science or funny) and its scores in post_log.txt.
 - **Structure:**
-  - 0–3 s: a hook question.
+  - 0–3 s: a hook question that is short, bold and about YOU (\"What if you…?\"). No intro, and no \"Hey guys\". The first frame already shows the mascot in the situation.
+  - Keep momentum: something new on screen every 2–4 s, and at least one laugh-out-loud line for funny episodes.
   - Escalating facts, each with a number to show on screen.
   - A "but here's the crazy part" twist.
   - A CTA question asking viewers to comment, then "follow for a new What If every day".
