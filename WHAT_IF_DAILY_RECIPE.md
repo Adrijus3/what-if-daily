@@ -51,7 +51,7 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
 - **Keep it fresh:** also use timely angles when they fit, like seasons or holidays (Halloween, Christmas, summer heat) and big science news. Never copy another creator's video; the premise and script must be original.
 - **Record it:** write the chosen topic, its kind (science or funny) and its scores in post_log.txt.
 - **Structure:**
-  - 0–3 s: a hook question that is short, bold and about YOU (\"What if you…?\"). No intro, and no \"Hey guys\". The first frame already shows the mascot in the situation.
+  - 0–3 s: a hook question that is short, bold and about YOU ("What if you…?"). No intro, and no "Hey guys". The first frame already shows the mascot in the situation.
   - Keep momentum: something new on screen every 2–4 s, and at least one laugh-out-loud line for funny episodes.
   - Escalating facts, each with a number to show on screen.
   - A "but here's the crazy part" twist.
