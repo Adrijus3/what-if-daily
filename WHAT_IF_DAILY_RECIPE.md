@@ -77,7 +77,7 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
 
 ## 5. Encode
 - **Master:** libx264, preset veryfast, crf 15, yuv420p, bt709. Audio AAC 320k with `-aac_coder twoloop`. Use `-movflags +faststart`. 1080×1920 at 30 fps.
-- **Upload copy:** preset medium, `-b:v 3250k -maxrate 5000k -bufsize 8000k`, AAC 256k. It must be under 29 MB.
+- **Upload copy = the master itself** (highest quality; the old 29 MB limit no longer applies). It must be under 95 MB, because GitHub's per-file limit is 100 MB and Metricool's TikTok limit is 500 MB. If it's bigger, re-encode at crf 16, then 17, until it fits. It must be H.264 (not HEVC), SDR, MP4.
 - Verify with ffprobe: duration, 1080×1920, both streams.
 
 ## 6. Post (fully hands-off)
