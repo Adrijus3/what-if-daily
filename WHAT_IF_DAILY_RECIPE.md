@@ -46,6 +46,12 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
   - Set cue phrases for the new script.
   - Snap scene starts to the 0.5 s beat grid.
   - Write captions and `src/timeline.json`.
+- **On-screen captions (burned into the video):**
+  - Built from the Scribe word timestamps, so every word pops on exactly when it's spoken.
+  - Chunk rule: break at a sentence end, at a gap over 0.45 s, at 8+ words, or at a comma once 3+ words are shown.
+  - Highlight key words (numbers, the twist, the CTA) in a yellow, pink and teal cycle.
+  - Text must match the narration exactly. Fix any Scribe mistakes against the script, and keep numbers as digits with separators (28,800). Strip eleven_v4 tags like [excited].
+  - Check them in the contact sheets: no caption covers the mascot's face or the key graphic.
 - Write the new props and scenes (replacing props4.ts and scenes.ts content), keeping the same mascot:
   - Black round head with white eyes and a brown hair cowlick.
   - Pink headband with tails and a teal hoodie with a pink sound-bar logo.
@@ -81,8 +87,16 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
 - Verify with ffprobe: duration, 1080×1920, both streams.
 
 ## 6. Post (fully hands-off)
-- **Caption:** about 2 sentences with emojis, ending in a comment-bait question and "Follow for a new "What If" every day!".
-- **Hashtags:** EXACTLY 5. Always include #WhatIf and #WhatIfDaily, plus 3 topic tags, e.g. #Science #Space #MindBlown.
+- **Post caption (text field):** write it fresh for each episode.
+  1. **Hook line first.** Restate the "What if…?" question with 1–2 emojis. Only about the first 80 characters show before "more", so the hook must land there.
+  2. **One teaser line.** The most jaw-dropping number from the video, then a tease of the twist without giving it away ("…but the ending is the craziest part 🤯").
+  3. **Comment-bait question.** Make it specific to the topic and easy to answer, e.g. "Where would YOUR tunnel come out?" or "Would YOU jump?", with 👇.
+  4. **Then exactly:** `Follow for a new "What If" every day!`
+  5. **Then exactly 5 hashtags:** #WhatIf, then 3 topic tags (broad plus specific, e.g. #Science #Space #MindBlown), then #WhatIfDaily. TikTok allows a maximum of 5, so never use more, and don't use #fyp or #foryou.
+  - Keep it under about 300 characters. Every number must match the video and the fact source. No clickbait that the video doesn't deliver.
+  - **Example (30 Oct):** What if you dug a hole straight through the Earth… and jumped in? 🕳️🌍 You'd hit 28,800 km/h and fly through a core as hot as the Sun… but the ending is the craziest part 🤯 👇 Where would YOUR tunnel come out? Follow for a new "What If" every day! #WhatIf #Science #Earth #MindBlown #WhatIfDaily
+- **TikTok title (tiktokData.title, required by Metricool):** the short question only, e.g. "What if you dug a hole through the Earth?".
+- Save the caption to `episodes/<date>-<slug>/CAPTION.txt`.
 - **Schedule for 18:30 Europe/London the same day**, visible to everyone, comments on.
 - **Route (tested and working 29 Oct 2026): GitHub raw link → Metricool.**
   1. In the repo clone, run `git checkout --orphan video-new`, `git rm -rq --cached .`, and remove the tracked files. Copy the upload copy in as `episode.mp4`, commit it, then `git push -f origin video-new:video`.
