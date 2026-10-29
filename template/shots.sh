@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /home/claude/story4
+cd "$(dirname "$0")"; mkdir -p /tmp/st4
 BR=/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell
 name=$1; shift; files=()
 for t in "$@"; do f=$(python3 -c "print(round($t*30))"); npx remotion still src/index.ts Story /tmp/st4/s_$f.png --frame=$f --browser-executable=$BR >/tmp/st4/log.txt 2>&1 || tail -5 /tmp/st4/log.txt; files+=(/tmp/st4/s_$f.png); done
