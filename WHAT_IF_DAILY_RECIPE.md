@@ -94,7 +94,7 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
   - Highlight key words (numbers, the twist, the CTA) in a yellow, pink and teal cycle.
   - Text must match the narration exactly. Fix any Scribe mistakes against the script, and keep numbers as digits with separators (28,800). Strip eleven_v4 tags like [excited].
   - Check them in the contact sheets: no caption covers the mascot's face or the key graphic.
-- Write the new props and scenes (replacing props4.ts and scenes.ts content), keeping the same mascot:
+- Write the new scenes (replacing the scenes.ts content, plus episode-only props in props4.ts), reusing the prop library below where it fits, and keeping the same mascot:
   - Black round head with white eyes and a brown hair cowlick.
   - Pink headband with tails and a teal hoodie with a pink sound-bar logo.
   - Thin black limbs and white sneakers.
@@ -104,6 +104,40 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
   - Captions sit in a narrow centre column (maxW 700, y ≈ 1285).
   - Nothing important goes in the top 230 px, the right-hand 160 px (TikTok buttons) or the bottom 330 px.
   - No distractions, nothing distorted.
+- **PROP LIBRARY (use it, don't draw crude props from scratch).** `src/lib/props/` has 30 on-style, loop-safe props:
+  - **space:** earth, moon, sun, mars, saturn, blackHole, asteroid, rocket, ufo, satellite
+  - **nature:** tree, cloudPuff, volcano, wave, rock, iceberg
+  - **animals:** cat, duck, dinosaur, shark
+  - **objects:** pizza, burger, coffeeCup, phone, lightbulb, clock, car, plane, house, cityBlock
+  - **Usage:** `import {earth, rocket, cat} from './lib/props'`, then call `earth(ctx, x, y, s, t, opts)`. Props are centred on x, y and typed per prop, e.g. `{rot}`, `{flip, mood}`, or `{label}` for the only text allowed.
+  - **Episode-specific props:** when an episode needs a prop that isn't in the library, build it with the same kit (`inked()`, `lit()`, `tube()`, `outline()` from `src/lib/props/kit.ts`): ink outline, amber rim on the left, violet rim on the right, a soft gradient and a top highlight. Drive motion with `idle()`/`osc()` (whole cycles per video) and never use Math.random. If it's reusable, add it to the library, together with its `PROP_CATALOG` entry.
+  - **Check:** `node qa/props_gallery.mjs` (or `node qa/props_gallery.mjs <name> --o='{...}'` for a zoomed preview) renders `qa/sheets/props_gallery.png` and checks that every prop loops and is deterministic. Open the PNG and look at it.
+- **LIVING BACKGROUNDS.** `drawBG(ctx, kind, t, alpha)` (field, studio, space) and the location backgrounds in props4.ts (`ocean`, `islet`, `cavern`, `tunnel`) move subtly: drifting clouds, swaying grass, parallax hills, twinkling stars, rolling waves, embers and dust. All of it loops exactly over the video.
+  - Always pass the real global `t` (e.g. `drawBG(ctx, 'field', t)`). Without it the background freezes.
+  - Keep these location functions in props4.ts for reuse; add new locations beside them rather than deleting them.
+  - Build new episode backgrounds the same way with `src/lib/ambient.ts`:
+    - `bake()`/`blit()` for cached static layers.
+    - `drift()` for wrap-around motion that is periodic over the video.
+    - `loopSin()`/`loopPhase()` for whole cycles per video.
+    - `makeMotes()`/`drawMotes()` for particles.
+    - `captionDim()`, which quiets motion behind the caption band.
+  - Rules:
+    - Static layers are cached; only moving layers redraw.
+    - Motion is calm and never pulls focus from the mascot.
+    - Nothing busy behind the caption band (y 1200–1370).
+    - No flicker, nothing that could read as text, no Math.random.
+- **CHARACTER LIFE (automatic, don't fight it).** `src/lib/life.ts` gives the mascot the following, all built from the episode's own motion and periodic over the video:
+  - blinks
+  - breathing
+  - squash on landings and stretch when moving fast
+  - a small anticipation crouch before jumps
+  - follow-through on the headband tails
+  - small eye glances while he stands still
+
+  Blinks and glances keep clear of cuts and the loop seam, and squashes never straddle a cut. You don't key any of this. Just make sure:
+  - landings really settle (the hip holds still about 0.35 s after touching down), so they read as landings;
+  - the pose's eyes are open (`eye ≥ 0.4`) where blinks should happen;
+  - you don't add hand-keyed blinks on top.
 - **INVISIBLE CUTS (owner requirement): every cut is a MATCH CUT.**
   - On the last frame before a cut and the first frame after it, the mascot has the same screen position, size, pose and face. Only the world around him changes.
   - Plan each scene so its last pose IS the next scene's first pose. Examples from the template:

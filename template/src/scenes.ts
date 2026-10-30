@@ -71,7 +71,7 @@ const hook: SceneDef = (() => {
   return {
     id: 'hook', rig: new Rig(DEF, keys), cam: GCAM,
     proc: (t, p) => { p.y += 2.5 * loopw(t, 2.4); },
-    draw: (ctx, t, p, sim) => { drawBG(ctx, 'field'); holeBack(ctx); intoHole(ctx, () => {}); shadow(ctx, p.x); drawPuppet(ctx, p, sim, t); },
+    draw: (ctx, t, p, sim) => { drawBG(ctx, 'field', t); holeBack(ctx); intoHole(ctx, () => {}); shadow(ctx, p.x); drawPuppet(ctx, p, sim, t); },
     hud: () => {},
   };
 })();
@@ -106,7 +106,7 @@ const countdown: SceneDef = (() => {
     id: 'countdown', rig: new Rig(DEF, keys), cam: GCAM,
     proc: (t, p) => { if (t < K.one) p.y += 2.5 * loopw(t, 2.4) - 26 * (bump(t, K.three, 0.3) + bump(t, K.two, 0.3)); },
     draw: (ctx, t, p, sim) => {
-      drawBG(ctx, 'field'); holeBack(ctx); intoHole(ctx, () => {});
+      drawBG(ctx, 'field', t); holeBack(ctx); intoHole(ctx, () => {});
       if (t > J + 0.34) inHoleClip(ctx, () => drawPuppet(ctx, p, sim, t)); else { shadow(ctx, p.x); drawPuppet(ctx, p, sim, t); }
       // 3-2-1 to the right of his head, each gone before the next appears
       const nums: [string, number, number][] = [['3', K.three, K.two], ['2', K.two, K.one], ['1', K.one, J]];
@@ -284,7 +284,7 @@ const outro: SceneDef = (() => {
     id: 'outro', rig: new Rig(DEF, keys), cam: GCAM,
     proc: (t, p) => { p.y += 2.5 * loopw(t, 2.4) * smooth((t - t0 - 1.0) / 0.6); },
     draw: (ctx, t, p, sim) => {
-      drawBG(ctx, 'field'); holeBack(ctx); intoHole(ctx, () => {});
+      drawBG(ctx, 'field', t); holeBack(ctx); intoHole(ctx, () => {});
       if (t < t0 + 0.2) inHoleClip(ctx, () => drawPuppet(ctx, p, sim, t)); else { shadow(ctx, p.x); drawPuppet(ctx, p, sim, t); }
     },
     hud: () => {},

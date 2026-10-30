@@ -1,7 +1,10 @@
 import {Ctx, lin, rad, disc, rrect, softShadow, ellipse} from './lib/draw';
 import {TAU, clamp, smooth, rng, lerp} from './lib/math';
 import {FONT} from './hud';
+import {TIMELINE} from './anim';
 import {sparkle} from './props';
+import {cloudSprite} from './backgrounds';
+import {Layer, bake, blit, loopPhase, loopSin, loopFrac, drift, bump, captionDim, glow as glowSpr, glowAt, flare, makeMotes, drawMotes} from './lib/ambient';
 
 const INK = '#160d22';
 const label = (ctx: Ctx, s: string, x: number, y: number, size = 34, col = '#ffffff', align: CanvasTextAlign = 'center') => {
@@ -89,6 +92,11 @@ export function tunnel(ctx: Ctx, depth: number, scroll: number, speed: number, t
     ctx.strokeStyle = `rgba(255,${glow > 0.3 ? 230 : 255},${glow > 0.3 ? 170 : 255},${0.12 + 0.3 * clamp(speed, 0, 1)})`; ctx.lineWidth = 4 + 3 * R1();
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + len); ctx.stroke();
   }
+  // slow floating dust (drifts on its own clock, NOT with the wall scroll: it hangs in the air around him); soft, warm, quiet behind the captions
+  const TD = (TUN ??= {far: makeMotes(rng(71), {x0: 250, x1: 830, y0: 1100, y1: 2100, rise: [900, 1700], r: [2.2, 4.2], a: [0.16, 0.32], laps: [2, 3], sway: 22, count: 26}),
+    near: makeMotes(rng(72), {x0: 230, x1: 850, y0: 1200, y1: 2200, rise: [1100, 1900], r: [5, 9], a: [0.07, 0.15], laps: [2, 3], sway: 34, count: 11})});
+  drawMotes(ctx, TD.far, t, glowSprite('255,238,210', 24), {quiet: true, glowScale: 2.2});
+  drawMotes(ctx, TD.near, t, glowSprite('255,226,180', 24), {quiet: true, glowScale: 2.6});
   // heat haze + embers when it glows
   if (glow > 0.02) {
     ctx.fillStyle = rad(ctx, 540, 960, 60, 900, [[0, `rgba(255,240,180,${0.35 * glow * glow})`], [1, 'rgba(255,140,60,0)']]); ctx.fillRect(-80, -80, 1240, 2080);
@@ -98,8 +106,9 @@ export function tunnel(ctx: Ctx, depth: number, scroll: number, speed: number, t
       disc(ctx, x, y, 3 + 4 * R2(), `rgba(255,${200 + Math.round(55 * R2())},120,${0.7 * glow})`);
     }
   }
-  void t;
 }
+let TUN: {far: ReturnType<typeof makeMotes>; near: ReturnType<typeof makeMotes>} | null = null;
+const glowSprite = (rgb: string, r: number) => glowSpr(r, rgb, 1);
 
 // ---------------------------------------------------------------- cut-away Earth (u: -1 = UK surface, 0 = centre, +1 = New Zealand)
 export function crossSection(ctx: Ctx, x: number, y: number, r: number, u: number, opts: {labels?: boolean; dot?: boolean; trail?: number[]; t?: number} = {}) {
@@ -168,21 +177,81 @@ export function iss(ctx: Ctx, x: number, y: number, s: number, t: number) {
 }
 
 // ---------------------------------------------------------------- night ocean + islet (New Zealand side)
-export function ocean(ctx: Ctx, t: number) {
-  ctx.fillStyle = lin(ctx, 0, -80, 0, 980, [[0, '#0b1a4a'], [1, '#3b5fb0']]); ctx.fillRect(-80, -80, 1240, 1100);
-  const R = rng(17); for (let i = 0; i < 70; i++) disc(ctx, R() * 1080, R() * 760, 1.5 + R() * 2.5, `rgba(255,255,255,${0.35 + 0.5 * R()})`);
-  disc(ctx, 840, 420, 64, 'rgba(255,248,210,0.16)'); disc(ctx, 840, 420, 48, '#fff4d2');
-  ctx.fillStyle = lin(ctx, 0, 980, 0, 2000, [[0, '#1c4f9c'], [1, '#0c2457']]); ctx.fillRect(-80, 980, 1240, 1100);
-  ctx.strokeStyle = 'rgba(160,210,255,0.35)'; ctx.lineWidth = 5;
-  for (let k = 0; k < 9; k++) { const y = 1010 + k * k * 9 + k * 14; ctx.beginPath(); for (let x = -40; x <= 1120; x += 30) ctx.lineTo(x, y + Math.sin(x / 50 + t * 2 + k) * (3 + k)); ctx.stroke(); }
+interface OceanAssets {
+  base: Layer;
+  wisps: {spr: Layer; ext: [number, number]; y: number; a: number; anchor0: number; extra: number; bobP: number}[];
+  stars: {x: number; y: number; r: number; a: number; p: number; ph: number}[];
+  shim: {x: number; y: number; s: number; p: number; ph: number}[];
+  glints: {x: number; y: number; len: number; th: number; a: number; p: number; ph: number}[];
+}
+let OC: OceanAssets | null = null;
+const MOON = {x: 840, y: 420};
+function oceanAssets(): OceanAssets {
+  const base = bake(-80, -80, 1160, 2080, (g) => {
+    g.fillStyle = lin(g, 0, -80, 0, 980, [[0, '#0b1a4a'], [1, '#3b5fb0']]); g.fillRect(-80, -80, 1240, 1100);
+    g.fillStyle = lin(g, 0, 980, 0, 2000, [[0, '#1c4f9c'], [1, '#0c2457']]); g.fillRect(-80, 980, 1240, 1100);
+    g.fillStyle = lin(g, 0, 925, 0, 1065, [[0, 'rgba(150,190,255,0)'], [0.5, 'rgba(165,205,255,0.26)'], [1, 'rgba(150,190,255,0)']]); g.fillRect(-80, 925, 1240, 140);   // soft haze on the horizon
+  });
+  // same star layout as the old static sky (rng 17); twinkle timing comes from a separate stream so positions never change
+  const R = rng(17), R2 = rng(18);
+  const stars = Array.from({length: 70}, () => { const x = R() * 1080, y = R() * 760, r = 1.5 + R() * 2.5, a = 0.35 + 0.5 * R(); return {x, y, r, a, p: 1.8 + R2() * 4.4, ph: R2() * TAU}; });
+  const shim = [...stars].sort((u, v) => v.r - u.r).slice(0, 6).map((q, i) => ({x: q.x, y: q.y, s: 14 + q.r * 3, p: 8 + i * 1.7, ph: i / 6}));
+  // thin lavender wisps of night cloud, behind the stars
+  const wisps = ([[1.5, 205, 0.26, 200, 160], [1.1, 600, 0.2, 760, 60], [0.9, 805, 0.16, 440, 0]] as const).map(([s, y, a, anchor0, extra], i) => {
+    const {spr, ext} = cloudSprite(s, '#93a6f0', '#6c80d8', 6); return {spr, ext, y, a, anchor0, extra, bobP: 13 + 4 * i};
+  });
+  // the moon's glitter path on the water: short dashes, denser and wider towards the horizon
+  const G = rng(29);
+  const glints = Array.from({length: 34}, () => {   // short warm pills, scattered (never in tidy rows, so they read as glitter and not as lines of text)
+    const u = G(), y = 990 + u ** 2.1 * 470 + (G() - 0.5) * 14, k = y - 980, spread = 26 + 0.34 * k;
+    return {x: MOON.x + (G() - 0.5) * spread * 1.9, y, len: 8 + k * 0.06 * (0.5 + G()), th: 3.6 + k * 0.004 + 1.2 * G(), a: (0.45 + 0.4 * G()) * (1 - 0.55 * Math.min(1, k / 480)), p: 2.6 + G() * 3.4, ph: G() * TAU};
+  });
+  return {base, wisps, stars, shim, glints};
+}
+export function ocean(ctx: Ctx, t: number, cam: {x?: number; y?: number} = {}) {
+  const A = OC ??= oceanAssets(), cx = cam.x ?? 0, ga = ctx.globalAlpha;
+  blit(ctx, A.base);
+  for (const w of A.wisps) {   // drift right-to-left-to-right wrap: exactly one lap over the video
+    const lo = -40 - w.ext[1], span = 1080 + 80 + w.ext[0] + w.ext[1] + w.extra;
+    blit(ctx, w.spr, lo + drift(t, w.anchor0 - lo, span) - cx * 0.03, w.y + 5 * loopSin(t, w.bobP, w.anchor0), w.a);
+  }
+  // stars twinkle softly (never below 55% of their brightness) and a few shimmer now and then
+  ctx.fillStyle = '#ffffff';
+  for (const q of A.stars) { ctx.globalAlpha = ga * q.a * (0.55 + 0.45 * (0.5 + 0.5 * Math.sin(loopPhase(t, q.p) + q.ph))); ctx.beginPath(); ctx.arc(q.x - cx * 0.02, q.y, q.r, 0, TAU); ctx.fill(); }
+  ctx.globalAlpha = ga;
+  for (const q of A.shim) flare(ctx, q.x - cx * 0.02, q.y, q.s, 0.75 * bump(loopFrac(t, q.p, q.ph), 0.15), '235,243,255');
+  // moon + breathing halo
+  glowAt(ctx, glowSpr(128, '255,246,205', 0.5), MOON.x, MOON.y, 210, 0.75 + 0.25 * loopSin(t, 8));
+  disc(ctx, MOON.x, MOON.y, 64, 'rgba(255,248,210,0.16)'); disc(ctx, MOON.x, MOON.y, 48, '#fff4d2');
+  // glitter path: a broad soft column plus shimmering dashes
+  ctx.globalAlpha = ga * (0.16 + 0.05 * loopSin(t, 6)); ctx.drawImage(glowSpr(128, '255,240,190', 1), MOON.x - 130, 985, 260, 560); ctx.globalAlpha = ga;
+  ctx.lineCap = 'round'; ctx.strokeStyle = '#ffe9a6';
+  for (const q of A.glints) {
+    const k = 0.18 + 0.82 * Math.sin(loopPhase(t, q.p) + q.ph) ** 2, x = q.x + 9 * Math.sin(loopPhase(t, q.p * 1.9) + q.ph * 2);
+    ctx.globalAlpha = ga * q.a * k * captionDim(q.y, 0.35); ctx.lineWidth = q.th; ctx.beginPath(); ctx.moveTo(x - q.len / 2, q.y); ctx.lineTo(x + q.len / 2, q.y); ctx.stroke();
+  }
+  ctx.globalAlpha = ga;
+  // rolling wave lines: each row travels slowly (alternating directions); a thin crest highlight glides along it
+  for (let k = 0; k < 9; k++) {
+    const y = 1010 + k * k * 9 + k * 14, amp = (3 + k) * 0.85, lam = 55 + 9 * k, dir = k % 2 ? 1 : -1, ph = loopPhase(t, 9 + 0.9 * k), ph2 = loopPhase(t, 6.3 + 0.6 * k), dim = captionDim(y, 0.5);
+    const path = () => { ctx.beginPath(); for (let x = -40; x <= 1120; x += 30) ctx.lineTo(x, y + amp * (Math.sin(x / lam - dir * ph + k) + 0.3 * Math.sin(x / (lam * 0.43) + dir * ph2 + 2 * k))); };
+    ctx.strokeStyle = 'rgba(160,210,255,1)'; ctx.globalAlpha = ga * (0.2 + 0.022 * k) * dim; ctx.lineWidth = 3 + 0.55 * k; path(); ctx.stroke();
+    ctx.strokeStyle = 'rgba(222,240,255,1)'; ctx.globalAlpha = ga * 0.5 * dim; ctx.lineWidth = 1.8 + 0.3 * k; ctx.setLineDash([60 + 4 * k, 200 + 12 * k]);
+    ctx.lineDashOffset = -dir * (260 + 16 * k) * (6 + (k % 3)) * t / TIMELINE.duration; path(); ctx.stroke(); ctx.setLineDash([]);
+  }
+  ctx.globalAlpha = ga;
 }
 export const ISLET = {x: 540, y: 1150};
 export function islet(ctx: Ctx, t: number) {
   const {x, y} = ISLET;
+  for (let k = 0; k < 2; k++) {   // slow ripples spreading out over the water around the islet
+    const f = loopFrac(t, 6, k / 2), a = 0.26 * Math.sin(Math.PI * f) ** 1.5;
+    ctx.strokeStyle = `rgba(190,225,255,${a})`; ctx.lineWidth = 3.5; ellipse(ctx, x, y + 14, 305 + 150 * f, 74 + 36 * f); ctx.stroke();
+  }
   ctx.fillStyle = INK; ctx.beginPath(); ctx.ellipse(x, y, 300, 70, 0, 0, TAU); ctx.fill();
   ctx.fillStyle = lin(ctx, 0, y - 60, 0, y + 60, [[0, '#a08a6a'], [1, '#5e4a36']]); ctx.beginPath(); ctx.ellipse(x, y, 290, 62, 0, 0, TAU); ctx.fill();
   ellipse(ctx, x, y - 4, 120, 32); ctx.fillStyle = INK; ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.ellipse(x, y + 8, 300 + 6 * Math.sin(t * 3), 74, 0, 0.1, Math.PI - 0.1); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 6; ctx.beginPath(); ctx.ellipse(x, y + 8, 300 + 6 * loopSin(t, 2.1), 74, 0, 0.1, Math.PI - 0.1); ctx.stroke();
   // sign post
   const sx = x + 210, sy = y - 20;
   ctx.fillStyle = INK; rrect(ctx, sx - 9, sy - 210, 18, 210, 6); ctx.fill(); ctx.fillStyle = '#c98a62'; rrect(ctx, sx - 5, sy - 206, 10, 202, 4); ctx.fill();
@@ -201,22 +270,37 @@ export function islandHoleFront(ctx: Ctx) {
 }
 
 // ---------------------------------------------------------------- the glowing centre of the Earth
-export function cavern(ctx: Ctx, t: number) {
-  ctx.fillStyle = rad(ctx, 540, 760, 40, 1250, [[0, '#fff3c4'], [0.35, '#ffb347'], [0.7, '#d4561f'], [1, '#5a1a0e']]); ctx.fillRect(-80, -80, 1240, 2080);
+interface CavernAssets { base: Layer; rocks: Layer; far: ReturnType<typeof makeMotes>; near: ReturnType<typeof makeMotes>; sparks: ReturnType<typeof makeMotes>; ash: ReturnType<typeof makeMotes> }
+let CV: CavernAssets | null = null;
+function cavernAssets(): CavernAssets {
+  const base = bake(-80, -80, 1160, 2080, (g) => { g.fillStyle = rad(g, 540, 760, 40, 1250, [[0, '#fff3c4'], [0.35, '#ffb347'], [0.7, '#d4561f'], [1, '#5a1a0e']]); g.fillRect(-80, -80, 1240, 2160); });
   const R = rng(23);
-  for (let i = 0; i < 40; i++) {
-    const a = R() * TAU, d = 560 + R() * 420, r = 40 + R() * 90;
-    const x = 540 + Math.cos(a) * d * 0.95, y = 760 + Math.sin(a) * d * 1.15;
-    disc(ctx, x, y, r + 6, 'rgba(60,15,8,0.8)'); disc(ctx, x, y, r, R() > 0.5 ? '#a8361a' : '#c8461d');
-  }
-  for (let i = 0; i < 26; i++) {
-    const f = ((t * 0.08 + R()) % 1), x = 540 + Math.cos(R() * TAU) * (100 + 420 * R()), y = 760 + Math.sin(R() * TAU) * (100 + 520 * R()) - f * 60;
-    disc(ctx, x, y, 3 + 5 * R(), `rgba(255,250,220,${0.8 * Math.sin(f * Math.PI)})`);
-  }
+  const rocks = bake(-140, -140, 1220, 2060, (g) => {   // the same 40 boulders as before, on their own layer so they can float a hair against the glow
+    for (let i = 0; i < 40; i++) {
+      const a = R() * TAU, d = 560 + R() * 420, r = 40 + R() * 90;
+      const x = 540 + Math.cos(a) * d * 0.95, y = 760 + Math.sin(a) * d * 1.15;
+      disc(g, x, y, r + 6, 'rgba(60,15,8,0.8)'); disc(g, x, y, r, R() > 0.5 ? '#a8361a' : '#c8461d');
+    }
+  });
+  return {base, rocks,
+    ash: makeMotes(rng(84), {x0: 220, x1: 860, y0: 820, y1: 1500, rise: [140, 260], r: [5, 10], a: [0.3, 0.5], laps: [4, 5], sway: 14, count: 16}),
+    far: makeMotes(rng(81), {x0: 60, x1: 1020, y0: 760, y1: 1560, rise: [150, 280], r: [3, 6], a: [0.5, 0.8], laps: [4, 6], sway: 16, count: 22}),
+    near: makeMotes(rng(82), {x0: 80, x1: 1000, y0: 900, y1: 1700, rise: [260, 420], r: [8, 14], a: [0.12, 0.24], laps: [3, 4], sway: 28, count: 9}),
+    sparks: makeMotes(rng(83), {x0: 160, x1: 920, y0: 1000, y1: 1700, rise: [380, 620], r: [2.6, 4.2], a: [0.6, 0.95], laps: [3, 4], sway: 20, count: 14})};
+}
+export function cavern(ctx: Ctx, t: number, cam: {x?: number; y?: number} = {}) {
+  const A = CV ??= cavernAssets(), cx = cam.x ?? 0, cy = cam.y ?? 0;
+  blit(ctx, A.base);
+  glowAt(ctx, glowSpr(256, '255,243,196', 0.6), 540, 760, 430, 0.22 + 0.14 * (0.5 + 0.5 * loopSin(t, 9)));   // the core slowly breathes
+  blit(ctx, A.rocks, 7 * loopSin(t, 21) - cx * 0.05, 5 * loopSin(t, 27, 1.3) - cy * 0.05);
+  drawMotes(ctx, A.ash, t, glowSpr(32, '196,72,28', 1), {quiet: true, glowScale: 2.0});   // darker ash that shows against the bright core
+  drawMotes(ctx, A.far, t, glowSpr(32, '255,246,214', 1), {quiet: true, glowScale: 2.2});
+  drawMotes(ctx, A.near, t, glowSpr(32, '255,214,150', 1), {quiet: true, glowScale: 2.6});
+  drawMotes(ctx, A.sparks, t, glowSpr(32, '255,120,50', 1), {quiet: true, glowScale: 2.4});
 }
 export function floatyRing(ctx: Ctx, x: number, y: number, t: number) {
-  ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 4;
-  for (let k = 0; k < 3; k++) { const f = ((t * 0.5 + k / 3) % 1); ctx.globalAlpha = 1 - f; ctx.beginPath(); ctx.ellipse(x, y, 160 + 140 * f, 40 + 30 * f, 0, 0, TAU); ctx.stroke(); }
-  ctx.globalAlpha = 1;
+  ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 4;
+  for (let k = 0; k < 3; k++) { const f = loopFrac(t, 2, k / 3); ctx.globalAlpha = (1 - f) * smooth(f / 0.14); ctx.beginPath(); ctx.ellipse(x, y, 160 + 140 * f, 40 + 30 * f, 0, 0, TAU); ctx.stroke(); }
+  ctx.restore();
 }
 void sparkle;

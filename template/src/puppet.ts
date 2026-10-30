@@ -2,7 +2,8 @@ import {Ctx, lin, rad, ellipse, disc, rrect, limb, rimDisc, fillCapsule, Look} f
 import {V, v, rot, add, sub, mul, deg, TAU, lerp, smooth, clamp} from './lib/math';
 import {C} from './palette';
 import {Samples, Samples2, follower} from './lib/sim';
-import {TIMELINE} from './anim';
+import {TIMELINE, FPS} from './anim';
+import {buildLife, breathAt, Life, IDLE} from './lib/life';
 
 export const DEF = {
   x: 540, y: 770, s: 0.9, rot: 0, hx: 0, hy: 0, hr: 0,
@@ -104,16 +105,39 @@ export function geom(p: PP) {
 }
 
 // ------------------------------------------------ secondary motion (spring sims, reset at every cut)
-export interface Sim {tails: V[]; curl: V; cords: V[]}
+export interface Sim {tails: V[]; curl: V; cords: V[]; life: Life}
+
+// ------------------------------------------------ character life (see lib/life.ts): all of it is visual only, applied at draw time
+/** breathing: the chest (and the shoulders / head riding on it) rise by this fraction of their height above the hip */
+const BREATH = 0.02;
+/** where the pupils glance when he looks at the hole / sign (same values the pointing poses use) */
+const GLANCE = {x: 6.5, y: 4};
+/** volume-ish preserving squash & stretch: width scales with height^-XY (1 = exactly area preserving, 0 = height only) */
+const XY = 0.85;
+/** offset of a torso-local point (local y = ly) when the chest is `br` full of air */
+const breathVec = (p: PP, br: number, ly: number) => mul(rot(v(0, ly * BREATH * br), p.rot), p.s);
+const COLLAR_Y = -232;
+const lifeOf = (sim: Sim): Life => sim.life ?? IDLE;
+const sole = (g: ReturnType<typeof geom>) => Math.max(g.aL.y, g.aR.y) + 40 * g.S;
+
 export function buildSims(ppAt: (t: number) => PP) {
-  const dt = 1 / 240, n = Math.ceil(TIMELINE.duration / dt) + 3;
-  const ch = Array.from({length: 8}, () => new Float64Array(n));
+  const dt = 1 / 240, D = TIMELINE.duration, n = Math.ceil(D / dt) + 3;
+  const ch = Array.from({length: 9}, () => new Float64Array(n));
   for (let i = 0; i < n; i++) {
-    const p = ppAt(Math.min(i * dt, TIMELINE.duration - 1e-3)), g = geom(p);
-    [g.head.x, g.head.y, g.hrot, g.hip.x, g.hip.y, p.rot, p.s, p.droop].forEach((x, k) => (ch[k][i] = x));
+    const tt = Math.min(i * dt, D - 1e-3), p = ppAt(tt), g = geom(p), br = breathAt(tt, D), lh = breathVec(p, br, COLLAR_Y);
+    // the head rides on the breathing chest, so the ribbons / curl follow it too
+    [g.head.x + lh.x, g.head.y + lh.y, g.hrot, g.hip.x, g.hip.y, p.rot, p.s, p.droop, br].forEach((x, k) => (ch[k][i] = x));
   }
   const B = ch.map((a) => new Samples(a, dt));
-  const base = (t: number) => ({hx: B[0].at(t), hy: B[1].at(t), hr: B[2].at(t), ox: B[3].at(t), oy: B[4].at(t), tr: B[5].at(t), s: B[6].at(t), d: B[7].at(t)});
+  const base = (t: number) => ({hx: B[0].at(t), hy: B[1].at(t), hr: B[2].at(t), ox: B[3].at(t), oy: B[4].at(t), tr: B[5].at(t), s: B[6].at(t), d: B[7].at(t), br: B[8].at(t)});
+  // blinks, glances, squash & stretch: tables built once from the pose (periodic over the video, seeded, order independent)
+  const life = buildLife((t) => {
+    const p = ppAt(t);
+    return {y: p.y, es: p.es, eye: p.eye, shades: p.shades, ex: p.ex, ey: p.ey, arm: p.aLa + p.aLb + p.aRa + p.aRb};
+  }, {
+    duration: D, fps: FPS, cuts: TIMELINE.scenes.slice(1).map((s) => s.t0), dart: GLANCE,
+    // landings, take-offs and standing are detected automatically from the motion (works for every episode)
+  });
   type F = Samples2;
   // one continuous simulation for the whole video: every cut is a match cut, so hair/ribbons must not reset
   const segs = [{t0: 0, t1: TIMELINE.duration}].map((sc) => {
@@ -129,21 +153,24 @@ export function buildSims(ppAt: (t: number) => PP) {
     };
     const cordT = (ax: number, len: number) => (tau: number) => {
       const b = base(t0 + tau);
-      return add(v(b.ox, b.oy), mul(rot(v(ax, -204 + len), b.tr), b.s));
+      return add(v(b.ox, b.oy), mul(rot(v(ax, (-204 + len) * (1 + BREATH * b.br)), b.tr), b.s));
     };
     return {
       t0,
-      tail1: follower(tailT(52, 14), 170, 5.5, T, 700) as F, tail2: follower(tailT(40, 54), 150, 5, T, 700) as F,
-      curl: follower(curlT, 280, 7.5, T, 380) as F,
-      c1: follower(cordT(-24, 64), 260, 12, T, 900) as F, c2: follower(cordT(26, 54), 240, 11, T, 900) as F,
+      // (k, c) = stiffness, damping. Damping ratios c / (2 sqrt k) are ~0.3 for the light ribbons / hair (still a lively swing, but over
+      // in about one overshoot after he stops) and ~0.45 for the heavier cords: everything settles in well under a second instead of ringing.
+      tail1: follower(tailT(52, 14), 170, 7.8, T, 700) as F, tail2: follower(tailT(40, 54), 150, 7.2, T, 700) as F,
+      curl: follower(curlT, 280, 10, T, 380) as F,
+      c1: follower(cordT(-24, 64), 260, 14.5, T, 900) as F, c2: follower(cordT(26, 54), 240, 13.5, T, 900) as F,
     };
   });
-  return (t: number): Sim => {
+  const out = (t: number): Sim => {
     let s = segs[0];
     for (const g of segs) if (t >= g.t0) s = g;
     const tau = t - s.t0;
-    return {tails: [s.tail1.at(tau), s.tail2.at(tau)], curl: s.curl.at(tau), cords: [s.c1.at(tau), s.c2.at(tau)]};
+    return {tails: [s.tail1.at(tau), s.tail2.at(tau)], curl: s.curl.at(tau), cords: [s.c1.at(tau), s.c2.at(tau)], life: life.at(t)};
   };
+  return Object.assign(out, {lifeDebug: life.debug});
 }
 
 // ------------------------------------------------ drawing
@@ -178,8 +205,9 @@ function torsoPath(ctx: Ctx) {
 }
 
 function drawTorso(ctx: Ctx, p: PP, g: ReturnType<typeof geom>, sim: Sim) {
+  const grow = 1 + BREATH * lifeOf(sim).breath;   // breathing: the chest grows a little taller (the hip stays put)
   ctx.save();
-  ctx.translate(g.hip.x, g.hip.y); ctx.rotate(p.rot); ctx.scale(g.S, g.S);
+  ctx.translate(g.hip.x, g.hip.y); ctx.rotate(p.rot); ctx.scale(g.S, g.S * grow);
   torsoPath(ctx); ctx.lineJoin = 'round'; ctx.lineWidth = 9; ctx.strokeStyle = C.ink; ctx.stroke();
   ctx.save(); ctx.translate(-2.6, -1.8); torsoPath(ctx); ctx.fillStyle = C.rimL; ctx.fill(); ctx.restore();
   ctx.save(); ctx.translate(2.6, 1.8); torsoPath(ctx); ctx.fillStyle = C.rimR; ctx.fill(); ctx.restore();
@@ -204,7 +232,7 @@ function drawTorso(ctx: Ctx, p: PP, g: ReturnType<typeof geom>, sim: Sim) {
   ctx.strokeStyle = C.rimL; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(cx, cy, 82, 32, 0, Math.PI * 0.85, Math.PI * 1.25); ctx.stroke();
   ctx.restore();
   // drawstrings
-  [v(-24, -204), v(26, -204)].forEach((l, i) => {
+  [v(-24, -204 * grow), v(26, -204 * grow)].forEach((l, i) => {
     const a = add(g.hip, mul(rot(l, p.rot), g.S)), tip = sim.cords[i];
     const mid = v((a.x + tip.x) / 2 + (i ? 6 : -6) * g.S, (a.y + tip.y) / 2);
     ctx.lineCap = 'round';
@@ -251,6 +279,8 @@ export function drawHead(ctx: Ctx, p: PP, g: ReturnType<typeof geom>, sim: Sim, 
   ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.beginPath(); ctx.ellipse(-52, -30, 26, 58, 0.5, 0, TAU); ctx.fill();
   // ---------------- face
   const eyeY = 24;
+  // character life: blink (never while the eyes are shut / squinting: the closed styles es 1-4 or eye < 0.4) and a glance at the point of interest
+  const closedStyle = p.es === 1 || p.es === 2 || p.es === 3 || p.es === 4, bl = !closedStyle && p.eye >= 0.4 ? lifeOf(sim).blink : 0, dg = closedStyle ? 0 : lifeOf(sim).dart;
   for (const sx of [-1, 1]) {
     const ex = sx * 40;
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -267,11 +297,13 @@ export function drawHead(ctx: Ctx, p: PP, g: ReturnType<typeof geom>, sim: Sim, 
       ctx.strokeStyle = '#fff'; ctx.lineWidth = 7;
       ctx.beginPath(); ctx.moveTo(ex + sx * 15, eyeY - 7); ctx.lineTo(ex - sx * 11, eyeY + 2); ctx.lineTo(ex + sx * 15, eyeY + 11); ctx.stroke();
     } else {
-      const rx = 14.5 * p.ew, ry = 18 * p.ew;
+      const rx0 = 14.5 * p.ew, ry = 18 * p.ew;
+      // blink: both lids close the eye to a line that sits a little below its centre (the same line the closed-eye style uses)
+      const rx = rx0 * (1 + 0.06 * bl), ryB = ry * (1 - 0.9 * bl), cy = eyeY + 4 * bl * p.ew;
       ctx.save();
-      ellipse(ctx, ex, eyeY, rx, ry); ctx.clip();
+      ellipse(ctx, ex, cy, rx, ryB); ctx.clip();
       ctx.fillStyle = '#fff'; ctx.fillRect(ex - 30, eyeY - 30, 60, 60);
-      const gx = clamp(p.ex, -7, 7), gy = clamp(p.ey, -7, 7);
+      const gx = clamp(lerp(p.ex, GLANCE.x, dg), -7, 7), gy = clamp(lerp(p.ey, GLANCE.y, dg), -7, 7);
       disc(ctx, ex + gx, eyeY + gy, p.pr, '#120d1a');
       disc(ctx, ex + gx + 2.6, eyeY + gy - 3, Math.min(2.6, p.pr * 0.32), '#fff');
       // eyelid (the head colour covers the top as the eye closes)
@@ -280,6 +312,7 @@ export function drawHead(ctx: Ctx, p: PP, g: ReturnType<typeof geom>, sim: Sim, 
       ctx.fillRect(ex - 30, eyeY - ry - 6, 60, lid + 6 - (ry * 2) * 0 );
       if (lid > 2) { ctx.strokeStyle = '#17121f'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(ex - 20, eyeY - ry + lid); ctx.lineTo(ex + 20, eyeY - ry + lid); ctx.stroke(); }
       ctx.restore();
+      if (bl > 0.5) { ellipse(ctx, ex, cy, rx - 1, ryB); ctx.strokeStyle = '#fff'; ctx.lineWidth = 4.4 * bl ** 3; ctx.stroke(); }   // the shut eye reads as a firm line
     }
     // bags
     if (p.bags > 0.02) {
@@ -289,7 +322,7 @@ export function drawHead(ctx: Ctx, p: PP, g: ReturnType<typeof geom>, sim: Sim, 
       ctx.beginPath(); ctx.moveTo(ex - 10, eyeY + 36); ctx.quadraticCurveTo(ex, eyeY + 42, ex + 10, eyeY + 36); ctx.stroke(); ctx.globalAlpha = 1;
     }
     // brows
-    const by = -4 - 12 * p.brow, inner = p.tilt * 9, outer = -p.tilt * 3;
+    const by = -4 - 12 * p.brow + 2.4 * bl, inner = p.tilt * 9, outer = -p.tilt * 3;
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 5.5;
     ctx.beginPath();
     const ix = ex - sx * 17, ox = ex + sx * 17; // inner end toward the nose
@@ -393,8 +426,22 @@ export function drawHead(ctx: Ctx, p: PP, g: ReturnType<typeof geom>, sim: Sim, 
 
 export interface Drawn {hL: V; hR: V; head: V; hip: V; aL: V; aR: V; g: ReturnType<typeof geom>}
 
+/** scale about (x, y); width follows height so the body keeps its volume */
+function scaleAbout(ctx: Ctx, x: number, y: number, a: number) {
+  const sy = 1 + a, sx = Math.pow(sy, -XY);
+  ctx.translate(x, y); ctx.scale(sx, sy); ctx.translate(-x, -y);
+}
+
 export function drawPuppet(ctx: Ctx, p: PP, sim: Sim, t: number): Drawn {
-  const g = geom(p), S = g.S;
+  const g0 = geom(p), S = g0.S, L = lifeOf(sim);
+  // breathing: shoulders and head ride up with the chest; elbows, hands and legs stay exactly where the pose put them
+  const lift = (ly: number) => breathVec(p, L.breath, ly);
+  const g = {...g0, shL: add(g0.shL, lift(SHY)), shR: add(g0.shR, lift(SHY)), head: add(g0.head, lift(COLLAR_Y))};
+  ctx.save();
+  // squash & stretch is applied here, at draw time only (the skeleton / pose / geom are untouched):
+  // landing + take-off squash pivots on the soles (he is standing), speed stretch on the hip (he is in the air)
+  if (Math.abs(L.ground) > 1e-4) scaleAbout(ctx, g0.hip.x, p.seated ? g0.hip.y : sole(g0), L.ground);
+  if (Math.abs(L.air) > 1e-4) scaleAbout(ctx, g0.hip.x, g0.hip.y, L.air);
   if (!p.seated) {
     limb(ctx, g.pL, g.kL, 30 * S, 26 * S, blackLook); limb(ctx, g.kL, g.aL, 24 * S, 19 * S, blackLook);
     limb(ctx, g.pR, g.kR, 30 * S, 26 * S, blackLook); limb(ctx, g.kR, g.aR, 24 * S, 19 * S, blackLook);
@@ -410,7 +457,8 @@ export function drawPuppet(ctx: Ctx, p: PP, sim: Sim, t: number): Drawn {
     rimDisc(ctx, hd.x + ux * 4 * S, hd.y + uy * 4 * S, 16.5 * S, blackLook, 3);
   }
   drawHead(ctx, p, g, sim, t);
-  return {hL: g.hL, hR: g.hR, head: g.head, hip: g.hip, aL: g.aL, aR: g.aR, g};
+  ctx.restore();
+  return {hL: g0.hL, hR: g0.hR, head: g0.head, hip: g0.hip, aL: g0.aL, aR: g0.aR, g: g0};
 }
 export const floorOf = (p: PP) => geom(p).aL.y + 34 * p.s;
 void smooth;
