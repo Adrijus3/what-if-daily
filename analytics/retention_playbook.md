@@ -14,3 +14,10 @@ Two numbers count most: **average watch time ÷ duration** (retention) and **ful
 
 ## Data-backed (updated by the analyst; empty until there are 5+ videos per comparison)
 - (none yet)
+
+## 3-second rule and pacing (added 2026-10-30)
+- **3-second rule:** the hook sentence ends by 2.5 s and a real visual payoff (big image, number slam, scale change) is on screen by 3.0 s. Measured as `first_payoff_s` and `hook_end_s` in features.json; the analyst should compare early-drop (the 3 s and 5 s retention points) against these two numbers.
+- **Open mid-action:** frame 0 shows the consequence already happening, never an empty set or title. Rotate the six hook patterns (mid-action, scariest number first, before-you-blink, size flip, wrong-answer reveal, prop rushes camera) and record `hook_pattern` so the analyst can see which holds viewers best.
+- **Put the biggest number or most surprising image in the first 3 s**, not at the twist. The twist still pays off the end, the opening just earns the next 10 seconds.
+- **No dead air:** never more than 4 s without a visible change (`max_gap_without_visual_change_s` <= 4.0). A caption pop alone does not count as a change.
+- **The seam is the second hook:** the loop line leads back into the same opening image, so a viewer who rewatches sees the payoff again immediately.

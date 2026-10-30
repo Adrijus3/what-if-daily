@@ -4,6 +4,7 @@ import {C} from './palette';
 import {Samples, Samples2, follower} from './lib/sim';
 import {TIMELINE, FPS} from './anim';
 import {buildLife, breathAt, Life, IDLE} from './lib/life';
+import {buildReact, React, NO_REACT} from './lib/react';
 
 export const DEF = {
   x: 540, y: 770, s: 0.9, rot: 0, hx: 0, hy: 0, hr: 0,
@@ -105,7 +106,7 @@ export function geom(p: PP) {
 }
 
 // ------------------------------------------------ secondary motion (spring sims, reset at every cut)
-export interface Sim {tails: V[]; curl: V; cords: V[]; life: Life}
+export interface Sim {tails: V[]; curl: V; cords: V[]; life: Life; react: React}
 
 // ------------------------------------------------ character life (see lib/life.ts): all of it is visual only, applied at draw time
 /** breathing: the chest (and the shoulders / head riding on it) rise by this fraction of their height above the hip */
@@ -118,6 +119,9 @@ const XY = 0.85;
 const breathVec = (p: PP, br: number, ly: number) => mul(rot(v(0, ly * BREATH * br), p.rot), p.s);
 const COLLAR_Y = -232;
 const lifeOf = (sim: Sim): Life => sim.life ?? IDLE;
+const reactOf = (sim: Sim): React => sim.react ?? NO_REACT;
+/** big-number reaction (lib/react.ts), all applied at draw time on top of the keyed face: peak amounts */
+const REACT = {ew: 0.17, pr: 0.3, brow: 0.55, open: 0.3, smile: 0.5, hy: -5, hr: 2.4, pop: 0.022};
 const sole = (g: ReturnType<typeof geom>) => Math.max(g.aL.y, g.aR.y) + 40 * g.S;
 
 export function buildSims(ppAt: (t: number) => PP) {
@@ -137,6 +141,11 @@ export function buildSims(ppAt: (t: number) => PP) {
   }, {
     duration: D, fps: FPS, cuts: TIMELINE.scenes.slice(1).map((s) => s.t0), dart: GLANCE,
     // landings, take-offs and standing are detected automatically from the motion (works for every episode)
+  });
+  // big-number reactions: found automatically from the caption words (digits or spelled out), clear of cuts and the loop seam
+  const react = buildReact(TIMELINE.captions.flatMap((c) => c.words.map((w, i) => ({w: w.w, t: w.t, hi: c.hi.includes(i)}))), {
+    duration: D, fps: FPS, cuts: TIMELINE.scenes.slice(1).map((s) => s.t0),
+    sample: (t) => {const p = ppAt(t); return {es: p.es, eye: p.eye, shades: p.shades, hidden: p.hidden};},
   });
   type F = Samples2;
   // one continuous simulation for the whole video: every cut is a match cut, so hair/ribbons must not reset
@@ -168,9 +177,9 @@ export function buildSims(ppAt: (t: number) => PP) {
     let s = segs[0];
     for (const g of segs) if (t >= g.t0) s = g;
     const tau = t - s.t0;
-    return {tails: [s.tail1.at(tau), s.tail2.at(tau)], curl: s.curl.at(tau), cords: [s.c1.at(tau), s.c2.at(tau)], life: life.at(t)};
+    return {tails: [s.tail1.at(tau), s.tail2.at(tau)], curl: s.curl.at(tau), cords: [s.c1.at(tau), s.c2.at(tau)], life: life.at(t), react: react.at(t)};
   };
-  return Object.assign(out, {lifeDebug: life.debug});
+  return Object.assign(out, {lifeDebug: life.debug, reactDebug: react.debug});
 }
 
 // ------------------------------------------------ drawing
@@ -280,7 +289,12 @@ export function drawHead(ctx: Ctx, p: PP, g: ReturnType<typeof geom>, sim: Sim, 
   // ---------------- face
   const eyeY = 24;
   // character life: blink (never while the eyes are shut / squinting: the closed styles es 1-4 or eye < 0.4) and a glance at the point of interest
-  const closedStyle = p.es === 1 || p.es === 2 || p.es === 3 || p.es === 4, bl = !closedStyle && p.eye >= 0.4 ? lifeOf(sim).blink : 0, dg = closedStyle ? 0 : lifeOf(sim).dart;
+  const closedStyle = p.es === 1 || p.es === 2 || p.es === 3 || p.es === 4, rk = closedStyle ? 0 : reactOf(sim).k,
+    bl = !closedStyle && p.eye >= 0.4 ? lifeOf(sim).blink * (1 - rk) : 0, dg = closedStyle ? 0 : lifeOf(sim).dart;
+  // surprise: additive and clamped on the keyed face (rk = 0 outside a reaction, and always 0 for the closed / special eye styles)
+  const rp = closedStyle ? 0 : rk + 0.25 * Math.max(0, reactOf(sim).take),   // the eyes pop a touch past their peak with the head recoil, then settle
+    ewR = p.ew * (1 + REACT.ew * rp), prR = p.pr * (1 - REACT.pr * Math.min(1.15, rp)), browR = p.brow + REACT.brow * rk * (1 - 0.5 * clamp(p.brow, 0, 1)),
+    openR = clamp(p.open + REACT.open * rk * (1 - clamp(p.open, 0, 1)), 0, 1), smileR = p.smile * (1 - REACT.smile * rk);
   for (const sx of [-1, 1]) {
     const ex = sx * 40;
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -297,15 +311,15 @@ export function drawHead(ctx: Ctx, p: PP, g: ReturnType<typeof geom>, sim: Sim, 
       ctx.strokeStyle = '#fff'; ctx.lineWidth = 7;
       ctx.beginPath(); ctx.moveTo(ex + sx * 15, eyeY - 7); ctx.lineTo(ex - sx * 11, eyeY + 2); ctx.lineTo(ex + sx * 15, eyeY + 11); ctx.stroke();
     } else {
-      const rx0 = 14.5 * p.ew, ry = 18 * p.ew;
+      const rx0 = 14.5 * ewR, ry = 18 * ewR;
       // blink: both lids close the eye to a line that sits a little below its centre (the same line the closed-eye style uses)
-      const rx = rx0 * (1 + 0.06 * bl), ryB = ry * (1 - 0.9 * bl), cy = eyeY + 4 * bl * p.ew;
+      const rx = rx0 * (1 + 0.06 * bl), ryB = ry * (1 - 0.9 * bl), cy = eyeY + 4 * bl * ewR;
       ctx.save();
       ellipse(ctx, ex, cy, rx, ryB); ctx.clip();
       ctx.fillStyle = '#fff'; ctx.fillRect(ex - 30, eyeY - 30, 60, 60);
       const gx = clamp(lerp(p.ex, GLANCE.x, dg), -7, 7), gy = clamp(lerp(p.ey, GLANCE.y, dg), -7, 7);
-      disc(ctx, ex + gx, eyeY + gy, p.pr, '#120d1a');
-      disc(ctx, ex + gx + 2.6, eyeY + gy - 3, Math.min(2.6, p.pr * 0.32), '#fff');
+      disc(ctx, ex + gx, eyeY + gy, prR, '#120d1a');
+      disc(ctx, ex + gx + 2.6, eyeY + gy - 3, Math.min(2.6, prR * 0.32), '#fff');
       // eyelid (the head colour covers the top as the eye closes)
       const lid = (1 - clamp(p.eye, 0, 1)) * (ry * 2 + 4);
       ctx.fillStyle = '#17121f';
@@ -322,11 +336,11 @@ export function drawHead(ctx: Ctx, p: PP, g: ReturnType<typeof geom>, sim: Sim, 
       ctx.beginPath(); ctx.moveTo(ex - 10, eyeY + 36); ctx.quadraticCurveTo(ex, eyeY + 42, ex + 10, eyeY + 36); ctx.stroke(); ctx.globalAlpha = 1;
     }
     // brows
-    const by = -4 - 12 * p.brow + 2.4 * bl, inner = p.tilt * 9, outer = -p.tilt * 3;
+    const by = -4 - 12 * browR + 2.4 * bl, inner = p.tilt * 9, outer = -p.tilt * 3;
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 5.5;
     ctx.beginPath();
     const ix = ex - sx * 17, ox = ex + sx * 17; // inner end toward the nose
-    ctx.moveTo(ix, by + inner); ctx.quadraticCurveTo(ex, by - 7 - 4 * p.brow, ox, by + outer); ctx.stroke();
+    ctx.moveTo(ix, by + inner); ctx.quadraticCurveTo(ex, by - 7 - 4 * browR, ox, by + outer); ctx.stroke();
     // blush
     if (p.blush > 0.01) { ellipse(ctx, sx * 70, 56, 15, 8); ctx.fillStyle = `rgba(255,100,150,${0.32 * p.blush + 0.1})`; ctx.fill(); }
     // tears
@@ -361,7 +375,7 @@ export function drawHead(ctx: Ctx, p: PP, g: ReturnType<typeof geom>, sim: Sim, 
     }
   }
   // mouth
-  const sm = p.smile, op = clamp(p.open, 0, 1), w = 24 + 8 * op + 4 * Math.abs(sm);
+  const sm = smileR, op = openR, w = 24 + 8 * op + 4 * Math.abs(sm);
   const y0 = 58 - 8 * sm * (op > 0.05 ? 0.4 : 1);
   if (op < 0.06) {
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 5.5; ctx.lineCap = 'round';
@@ -436,12 +450,16 @@ export function drawPuppet(ctx: Ctx, p: PP, sim: Sim, t: number): Drawn {
   const g0 = geom(p), S = g0.S, L = lifeOf(sim);
   // breathing: shoulders and head ride up with the chest; elbows, hands and legs stay exactly where the pose put them
   const lift = (ly: number) => breathVec(p, L.breath, ly);
-  const g = {...g0, shL: add(g0.shL, lift(SHY)), shR: add(g0.shR, lift(SHY)), head: add(g0.head, lift(COLLAR_Y))};
+  // big-number reaction: the head recoils a few px and tilts a touch (a double-take), the body pops up ~2 %; arms are never touched
+  const R = reactOf(sim);
+  const rh = add(lift(COLLAR_Y), mul(v(0, REACT.hy * R.k), S));
+  const g = {...g0, shL: add(g0.shL, lift(SHY)), shR: add(g0.shR, lift(SHY)), head: add(g0.head, rh), hrot: g0.hrot + deg(REACT.hr * R.take * R.dir)};
   ctx.save();
   // squash & stretch is applied here, at draw time only (the skeleton / pose / geom are untouched):
   // landing + take-off squash pivots on the soles (he is standing), speed stretch on the hip (he is in the air)
   if (Math.abs(L.ground) > 1e-4) scaleAbout(ctx, g0.hip.x, p.seated ? g0.hip.y : sole(g0), L.ground);
   if (Math.abs(L.air) > 1e-4) scaleAbout(ctx, g0.hip.x, g0.hip.y, L.air);
+  if (R.pop > 1e-4) scaleAbout(ctx, g0.hip.x, p.seated ? g0.hip.y : sole(g0), REACT.pop * R.pop);
   if (!p.seated) {
     limb(ctx, g.pL, g.kL, 30 * S, 26 * S, blackLook); limb(ctx, g.kL, g.aL, 24 * S, 19 * S, blackLook);
     limb(ctx, g.pR, g.kR, 30 * S, 26 * S, blackLook); limb(ctx, g.kR, g.aR, 24 * S, 19 * S, blackLook);

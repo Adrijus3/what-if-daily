@@ -7,33 +7,84 @@
  * and then runs the checks below. Nothing is sampled: all frames are tested.
  */
 import {drawFrame} from '../src/frame';
-import {sceneAt, ppAt} from '../src/scenes';
+import {sceneAt, ppAt, SCENES} from '../src/scenes';
 import {geom} from '../src/puppet';
 import {TIMELINE, FPS, W, H} from '../src/anim';
 
 type Box = {x0: number; y0: number; x1: number; y1: number};
-type TextRec = {text: string; box: Box; alpha: number; scale: number; layer: string};
-type Issue = {check: string; severity: 'FAIL' | 'WARN'; t: number; frame: number; msg: string};
+type TextRec = {text: string; box: Box; alpha: number; scale: number; layer: string; px: number; group: number};
+type Issue = {check: string; severity: 'FAIL' | 'WARN'; t: number; frame: number; msg: string; key?: string};
 
 const rec: TextRec[] = [];
 let seamInfo: any = null;
 const armMax: Record<string, {deg: number; t: number}> = {};
-let layer = 'scene';
+// Which part of drawFrame is running: 'scene' (sc.draw, inside the camera), 'hud' (sc.hud, the gauges/overlays on top)
+// or 'caption' (everything else, i.e. the captions). The scenes' draw/hud functions are wrapped once in runQA().
+let layer = 'caption';
+let mainCtx: CanvasRenderingContext2D | null = null;
+// HUD graphics tracking (layer 'hud' only). Every top-level ctx.save() ... ctx.restore() pair is one "group" = one HUD element.
+// Per group we keep the peak globalAlpha of its draw calls (to see mid-fade elements, text or not) and which texts it drew.
+type Grp = {peak: number; texts: string[]};
+type Seg = {a: {x: number; y: number}; b: {x: number; y: number}; lw: number; group: number};
+let hudGroups = new Map<number, Grp>();
+let hudLines: Seg[] = [];
+let depth = 0, gid = 0, cur = -1;
+let path: {pts: {x: number; y: number}[]; complex: boolean} = {pts: [], complex: false};
+const curGroup = () => (layer === 'hud' ? (depth > 0 ? cur : -1) : -2);
+function patchGfx() {
+  const P = CanvasRenderingContext2D.prototype as any;
+  const wrap = (fn: string, f: (self: CanvasRenderingContext2D, args: any[]) => void) => {
+    const orig = P[fn];
+    P[fn] = function (this: CanvasRenderingContext2D, ...a: any[]) { if (this === mainCtx) f(this, a); return orig.apply(this, a); };
+  };
+  wrap('save', () => { if (layer !== 'hud') return; if (depth === 0) cur = ++gid; depth++; });
+  wrap('restore', () => { if (layer !== 'hud') return; depth = Math.max(0, depth - 1); });
+  const touch = (c: CanvasRenderingContext2D, text?: string) => {
+    if (layer !== 'hud' || c.globalAlpha < 0.03) return;
+    const g = curGroup(); const e = hudGroups.get(g) ?? {peak: 0, texts: []}; hudGroups.set(g, e);
+    e.peak = Math.max(e.peak, c.globalAlpha); if (text && text.trim() && !e.texts.includes(text.trim())) e.texts.push(text.trim());
+  };
+  for (const fn of ['fill', 'fillRect', 'strokeRect', 'drawImage']) wrap(fn, (c) => touch(c));
+  for (const fn of ['fillText', 'strokeText']) wrap(fn, (c, a) => touch(c, String(a[0])));
+  const T = (c: CanvasRenderingContext2D, x: number, y: number) => { const m = c.getTransform(); return {x: m.a * x + m.c * y + m.e, y: m.b * x + m.d * y + m.f}; };
+  wrap('beginPath', () => { path = {pts: [], complex: false}; });
+  wrap('moveTo', (c, a) => { path.pts.push(T(c, a[0], a[1])); });
+  wrap('lineTo', (c, a) => { path.pts.push(T(c, a[0], a[1])); });
+  for (const fn of ['arc', 'arcTo', 'ellipse', 'rect', 'roundRect', 'quadraticCurveTo', 'bezierCurveTo']) wrap(fn, () => { path.complex = true; });
+  wrap('stroke', (c) => {
+    touch(c);
+    // a plain straight stroke (needle, tick, underline) is remembered so the harness can test whether it crosses text of the same element
+    if (layer === 'hud' && !path.complex && path.pts.length === 2 && c.globalAlpha > 0.3) {
+      const m = c.getTransform();
+      hudLines.push({a: path.pts[0], b: path.pts[1], lw: c.lineWidth * Math.hypot(m.a, m.b), group: curGroup()});
+    }
+  });
+}
+let wrapped = false;
+function wrapScenes() {
+  if (wrapped) return; wrapped = true;
+  for (const sc of SCENES) {
+    const d = sc.draw, h = sc.hud;
+    sc.draw = (...a) => { layer = 'scene'; try { d(...a); } finally { layer = 'caption'; } };
+    sc.hud = (...a) => { layer = 'hud'; depth = 0; try { h(...a); } finally { layer = 'caption'; depth = 0; } };
+  }
+}
 function patchText() {
   const P = CanvasRenderingContext2D.prototype as any;
   for (const fn of ['fillText', 'strokeText']) {
     const orig = P[fn];
     P[fn] = function (this: CanvasRenderingContext2D, text: string, x: number, y: number, ...rest: any[]) {
       const s = String(text).trim();
-      if (s && this.canvas.width === W && this.globalAlpha > 0.02) {
+      if (s && this.canvas.width === W && this.globalAlpha > 0.02 && this === mainCtx) {
         const m = this.measureText(String(text));
         const l = x - m.actualBoundingBoxLeft, r = x + m.actualBoundingBoxRight;
         const tp = y - m.actualBoundingBoxAscent, bt = y + m.actualBoundingBoxDescent;
         const T = this.getTransform();
         const pts = [[l, tp], [r, tp], [l, bt], [r, bt]].map(([px, py]) => [T.a * px + T.c * py + T.e, T.b * px + T.d * py + T.f]);
         const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+        const fpx = parseFloat(/([\d.]+)px/.exec(this.font)?.[1] ?? '0');
         rec.push({text: s, box: {x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys)},
-          alpha: this.globalAlpha, scale: Math.hypot(T.a, T.b), layer});
+          alpha: this.globalAlpha, scale: Math.hypot(T.a, T.b), layer, px: fpx * Math.hypot(T.a, T.b), group: curGroup()});
       }
       return orig.call(this, text, x, y, ...rest);
     };
@@ -46,12 +97,16 @@ const inter = (a: Box, b: Box) => Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.
 const area = (a: Box) => Math.max(1, (a.x1 - a.x0) * (a.y1 - a.y0));
 
 // TikTok UI safe zones on a 1080x1920 frame
-const SAFE = {top: 210, bottom: 1600, left: 40, right: 1040, rightRail: {x: 930, y0: 760, y1: 1600}};
+// (recipe section 3: nothing important in the top 230 px, the bottom 330 px or the right-hand 160 px)
+const SAFE = {top: 230, bottom: 1590, left: 40, right: 1040, rightRail: {x: 920, y0: 760, y1: 1590}};
+const BIG_PX = 110;
+const HEAD_PAD = 1.25;  // head radius multiplier for the big-text vs head test (covers the hair)
+const FADE_WIN = 0.3;   // seconds either side of a cut in which no HUD element may be mid-fade   // text this large (on-screen px) counts as a big display word
 
 export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: number; motion?: boolean} = {}) {
-  patchText();
   const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d')!;
+  mainCtx = ctx; patchText(); patchGfx(); wrapScenes();
   const N = Math.round(TIMELINE.duration * FPS);
   const sub = opts.sub ?? 2;               // skeleton sampled at 60 fps for motion checks
   const issues: Issue[] = [];
@@ -182,7 +237,9 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
     else if (armD > 35) add('cut-pose', 'WARN', tb, `${where}: arm pose changes ${Math.round(armD)}° across the cut`);
   }
 
+  const norm = (x: string) => x.replace(/[0-9]/g, '#');
   // ---------- 3. text: every frame drawn for real
+  const fadeSeen = new Set<string>();
   const textFrames: {t: number; recs: TextRec[]; head: {x: number; y: number; r: number}}[] = [];
   const small = document.createElement('canvas'); small.width = 108; small.height = 192; const sg = small.getContext('2d', {willReadFrequently: true})!;
   const grab = () => { sg.drawImage(cv, 0, 0, 108, 192); return sg.getImageData(0, 0, 108, 192).data; };
@@ -191,7 +248,7 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
   let pm2: Uint8ClampedArray | null = null, pm1: Uint8ClampedArray | null = null;
   for (let f = Math.max(0, from - 2); f < Math.min(N, opts.textTo ?? N); f++) {
     const t = f / FPS;
-    rec.length = 0;
+    rec.length = 0; hudGroups = new Map(); hudLines = [];
     drawFrame(ctx, t);
     const px = grab();
     if (pm2 && pm1) {   // one-frame flash/glitch: frame f-1 differs from both neighbours while they match each other
@@ -200,12 +257,33 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
     }
     pm2 = pm1; pm1 = px;
     if (f < from) continue;
+    // ---- HUD / overlay element mid-fade within +-0.3 s of a cut or the loop seam (a ghost on the first frame after the cut)
+    const D0 = TIMELINE.duration, winC = [0, ...cuts, D0].find((c) => Math.abs(t - c) < FADE_WIN - 1e-6);
+    if (winC !== undefined) {
+      const ck = winC === 0 || winC === D0 ? 'loop' : winC.toFixed(2), where = ck === 'loop' ? 'the loop seam' : `the cut at ${winC.toFixed(2)}s`;
+      const fadeIssue = (label: string, a: number) => {
+        const key = `${ck}|${label.replace(/[0-9]/g, '#')}`;
+        if (!fadeSeen.has(key)) { fadeSeen.add(key); issues.push({check: 'fade-across-cut', severity: 'FAIL', t: +t.toFixed(3), frame: f, key,
+          msg: `${label} is mid-fade (opacity ${a.toFixed(2)}) ${Math.abs(t - winC).toFixed(2)} s from ${where} — fades must finish >= ${FADE_WIN} s before a cut (or start >= ${FADE_WIN} s after it), or stay on across it`}); }
+      };
+      for (const g of hudGroups.values()) if (g.peak >= 0.03 && g.peak <= 0.97) fadeIssue(`HUD element ${g.texts.length ? '"' + g.texts.slice(0, 3).join(' / ') + '"' : '(graphic)'}`, g.peak);
+      for (const r of rec) if (r.layer === 'scene' && r.alpha >= 0.03 && r.alpha <= 0.97) fadeIssue(`overlay text "${r.text}"`, r.alpha);
+    }
+    // ---- a straight stroke (speedometer needle, tick, line) must not cross text of the same HUD element
+    for (const L of hudLines) for (const r of rec) {
+      if (r.layer !== 'hud' || r.group !== L.group || r.px < 20 || r.alpha < 0.5) continue;
+      const m = L.lw / 2 + 1; let hit = false;
+      for (let i = 0; i <= 48 && !hit; i++) {
+        const x = L.a.x + (L.b.x - L.a.x) * i / 48, y = L.a.y + (L.b.y - L.a.y) * i / 48;
+        hit = x > r.box.x0 - m && x < r.box.x1 + m && y > r.box.y0 - m && y < r.box.y1 + m;
+      }
+      if (hit) flagOnce('lot' + norm(r.text), t, () => add('line-over-text', 'FAIL', t, `a line (needle/tick, ${Math.round(L.lw)} px wide) crosses the HUD text "${r.text}" — the readout is covered`));
+    }
     const q = at(t);
     textFrames.push({t, recs: rec.map((r) => ({...r})), head: {...q.pts.head, r: q.headR}});
   }
   // ---------- 2b. on-screen elements must not pop on/off exactly on a cut or the loop seam (captions excluded)
   const capWords = new Set(TIMELINE.captions.flatMap((c) => c.words.map((w) => w.w.trim())));
-  const norm = (x: string) => x.replace(/[0-9]/g, '#');
   const visSet = (t: number) => { rec.length = 0; drawFrame(ctx, Math.max(0, Math.min(TIMELINE.duration - 1e-4, t))); return new Set(rec.filter((r) => r.alpha > 0.5 && !capWords.has(r.text)).map((r) => norm(r.text))); };
   const pixels = (t: number) => { drawFrame(ctx, Math.max(0, Math.min(TIMELINE.duration - 1e-4, t))); const o = document.createElement('canvas'); o.width = 108; o.height = 192; const g = o.getContext('2d')!; g.drawImage(cv, 0, 0, 108, 192); return g.getImageData(0, 0, 108, 192).data; };
   const pdiff = (a: Uint8ClampedArray, b: Uint8ClampedArray) => { let s2 = 0; for (let i = 0; i < a.length; i += 4) s2 += Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]); return s2 / (a.length * 0.75); };
@@ -233,13 +311,22 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
       byText[r.text] ??= {first: fr.t, last: fr.t}; byText[r.text].last = fr.t;
       const vis = r.alpha > 0.6;
       if (!vis) continue;
-      const b = r.box;
+      const b = r.box, big = r.px >= BIG_PX && r.layer !== 'caption';
       if (b.x0 < 0 || b.x1 > W || b.y0 < 0 || b.y1 > H) flagOnce('off' + r.text, fr.t, () => add('text-offscreen', 'FAIL', fr.t, `"${r.text}" is cut off the edge of the frame`));
-      else if (b.y0 < SAFE.top) flagOnce('top' + r.text, fr.t, () => add('text-safezone', 'FAIL', fr.t, `"${r.text}" sits under TikTok's top tabs (y=${Math.round(b.y0)})`));
+      else if (b.y0 < SAFE.top) flagOnce('top' + r.text, fr.t, () => big
+        ? add('bigtext-top', 'FAIL', fr.t, `big display text "${r.text}" (${Math.round(r.px)} px) enters the top ${SAFE.top} px safe zone (glyph top y=${Math.round(b.y0)})`)
+        : add('text-safezone', 'FAIL', fr.t, `"${r.text}" sits under TikTok's top tabs (y=${Math.round(b.y0)})`));
       else if (b.y1 > SAFE.bottom) flagOnce('bot' + r.text, fr.t, () => add('text-safezone', 'FAIL', fr.t, `"${r.text}" sits under TikTok's caption area (y=${Math.round(b.y1)})`));
       else if (b.x1 > SAFE.rightRail.x && b.y1 > SAFE.rightRail.y0 && b.y0 < SAFE.rightRail.y1) flagOnce('rail' + r.text, fr.t, () => add('text-safezone', 'FAIL', fr.t, `"${r.text}" is under TikTok's like/comment buttons`));
       else if (b.x0 < SAFE.left || b.x1 > SAFE.right) flagOnce('side' + r.text, fr.t, () => add('text-margin', 'WARN', fr.t, `"${r.text}" is very close to the edge`));
       const h = fr.head, cx = Math.max(b.x0, Math.min(h.x, b.x1)), cy = Math.max(b.y0, Math.min(h.y, b.y1));
+      if (big) {
+        // big display word: must not touch the head (head circle + hair margin) and should not just repeat the caption
+        if (Math.hypot(cx - h.x, cy - h.y) < h.r * HEAD_PAD) flagOnce('bhead' + r.text, fr.t, () => add('bigtext-head', 'FAIL', fr.t, `big display text "${r.text}" (${Math.round(r.px)} px) touches the mascot's head/hair`));
+        const w = r.text.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (w && fr.recs.some((c) => c.layer === 'caption' && c.text.split(/\s+/).some((x) => x.toLowerCase().replace(/[^a-z0-9]/g, '') === w)))
+          flagOnce('bdup' + r.text, fr.t, () => add('bigtext-dup-caption', 'WARN', fr.t, `big display text "${r.text}" repeats the caption word on screen at the same time — redundant`));
+      }
       if (Math.hypot(cx - h.x, cy - h.y) < h.r * 0.8) flagOnce('face' + r.text, fr.t, () => add('text-over-face', 'FAIL', fr.t, `"${r.text}" covers the mascot's face`));
     }
     for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {

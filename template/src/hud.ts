@@ -10,37 +10,115 @@ function outlined(ctx: Ctx, text: string, x: number, y: number, fill: string, lw
   ctx.fillStyle = fill; ctx.fillText(text, x, y);
 }
 
-/** captions: true centre line, narrow column (clear of TikTok's right-hand buttons), each word pops when it is spoken */
-export function drawCaptions(ctx: Ctx, t: number) {
-  const c = TIMELINE.captions.find((q) => t >= q.t0 - 0.02 && t < q.t1);
-  if (!c) return;
-  const words = c.words;
+const CAP_Y = 1285, CAP_MAXW = 700;
+// soft backing plate (variant picked after rendering the busiest frames): total alpha, horizontal / vertical padding, per-line plates?
+const CAP_PLATE = {a: 0.44, px: 42, py: 28, perLine: false};
+type CapLine = {w: string; i: number; x: number; width: number}[];
+type CapLayout = {size: number; lh: number; lines: CapLine[]; widths: number[]; y0: number};
+
+/** greedy wrap into the 700 px column; the font shrinks until the chunk fits in 2 lines (never 3), so captions can't ride over the mascot's legs */
+function layoutCaption(ctx: Ctx, c: (typeof TIMELINE.captions)[number]): CapLayout {
   const n = c.text.length;
-  const size = n > 60 ? 58 : n > 34 ? 66 : 76;
-  ctx.font = `${size}px ${FONT}`;
-  const maxW = 700, space = ctx.measureText(' ').width + 10;
-  const lines: {w: string; i: number; x: number; width: number}[][] = [[]];
-  let cur = 0;
-  words.forEach((wd, i) => {
-    const width = ctx.measureText(wd.w).width;
-    if (cur + width > maxW && lines[lines.length - 1].length) { lines.push([]); cur = 0; }
-    lines[lines.length - 1].push({w: wd.w, i, x: cur, width});
-    cur += width + space;
+  let size = n > 60 ? 58 : n > 34 ? 66 : 76;
+  for (;;) {
+    ctx.font = `${size}px ${FONT}`;
+    const space = ctx.measureText(' ').width + 10;
+    const lines: CapLine[] = [[]];
+    let cur = 0;
+    c.words.forEach((wd, i) => {
+      const width = ctx.measureText(wd.w).width;
+      if (cur + width > CAP_MAXW && lines[lines.length - 1].length) { lines.push([]); cur = 0; }
+      lines[lines.length - 1].push({w: wd.w, i, x: cur, width});
+      cur += width + space;
+    });
+    if (lines.length <= 2 || size <= 30) {
+      const lh = size * 1.1;
+      return {size, lh, lines, widths: lines.map((ln) => ln[ln.length - 1].x + ln[ln.length - 1].width), y0: CAP_Y - ((lines.length - 1) * lh) / 2};
+    }
+    size -= 2;
+  }
+}
+
+type Rect = {x: number; y: number; w: number; h: number};
+function plateRects(L: CapLayout, words?: {t: number}[], t = 1e9): Rect[] {
+  const {px, py, perLine} = CAP_PLATE;
+  if (perLine) return L.lines.map((_, li) => ({x: (W - L.widths[li]) / 2 - px, y: L.y0 + li * L.lh - L.lh / 2 + 4 - py * 0.5, w: L.widths[li] + 2 * px, h: L.lh + py}));
+  // height grows as line 2 starts to be spoken (eased), so the plate never sits empty under a single word
+  let rows = 1;
+  if (L.lines.length > 1) rows += words ? smooth((t - words[L.lines[1][0].i].t) / 0.3 + 0.3) : 1;
+  // width grows with the spoken words too (each word's right edge eases in as it pops), so there is never an empty smudge
+  // beside the words that have appeared; the first word is always covered so the plate never starts as a sliver
+  let x0 = Infinity, x1 = -Infinity;
+  L.lines.forEach((ln, li) => {
+    const left = (W - L.widths[li]) / 2;
+    let right = li === 0 ? left + ln[0].width : -Infinity;
+    ln.forEach((wd, j) => {
+      const prev = j ? ln[j - 1].x + ln[j - 1].width : (li === 0 ? ln[0].width : 0);
+      const e = words ? smooth((t - words[wd.i].t) / 0.16 + 0.15) : 1;
+      if (e > 0) right = Math.max(right, left + lerp(prev, wd.x + wd.width, e));
+    });
+    if (right > -Infinity) { x0 = Math.min(x0, left); x1 = Math.max(x1, right); }
   });
-  const lh = size * 1.1, y0 = 1285 - ((lines.length - 1) * lh) / 2;
+  return [{x: x0 - px, y: L.y0 - L.lh / 2 + 4 - py, w: x1 - x0 + 2 * px, h: rows * L.lh + 2 * py}];
+}
+
+/** feathered dark plate: nested translucent rounded rects, so the edge dissolves instead of reading as a box */
+function softPlate(ctx: Ctx, r: Rect, alpha: number) {
+  if (alpha <= 0.001) return;
+  const N = 9, out = 26, inn = 14;
+  ctx.save();
+  for (let i = 0; i < N; i++) {
+    const g = out - (i * (out + inn)) / (N - 1);
+    ctx.globalAlpha = alpha * (1 - Math.pow(1 - CAP_PLATE.a, 1 / N));
+    ctx.fillStyle = '#0e081c';
+    rrect(ctx, r.x - g, r.y - g, r.w + 2 * g, r.h + 2 * g, Math.max(8, 46 + g));
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+/** captions: true centre line, narrow column (clear of TikTok's right-hand buttons), each word pops when it is spoken; max 2 lines, soft backing plate */
+export function drawCaptions(ctx: Ctx, t: number) {
+  const caps = TIMELINE.captions;
+  // the plate follows the caption's own fade, and stays put (resizing smoothly) between back-to-back chunks so it never blinks
+  const k = caps.findIndex((q, j) => {
+    const pj = caps[j - 1], nj = caps[j + 1];
+    const t0 = pj && q.t0 - pj.t1 < 0.2 ? pj.t1 : q.t0 - 0.02;
+    const t1 = nj && nj.t0 - q.t1 < 0.2 ? nj.t0 - 0.02 : q.t1;
+    return t >= t0 && t < t1;
+  });
+  if (k < 0) return;
+  const c = caps[k], pc = caps[k - 1], nc = caps[k + 1];
+  const contigPrev = !!pc && c.t0 - pc.t1 < 0.2, contigNext = !!nc && nc.t0 - c.t1 < 0.2;
+  const L = layoutCaption(ctx, c);
+  // the plate's opacity follows the words exactly (in with the first word, out with the text), so it is never an empty dark
+  // smudge in the short gap between back-to-back chunks; only its size eases from the previous chunk's plate
+  void contigNext;
+  const pIn = smooth((t - c.words[0].t) / 0.1);
+  const pOut = smooth((c.t1 - t) / 0.14);
+  let rects = plateRects(L, c.words, t);
+  if (contigPrev && !CAP_PLATE.perLine && t < c.t0 + 0.14) {
+    const a = plateRects(layoutCaption(ctx, pc))[0], b = rects[0], m = smooth((t - (c.t0 - 0.02)) / 0.14);
+    rects = [{x: lerp(a.x, b.x, m), y: lerp(a.y, b.y, m), w: lerp(a.w, b.w, m), h: lerp(a.h, b.h, m)}];
+  }
+  rects.forEach((r) => softPlate(ctx, r, pIn * pOut));
+  if (!(t >= c.t0 - 0.02 && t < c.t1)) return;
+
+  const words = c.words, {size, lh, lines, widths, y0} = L;
+  ctx.font = `${size}px ${FONT}`;
   const out = smooth((c.t1 - t) / 0.14);
   ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
   lines.forEach((ln, li) => {
-    const total = ln[ln.length - 1].x + ln[ln.length - 1].width;
+    const total = widths[li];
     ln.forEach((wd) => {
       const tw = t - words[wd.i].t;
       if (tw < 0) return;
-      const k = clamp(tw / 0.2, 0, 1);
-      const pop = 0.6 + 0.4 * Math.min(1, k * 2.2) + 0.1 * Math.sin(k * Math.PI);
+      const kk = clamp(tw / 0.2, 0, 1);
+      const pop = 0.6 + 0.4 * Math.min(1, kk * 2.2) + 0.1 * Math.sin(kk * Math.PI);
       const x = (W - total) / 2 + wd.x, y = y0 + li * lh;
       ctx.save();
-      ctx.globalAlpha = Math.min(1, k * 3) * out;
-      ctx.translate(x + wd.width / 2, y + (1 - k) * 14);
+      ctx.globalAlpha = Math.min(1, kk * 3) * out;
+      ctx.translate(x + wd.width / 2, y + (1 - kk) * 14);
       ctx.scale(pop, pop);
       const hi = c.hi.includes(wd.i);
       outlined(ctx, wd.w, -wd.width / 2, 7, 'rgba(0,0,0,0.30)', 22, 'rgba(0,0,0,0.30)');

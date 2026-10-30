@@ -30,6 +30,7 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
 - **`analytics/plan.md`:** the ranked plan for the next episodes, merged daily from trend-scout ideas `[SCOUT]`, viewer comment ideas `[VIEWER @name]` from TikTok and YouTube, and analytics. **Take the top unused item**, after checking it against the viral checklist and no-repeat rules. If you use a `[VIEWER @name]` idea, credit them in the caption ("Idea by @name 💡"). This still counts within the 5-hashtag rule; the credit isn't a hashtag.
 - **`ideas_backlog.txt`:** the full pool, used when plan.md is empty.
 - **`analytics/retention_playbook.md`:** apply every tactic when writing the script and staging the visuals. Before producing anything, spawn a **retention editor** (Agent tool, model "sonnet"). Give it the draft script and the playbook. It returns a tightened script; keep the facts, the voice tags and the loop line.
+  - Include this in the retention editor's brief: **The 3-second rule is yours to enforce.** Before you return the script, check the opening against these limits and rewrite until it passes: (1) the first sentence is a single question or statement of 8 words or fewer, with no filler words ("so", "imagine", "have you ever wondered"), so that it can finish by about 2.5 s at the narrator's pace; (2) the most surprising fact, biggest number or most absurd image of the whole script is stated in the first two sentences, not saved for the middle; (3) the script's first lines name something that can be SHOWN in under 3 s, so add a one-line staging note after the hook in the form `[PAYOFF @ <=3.0 s: what appears on screen]` using one of the hook patterns in recipe section 1 (mid-action, scariest number first, before-you-blink, size flip, wrong-answer reveal, prop rushes camera). If the script gives you nothing visual to show by 3 s, move a later fact forward rather than padding the opening. Never add more than one new visual event per second, never break the loop line, never change the facts, voice tags or numbers, and keep the captions equal to the narration word for word. A script without a clear payoff note by 3.0 s is not finished.
 - **`episodes/<date>-<slug>/features.json`:** after the timeline is built, write the episode's measured structure so the analyst can link structure to retention:
   - `duration_s`, `kind`, `hook_words`, `hook_end_s` (when the hook question ends), `first_payoff_s`
   - `twist_at_pct`, `words_per_min`, `max_gap_without_visual_change_s`, `open_loop_by_s`
@@ -78,6 +79,44 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
 - **Fact-check every number** with WebSearch and keep the source URL in post_log.txt. If a fact can't be verified, drop it.
 - Use eleven_v4 audio tags sparingly, e.g. `[excited]` and `[whispers]`. See `scripts/script_text.txt` for the style.
 
+**THE 0-3 SECOND RULE (non-negotiable).** Viewers decide in the first 1-3 s. Every episode must hit:
+
+- **Frame 0 is already in motion.** No title card, no logo, no empty set, no "Hi, today...". The first frame shows the mascot mid-action or the premise already on screen, and the captions start with the first spoken word (first word at 0.3 s or earlier).
+- **The hook is ONE sentence of 8 words or fewer, finished by 2.0-2.5 s** (`hook_end_s` <= 2.5). Count about 0.25 s per word with the narrator's pace, so 8 words is the ceiling. Cut every filler ("So", "Imagine", "Have you ever wondered"). The premise may be split as "What if X?" with the question mark landing at or before 2.5 s.
+- **The first visual payoff lands by 3.0 s** (`first_payoff_s` <= 3.0, hard fail above 3.5). A payoff is something a muted viewer would notice: a surprising image appears, a number slams in, the scene changes size or place, the prop does the impossible. A caption popping in, the background drifting or the mascot breathing do NOT count.
+- **The payoff goes under the question, not after it.** It may start while the hook is still being spoken (on the key word), so the viewer sees the answer to "what if" before the sentence is over. Do not wait for the question mark to start the visuals.
+- **Nothing static longer than 4 s anywhere** (`max_gap_without_visual_change_s` <= 4.0). After the first payoff, give a new visual event at least every 3-4 s: a new prop, a number change, a camera push, a cut.
+- **The loop still works.** The last line of the script must lead into the opening image: the first frame is the same match-cut state the last frame ends in, so the 0 s payoff is also the loop's natural restart. Do not cheat the seam to get a bigger opening.
+- **No cheap tricks.** No flash frames, no glitch cuts, no hard shake in the first 3 s (the QA seam tests would flag them). The payoff must be a clean match-cut-compatible change and the arms stay calm (one clean gesture, not flailing).
+
+**Hook patterns that land a payoff by 3 s** (pick one per episode, rotate, and note it in features.json as `hook_pattern`):
+
+1. **Open mid-action.** Frame 0 is already the consequence in progress, and the narration names it. Example: the mascot is already mid-air above a giant hole when the voice says "What if you jumped through the Earth?", and he drops out of frame at 1.5 s so the camera follows him down.
+2. **Scariest number first.** The biggest number of the episode is the first thing on screen, shown on a HUD gauge or counter that spins up (never a stamp slam; those are banned) while the question is spoken. Example: a speedometer races to "28,800 km/h" by 1.2 s as the mascot's eyes go wide, while the voice says "What if you fell this fast, forever?"
+3. **Before you even blink.** The premise happens visually in under 2 s, faster than the voice can explain it. Example: the voice says "What if the Moon vanished?" and at 1.4 s the Moon pops out of the sky, the tide-line on the beach drops, and the mascot's shadow jumps.
+4. **Size flip.** Something in the frame changes scale dramatically on the key word, while the camera stays the single global GCAM. Example: "What if you were Lego-sized?" and on "Lego" a giant sneaker slams down beside the tiny mascot.
+5. **Wrong-answer reveal.** Show the answer people expect, then break it by 3 s. Example: the mascot confidently stands at the finish of a tunnel, the voice says "What if you ate only pizza for a year?", and by 2.8 s the pizza slices pile up to cover him to the neck.
+6. **Prop rushes the camera.** A big prop comes at the viewer. Example: the shovel hits the ground on "dug", and by 2.4 s a glowing hole opens under the mascot and the ground cracks outward.
+
+If a script cannot be staged with one of these within 3 s, rewrite the script (move the most surprising fact to the front), not the QA threshold.
+
+### Part 2 episodes (sequels, only when find_hits.py says so)
+A sequel is allowed ONLY when the plan item is tagged `[SEQUEL of <episode-slug>]`, which the strategist adds only from `python3 analytics/find_hits.py` output. Never invent a sequel yourself. Before writing, re-run `python3 analytics/find_hits.py`; if `<episode-slug>` is not in `hits` and not already queued in plan.md, skip the item and take the next one.
+- **Same rules as every episode:** viral checklist (4+ on all five tests), fact-check every number with a source, family-friendly, Haven Sands voice only, retention playbook, retention editor, the full QA gate (invisible match cuts, seamless loop, calm direct-posed arms), 50-70 s, 160-180 words.
+- **What is different:**
+  1. **Callback hook within 2 s.** The first spoken line refers to Part 1 in one short sentence, then raises the stakes, e.g. "Last time you fell through the Earth... this time you don't stop at the other side." Still a short hook (about 12 words max), still about YOU, and the first frame already shows the mascot in the new situation.
+  2. **A new escalation, not a rehash.** Take a fresh angle the Part 1 narration did NOT cover (a bigger or stranger consequence, a "what if it went further" twist). Reject the script if more than one fact or the same twist is repeated from Part 1. Read Part 1's `script.txt` and `CAPTION.txt` first.
+  3. **Self-contained narration.** A new viewer who never saw Part 1 must understand everything: in the first 10 s, recap the Part 1 premise in 6-10 words ("You jumped into a tunnel through the planet..."). Never say "as I explained" or "go watch Part 1".
+  4. **Its own seamless loop.** The last line leads back into THIS episode's opening hook (not into Part 1), and the last frame matches the first frame (section 5b loop test applies unchanged).
+  5. **Labelling.** "Part 2" (or "Part 3") appears in the TikTok title, the YouTube title and the caption's first line. No hashtag changes: still exactly 5.
+  6. **Part 1 is not edited and no old video is touched.** No "link in bio" or links of any kind. Do not cross-post links to Part 1 in the caption.
+- **Records:**
+  - `topics_used.txt`: claim it immediately as `<date> | PART 2 of <Part 1 topic text> | IN PROGRESS`, later DONE or FAILED. This is an EXPLICIT EXCEPTION to the no-repeat rule, valid only for a `[SEQUEL of ...]` plan item that find_hits.py approved. Every other repeat rule (same twist as another non-Part-1 episode, theme of the last 7 topics) still applies to the NEW angle.
+  - `post_log.txt`: `<date> | <title incl. "Part 2"> | <time> | <status> | SEQUEL of <episode-slug> | <fact source>`.
+  - Episode folder: `episodes/<date>-<slug>-part2/`, and `features.json` gets `"sequel_of": "<episode-slug>"`, `"part": 2`.
+- **Kind:** a sequel keeps the parent's kind (science or funny) but still obeys "never the same kind 3 days in a row".
+- **Part 3:** only if a Part 2 itself becomes a hit, and the same checks apply. There is never a Part 4.
+
 ## 2. Narration (the only voice ever used)
 - Use ElevenLabs `creative_generate_speech` with voice **Haven Sands**, voice_id `x8xv0H8Ako6Iw3cKXLoC`, model eleven_v4. Make one call only and never retry it in the same run.
 - Poll `creative_get_flow_run_status` until it completes, then download the take to `dl/narration.mp3`. If the queue is busy, wait about 60 s and poll again. Do not re-generate.
@@ -90,10 +129,11 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
   - Write captions and `src/timeline.json`.
 - **On-screen captions (burned into the video):**
   - Built from the Scribe word timestamps, so every word pops on exactly when it's spoken.
-  - Chunk rule: break at a sentence end, at a gap over 0.45 s, at 8+ words, or at a comma once 3+ words are shown.
+  - **Max 2 lines, always.** Chunk rule: break at a sentence end, at a gap over 0.45 s, at 8+ words, or at a comma once 3+ words are shown. On top of that, `build_timeline.py` never lets a chunk need more than 2 lines in the 700 px column at 58 px (Lilita One glyph widths come from `scripts/lilita_widths.json`, measured in the headless browser, with a 4% margin). If a chunk would overflow, it splits at the biggest pause (or comma) in its second half, else just before the word that would overflow. `drawCaptions` also guards this: it starts at 76/66/58 px by length and shrinks the font until the chunk fits in 2 lines, so a 3-line caption can never reach the screen.
+  - **Soft backing plate** behind the caption block, so text stays readable on busy backgrounds and over the mascot's legs: a feathered, dark plate (colour #0e081c, about 44% opacity at the centre, edges dissolving over about 40 px, padding 42 px sideways and 28 px vertically), drawn as 9 nested translucent rounded rects (no hard edge, no stroke, no blur filter, deterministic). It follows the caption's own fade (fades in with the first word and out with the last) and is NOT a stamp: no pop, no scale, no colour. Between back-to-back chunks it stays on and resizes smoothly instead of blinking, its width grows with each word as it is spoken (it hugs the words that are visible, never an empty smudge beside them), and its height grows as line 2 starts.
   - Highlight key words (numbers, the twist, the CTA) in a yellow, pink and teal cycle.
   - Text must match the narration exactly. Fix any Scribe mistakes against the script, and keep numbers as digits with separators (28,800). Strip eleven_v4 tags like [excited].
-  - Check them in the contact sheets: no caption covers the mascot's face or the key graphic.
+  - Check them in the contact sheets (`W=260 node qa/moments.mjs ...`, 4 times per call): at most 2 lines, no caption covers the mascot's face or the key graphic, text readable over the busiest backgrounds, the plate looks like a soft shadow and never like a box.
 - Write the new scenes (replacing the scenes.ts content, plus episode-only props in props4.ts), reusing the prop library below where it fits, and keeping the same mascot:
   - Black round head with white eyes and a brown hair cowlick.
   - Pink headband with tails and a teal hoodie with a pink sound-bar logo.
@@ -138,6 +178,17 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
   - landings really settle (the hip holds still about 0.35 s after touching down), so they read as landings;
   - the pose's eyes are open (`eye ≥ 0.4`) where blinks should happen;
   - you don't add hand-keyed blinks on top.
+- **BIG-NUMBER REACTIONS (automatic, don't key them).** `src/lib/react.ts` makes the mascot visibly react ("whoa!") when the narration says a big number. It reads the caption words in `src/timeline.json` and is applied at draw time in `puppet.ts` (like `life.ts`), on top of whatever face the scene keys say:
+  - the eyes widen (up to about +20 %, with a tiny overshoot), the pupils shrink, the brows rise, the mouth opens a little and the smile eases off;
+  - a double-take: the head recoils about 5 px, tilts about 2.4° and rebounds, and the body pops about 2 %. **Arms are never touched** (the arm-busy test is unaffected);
+  - timing: 0.08 s attack, 0.22 s hold, 0.5 s release (0.8 s in all), starting on the number's last word, locked to a frame.
+  - **How to write numbers so they trigger.** Either digits with separators (`28,800`, `5,000`, `3.5`, `2 million`, `10k`) or spelled out (`five thousand`, `thirty-eight`, `a million`). Both are recognised.
+    - Over 1,000 always reacts (full strength); 100-999 reacts (strong); 10-99 only if the word is highlighted (`hi`); 1-9 only if highlighted AND followed by a unit word (`eight kilometres`, `5 degrees`).
+    - Countdowns ("three, two, one"), ordinals (1st, 2nd) and years (1900-2100) never react. Highlighting a number word (the usual rule) adds a little strength.
+    - Put the number and its punchline in the narration as the BIG moment (e.g. "five thousand degrees"); one big number per sentence reads best. Numbers within 1.2 s of each other share one reaction, so reactions never stack.
+  - **Safety rules (built in, nothing to do):** a reaction never comes within 0.45 s of a scene cut or the loop seam (it slides up to 0.35 s later, or is dropped), so faces still match at every cut; it is skipped when the keyed face has closed or special eyes (`es` 1-4), shades, the eyes shut (`eye < 0.4`) or the mascot hidden, and softened while the lids are partly down. It also suppresses a blink during itself.
+  - **To make one land:** keep the keyed face OPEN-eyed (`es: 0`, `eye: 1`) around the number. If a reaction you expected is missing, the face key at that moment (happy arcs, squint, shades) or a nearby cut dropped it. Check the list with `buildSims(ppAt).reactDebug` (`moments` and `dropped`, each with the time and the word).
+  - Don't hand-key a surprise face on the same word: the keyed face should stay calm or neutral and let the reaction be the beat.
 - **INVISIBLE CUTS (owner requirement): every cut is a MATCH CUT.**
   - On the last frame before a cut and the first frame after it, the mascot has the same screen position, size, pose and face. Only the world around him changes.
   - Plan each scene so its last pose IS the next scene's first pose. Examples from the template:
@@ -195,14 +246,22 @@ The owner saw unpolished results before: hands rotating unnaturally, unclean tra
    - Every cut and the loop seam for mascot position, size, zoom, arm pose and FACE continuity (motion-extrapolated).
    - Text cut off the frame, text in TikTok's UI zones (top 210 px, bottom 320 px, the right-hand button rail), text over the face, and overlapping text.
    - On-screen elements popping on or off exactly on a cut.
+   - HUD or overlay elements fading ACROSS a cut or the loop seam (`fade-across-cut`, FAIL). Any gauge, label, counter or overlay word whose opacity is mid-fade (about 0.03 to 0.97) within 0.3 s either side of a cut leaves a ghost on the first frame after it. Fades must finish at least 0.3 s before a cut, or start at least 0.3 s after it, or the element stays on across it. Checked on every frame: every HUD element (one `save()`/`restore()` group in `scene.hud`) by its peak `globalAlpha`, and every text drawn by `scene.draw` by its opacity. Limitation: non-text pictures drawn inside `scene.draw` (steam, arrows, glows) cannot be told apart from the background, so give them the same 0.3 s margin by hand.
+   - BIG DISPLAY WORDS (text of 110 px or more on screen, for example `bigWord`):
+     - Its glyph box may not enter the top 230 px (`bigtext-top`, FAIL).
+     - It may not touch the mascot's head, with a hair margin of 1.25 head radii (`bigtext-head`, FAIL).
+     - It may not repeat a word of the caption that is on screen at the same time (`bigtext-dup-caption`, WARN). The caption already says it; remove the big word or make it add something.
+   - TEXT SAFE ZONES now match section 3 exactly: top 230 px, bottom 330 px (y 1590) and the right-hand 160 px (x 920, over the button rail) (`text-safezone`, FAIL). Before this they were 210, 320 and 930.
+   - A straight line (speedometer needle, tick, underline) crossing text of the same HUD element (`line-over-text`, FAIL). Per frame, the line's segment, thickened by its width, is tested against the text's glyph box. A speedometer needle that sweeps over its digits fails. House rule for dials: put the numeric readout BELOW the pivot, on a dark pill that is drawn last (see `speedo` in `src/props4.ts`), so the needle can never reach it.
    - One-frame flashes or glitches.
    - The pixel step at the loop seam.
    - Anatomy: an elbow pointing INTO the chest (reads as a snapped arm), held or moving.
    - BUSY ARMS: more than 420° of arm rotation in any 2 s window FAILS (one clean gesture there and back is about 250°). The rejected version measured 457°.
    - Feet gliding across the ground while standing, and slowly shrinking or growing while standing (authoring slips).
+   For iterating on one moment: `QA_RANGE=9,10.5 node qa/run_qa.mjs` runs only the per-frame text and HUD checks (no motion checks) for that time range in seconds, in about 10 s, and writes `qa/report_partial.txt`. It is for iterating on one moment. It never replaces the full run, which is the gate and writes `qa/report.txt`.
    WARN items must each be looked at and judged deliberate (e.g. arms flinging on "JUMP!").
    The tests were proven against real bugs: the owner's screenshots of a folded arm and a jump that missed the hole both FAIL them. Never edit a test to pass. Fix the animation.
-2. **`node qa/sheets.mjs`** writes `qa/sheets/cut_XX_*.png` (frames -2, -1, 0, +1 around every cut), `loop.png` (end → start) and `scenes.png`. **Open and look at every sheet.** A cut passes only if, apart from the background, frames -1 and 0 look like consecutive frames of one shot. Then go FRAME BY FRAME through every action beat with `W=172 node qa/moments.mjs t1 t2 …` (6–9 frames 0.05–0.15 s apart): every jump, landing, entering or leaving a hole or door, pointing gesture, and arm change. Check each beat for these:
+2. **`node qa/sheets.mjs`** writes `qa/sheets/cut_XX_*.png` (frames -2, -1, 0, +1 around every cut), `loop.png` (end → start) and `scenes.png`. **Open and look at every sheet.** A cut passes only if, apart from the background, frames -1 and 0 look like consecutive frames of one shot. Then go FRAME BY FRAME through every action beat with `W=172 node qa/moments.mjs t1 t2 …` (6–9 frames 0.05–0.15 s apart): every jump, landing, entering or leaving a hole or door, pointing gesture, arm change, and every big-number reaction (t-0.1, t, t+0.08, t+0.2, t+0.4, t+0.7 where t = the number word's time). Check each beat for these:
    - **Actions visibly complete before the cut.** Jumping into a hole means he is waist-deep in it at the cut, not standing on the rim.
    - **Gestures aim at their subject.** A point goes at the sign, not into the air.
    - **Nothing slides or shrinks while he waits.** He doesn't drift toward the target before moving.
@@ -210,6 +269,18 @@ The owner saw unpolished results before: hands rotating unnaturally, unclean tra
    - **Faces and props make sense.**
 3. **`python3 qa/audio_qa.py out/final_loud.wav dl/narration.mp3`** must pass. It checks for clipping, harshness (energy above 6 kHz under 3%), the loop seam's level, click and tone, that there's no fade, and that the last word isn't cut by the loop.
 4. After encoding: **`python3 qa/video_qa.py <final.mp4> out/final_loud.wav`** must pass. It checks 1080×1920, one-frame glitches, the visual loop seam on the real file, and A/V sync.
+4b. **Structure check:** run `node qa/structure_check.mjs`. It renders the first 6 s at 135x240 every 0.1 s plus a sparse pass over the whole video, from the real renderer, and writes `qa/structure.json`:
+   - `hook_end_s` (end of the first sentence, from the caption word times)
+   - `first_payoff_s` (the first big visual event after the start: scene cut, big pixel-area change or new large element; caption pop-ins, background drift and breathing are ignored)
+   - `max_gap_without_visual_change_s` (longest stretch with no meaningful change)
+   
+   **Copy those three numbers into the episode's `features.json`** (`hook_end_s`, `first_payoff_s`, `max_gap_without_visual_change_s`), and save `qa/structure.json` into `episodes/<date>-<slug>/qa/` with the other evidence.
+   
+   Verdicts: **FAIL (exit code 1) if `first_payoff_s` > 3.5. A FAIL blocks posting**, exactly like any other 5b FAIL: fix the script/staging (see the hook patterns in section 1), rebuild the timeline and rerun. Never edit the check or its thresholds to pass. WARN if 3.0 < `first_payoff_s` <= 3.5, if `hook_end_s` > 2.5, or if `max_gap` > 4.0. Each WARN must be looked at (open the stills the report prints, via `W=200 node qa/moments.mjs <times>`) and judged deliberate or fixed. If the detector reports no payoff, open stills at 1, 2, 3 and 4 s yourself: if you can honestly see a payoff the check missed, say so in review.md and fix the staging anyway so it is visible on a muted phone.
+   
+   The independent reviewer (step 6) also receives `qa/structure.json` plus the stills at `first_payoff_s` and at 0 s, and must confirm that a human would call that moment the first payoff.
+   
+   False alarm safety valve (detector tuned on few episodes): if the check FAILs after you have honestly restaged the opening at least twice, give the independent reviewer the stills at 0, 1, 2, 3 s. Only if the reviewer confirms in writing (in review.md) that a clear, muted-visible payoff is on screen by 3.0 s may the episode proceed, and that FAIL counts as overridden in post_log.txt. Never edit the thresholds.
 5. Save `qa/report.txt` and the cut/loop sheets into `episodes/<date>-<slug>/qa/`, so every posted episode has its test evidence.
 6. **Independent review:** after the tests pass, spawn a SEPARATE reviewer agent with the Agent tool (model "sonnet"; owner's rule: helper agents use Sonnet). It must not have helped make the video. Give it only the contact sheets, the action-beat strips, `qa/report.txt` and sections 3 and 5b of this recipe. Ask it to list anything that looks unnatural, busy, unclear, off-model, or wrong at a cut or the loop seam. Fix everything it raises (re-run the tests) until it approves. Save its verdict to `episodes/<date>-<slug>/qa/review.md`.
 If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owner what failed.
@@ -223,6 +294,7 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
   5. **Then exactly 5 hashtags:** #WhatIf, then 3 topic tags (broad plus specific, e.g. #Science #Space #MindBlown), then #WhatIfDaily. TikTok allows a maximum of 5, so never use more, and don't use #fyp or #foryou.
   - Keep it under about 300 characters. Every number must match the video and the fact source. No clickbait that the video doesn't deliver.
   - **Example (30 Oct):** What if you dug a hole straight through the Earth… and jumped in? 🕳️🌍 You'd hit 28,800 km/h and fly through a core as hot as the Sun… but the ending is the craziest part 🤯 👇 Where would YOUR tunnel come out? Follow for a new "What If" every day! #WhatIf #Science #Earth #MindBlown #WhatIfDaily
+- For a `[SEQUEL of ...]` episode, start the caption's hook line with "Part 2: " (or "Part 3: "), put "Part 2" in the TikTok title and the YouTube title too, and keep everything else (teaser, question, Follow/Subscribe line, exactly 5 hashtags) unchanged.
 - **TikTok title (tiktokData.title, required by Metricool):** the short question only, e.g. "What if you dug a hole through the Earth?".
 - Save the caption to `episodes/<date>-<slug>/CAPTION.txt`.
 - **Schedule for 18:30 Europe/London the same day**, visible to everyone, comments on.

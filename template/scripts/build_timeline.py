@@ -1,5 +1,5 @@
 """words.json (from the ElevenLabs transcript) -> src/timeline.json : captions, beat-snapped scenes, cue points."""
-import json, re, sys
+import json, os, re, sys
 W = [w for w in json.load(open(sys.argv[1] if len(sys.argv) > 1 else 'dl/words.json')) if not w['text'].startswith('[') and not w['text'].endswith(']')]
 clean = lambda s: re.sub(r'[^a-z0-9\-]', '', s.lower())
 def find(phrase, after=0.0):
@@ -44,7 +44,34 @@ def left_in_sentence(i):
         n += 1
         if w['text'].endswith(('.', '?', '!')): break
     return n
+# MAX 2 LINES: a chunk must wrap to <= 2 lines in the 700 px column at CAP_MIN_SIZE px (drawCaptions' smallest normal size).
+# Glyph advances (em units, Lilita One) were measured in the headless browser: scripts/lilita_widths.json. 4% safety margin for kerning.
+ADV = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lilita_widths.json')))
+CAP_MAXW, CAP_MIN_SIZE, CAP_MARGIN = 700, 58, 1.04
+def wwidth(t, size): return sum(ADV.get(ch, 0.6) for ch in t.replace("'", '’')) * size * CAP_MARGIN
+def nlines(ws, size=CAP_MIN_SIZE):
+    sp = ADV[' '] * size + 10; n, cur = 1, 0.0
+    for w in ws:
+        wd = wwidth(w['text'], size)
+        if cur + wd > CAP_MAXW and cur > 0: n += 1; cur = 0.0
+        cur += wd + sp
+    return n
 for i, w in enumerate(W):
+    if cur and nlines(cur + [w]) > 2:
+        # forced split: prefer the largest pause (or a comma) in the second half of the chunk, else break right here
+        best, bk = None, len(cur) // 2
+        for k in range(max(1, bk), len(cur)):
+            g = W[i - len(cur) + k]['start'] - W[i - len(cur) + k - 1]['end'] + (0.3 if cur[k - 1]['text'].endswith(',') else 0)
+            if g > 0.12 and (best is None or g >= best[0]): best = (g, k)
+        if best:
+            caps.append(cur[:best[1]]); cur = cur[best[1]:]
+        elif len(cur) >= 2:  # no pause to use: split so the chunk's last word stays on screen >= 0.26 s (qa text-flash)
+            ks = [k for k in range(len(cur), max(1, len(cur) - 6), -1) if k >= 2 and
+                  (cur[k]['start'] if k < len(cur) else w['start']) - cur[k - 1]['start'] - 0.03 >= 0.26]
+            k = ks[0] if ks else len(cur)
+            caps.append(cur[:k]); cur = cur[k:]
+        else:
+            caps.append(cur); cur = []
     cur.append(w)
     nxt = W[i + 1] if i + 1 < len(W) else None
     gap = (nxt['start'] - w['end']) if nxt else 9

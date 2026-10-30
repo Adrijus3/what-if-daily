@@ -139,17 +139,19 @@ export function crossSection(ctx: Ctx, x: number, y: number, r: number, u: numbe
 // ---------------------------------------------------------------- speedometer
 export function speedo(ctx: Ctx, cx: number, cy: number, kmh: number, alpha = 1) {
   ctx.save(); ctx.globalAlpha = alpha;
-  const r = 118, k = clamp(kmh / 30000, 0, 1);
-  ctx.fillStyle = 'rgba(18,8,30,0.85)'; rrect(ctx, cx - 160, cy - 128, 320, 196, 30); ctx.fill();
+  const r = 118, k = clamp(kmh / 30000, 0, 1), hy = cy + 20;   // hy = hub (pivot) height; the needle only ever sweeps ABOVE it
+  ctx.fillStyle = 'rgba(18,8,30,0.85)'; rrect(ctx, cx - 160, cy - 128, 320, 254, 30); ctx.fill();
   ctx.lineCap = 'round';
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 18; ctx.beginPath(); ctx.arc(cx, cy + 20, r, Math.PI, TAU); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 18; ctx.beginPath(); ctx.arc(cx, hy, r, Math.PI, TAU); ctx.stroke();
   const g = ctx.createLinearGradient(cx - r, 0, cx + r, 0); g.addColorStop(0, '#3ff0d6'); g.addColorStop(0.6, '#ffd23f'); g.addColorStop(1, '#ff4d5a');
-  ctx.strokeStyle = g; ctx.beginPath(); ctx.arc(cx, cy + 20, r, Math.PI, Math.PI + Math.PI * k); ctx.stroke();
+  ctx.strokeStyle = g; ctx.beginPath(); ctx.arc(cx, hy, r, Math.PI, Math.PI + Math.PI * k); ctx.stroke();
   const a = Math.PI + Math.PI * k; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 6;
-  ctx.beginPath(); ctx.moveTo(cx, cy + 20); ctx.lineTo(cx + Math.cos(a) * (r - 26), cy + 20 + Math.sin(a) * (r - 26)); ctx.stroke(); disc(ctx, cx, cy + 20, 10, '#ffffff');
+  ctx.beginPath(); ctx.moveTo(cx, hy); ctx.lineTo(cx + Math.cos(a) * (r - 26), hy + Math.sin(a) * (r - 26)); ctx.stroke(); disc(ctx, cx, hy, 10, '#ffffff');
+  // readout BELOW the hub (the needle can never reach it), drawn LAST on its own dark pill
+  ctx.fillStyle = 'rgba(8,3,16,0.95)'; rrect(ctx, cx - 112, hy + 24, 224, 60, 30); ctx.fill();
   ctx.font = `46px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#ffffff';
-  ctx.fillText(Math.round(kmh).toLocaleString('en-US'), cx, cy - 26);
-  ctx.font = `26px ${FONT}`; ctx.fillStyle = '#d8ccff'; ctx.fillText('KM/H', cx, cy + 50);
+  ctx.fillText(Math.round(kmh).toLocaleString('en-US'), cx, hy + 55);
+  ctx.font = `26px ${FONT}`; ctx.fillStyle = '#d8ccff'; ctx.fillText('KM/H', cx, hy + 104);
   ctx.restore();
 }
 

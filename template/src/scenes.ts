@@ -112,7 +112,7 @@ const countdown: SceneDef = (() => {
       const nums: [string, number, number][] = [['3', K.three, K.two], ['2', K.two, K.one], ['1', K.one, J]];
       for (const [n, ta, tb] of nums) { const on = t >= ta && t < Math.min(ta + 0.9, tb - 0.06); bigWord(ctx, n, 760, 430, 220, on ? Math.min(1, (t - ta) / 0.35) + 1e-3 : 0, n === '1' ? '#ff5c9d' : '#ffd23f'); }
     },
-    hud: (ctx, t) => { const dj = t - J; if (dj > 0 && dj < 0.9) { ctx.save(); ctx.globalAlpha = 1 - smooth((t - J - 0.55) / 0.3); bigWord(ctx, 'JUMP!', 540, 300, 150, Math.min(1, dj / 0.18), '#ff5c9d', -0.06); ctx.restore(); } },
+    hud: () => {},   // no big "JUMP!" word here: the caption already says it, and a 150 px word at y 300 hits the top safe line and the mascot's hair (the screen shake carries the beat)
   };
 })();
 
@@ -137,23 +137,22 @@ function globe(ctx: Ctx, u: number, alpha = 1, trail?: number[]) {
   if (alpha <= 0.001) return;
   ctx.save(); ctx.globalAlpha = alpha; crossSection(ctx, GLOBE.x, GLOBE.y, GLOBE.r, u, {labels: true, dot: true, trail}); ctx.restore();
 }
-const insetAt = (ctx: Ctx, t: number) => globe(ctx, uAt(t), smooth((t - S('fall').t0 - 0.15) / 0.35));
+const insetAt = (ctx: Ctx, t: number) => globe(ctx, uAt(t), smooth((t - S('fall').t0 - 0.3) / 0.35));
 // ---- one continuous tunnel shot from the jump until the pop (the internal beats are NOT cuts: nothing resets)
 const TS = S('fall').t0, TE = S('pop').t0, fadeIn = (t: number, a: number, d = 0.35) => smooth((t - a) / d), fadeOut = (t: number, a: number, d = 0.35) => 1 - smooth((t - a) / d);
 function tunnelHud(ctx: Ctx, t: number) {
-  const depthA = fadeIn(t, TS + 0.15) * fadeOut(t, K.glow + 0.35);
+  const depthA = fadeIn(t, TS + 0.3) * fadeOut(t, K.glow + 0.35);
   if (depthA > 0.001) depthBar(ctx, 60, 320, Math.max(0, (1 + uAt(t)) * 6371), depthA);
-  const tempA = fadeIn(t, K.glow + 0.45) * fadeOut(t, K.crazy - 0.3);
+  const tempA = fadeIn(t, K.glow + 0.45) * fadeOut(t, S('crazy').t0 - 0.7);   // fully gone 0.35 s before the cut at 30.93
   if (tempA > 0.001) drawTemp(ctx, 60, 320, tempAt(t), tempA);
-  const spA = fadeIn(t, TS + 0.15) * fadeOut(t, K.pop - 0.9, 0.4);
+  const spA = fadeIn(t, TS + 0.3) * fadeOut(t, K.pop - 0.9, 0.4);
   if (spA > 0.001) speedo(ctx, 800, 420, speedAt(t), spA);
-  const k = (t - K.sun) / 0.4, out = fadeOut(t, K.sun + 1.6, 0.35);
+  const k = (t - K.sun) / 0.4, out = fadeOut(t, S('race').t0 + 0.3, 0.35);   // stays on across the cut at 24.93, fades from 0.3 s after it
   if (k > 0 && out > 0.001) { ctx.save(); ctx.globalAlpha = out; ctx.translate(290, 1100); ctx.scale(0.45, 0.45); drawBurst(ctx, '= THE SUN', 0, 0, Math.min(1, k), '#ffd23f'); ctx.restore(); }
-  const dj = t - K.jump; if (dj > 0 && dj < 0.9) { ctx.save(); ctx.globalAlpha = fadeOut(t, K.jump + 0.55, 0.3); bigWord(ctx, 'JUMP!', 540, 300, 150, 1, '#ff5c9d', -0.06); ctx.restore(); }
 }
 function tunnelExtras(ctx: Ctx, t: number) {
   insetAt(ctx, t);
-  if (t > K.core - 0.5 && t < K.race + 0.5) for (let i = 0; i < 3; i++) { ctx.save(); ctx.globalAlpha = fadeIn(t, K.core - 0.3) * fadeOut(t, K.race); steamPuff(ctx, 540 + (i - 1) * 80, 520, t, i / 3); ctx.restore(); }
+  if (t > S('core').t0 && t < S('race').t0 + 0.8) for (let i = 0; i < 3; i++) { ctx.save(); ctx.globalAlpha = fadeIn(t, S('core').t0 + 0.3) * fadeOut(t, S('race').t0 + 0.3); steamPuff(ctx, 540 + (i - 1) * 80, 520, t, i / 3); ctx.restore(); }
   const k = smooth((t - K.iss + 0.3) / 2.4);
   if (k > 0 && k < 1) {   // the space station falls behind (fades in low on the right, out before the gauges)
     const y = lerp(1150, 380, k);
@@ -166,7 +165,7 @@ function tunnelExtras(ctx: Ctx, t: number) {
     ctx.fillStyle = '#3ff0d6'; ctx.beginPath(); ctx.moveTo(0, -100); ctx.lineTo(88, 0); ctx.lineTo(33, 0); ctx.lineTo(33, 108); ctx.lineTo(-33, 108); ctx.lineTo(-33, 0); ctx.lineTo(-88, 0); ctx.closePath(); ctx.fill();
     ctx.restore();
   }
-  const d = smooth((t - (K.pop - 2.2)) / 2.0);   // daylight growing from above near the far surface
+  const d = smooth((t - (K.pop - 2.5)) / 2.0);   // daylight growing from above near the far surface
   if (d > 0) { ctx.save(); ctx.globalAlpha = 0.55 * d; ctx.fillStyle = rad(ctx, 540, -120, 40, 900, [[0, '#fff7d6'], [1, 'rgba(255,247,214,0)']]); ctx.fillRect(0, 0, 1080, 1100); ctx.restore(); }
 }
 // facial beats follow the narration; every change eases over ~0.35 s (never on a cut)
@@ -231,7 +230,7 @@ const yoyo = tunnelScene('yoyo', [
   [S('yoyo').t0 + 0.1, {y: 1105}, 'out'], [S('yoyo').t0 + 0.85, {y: FALLER.y}],      // still plunging, then the camera catches up
 ], (ctx, t) => {
   globe(ctx, uY(t), 1, Array.from({length: 10}, (_, k) => uY(t - (10 - k) * 0.03)));
-  const trips = Math.floor(tauY(t)) + 1, ta = smooth((t - S('yoyo').t0 - 0.3) / 0.3) * (1 - smooth((t - S('stuck').t0 + 0.5) / 0.3));
+  const trips = Math.floor(tauY(t)) + 1, ta = smooth((t - S('yoyo').t0 - 0.3) / 0.3) * (1 - smooth((t - S('stuck').t0 + 0.7) / 0.3));
   if (ta > 0.001) {
     ctx.save(); ctx.globalAlpha = ta;
     ctx.font = `44px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#160d22'; ctx.lineWidth = 11;
@@ -259,7 +258,7 @@ const stuck: SceneDef = (() => {
       cavern(ctx, t); floatyRing(ctx, 540, 1150, t);
       ctx.save(); ctx.translate(p.x, p.y - 200); ctx.rotate(p.rot); ctx.translate(-p.x, -(p.y - 200)); drawPuppet(ctx, {...p, rot: 0}, sim, t); ctx.restore();
       const k = (t - K.stuck) / 0.35; if (k > 0 && t < K.stuck + 1.6) { ctx.save(); ctx.translate(780, 560); ctx.scale(0.5, 0.5); drawBurst(ctx, 'uh oh', 0, 0, Math.min(1, k) * (1 - smooth((t - K.stuck - 1.2) / 0.4)) + 0.001, '#ffffff'); ctx.restore(); }
-      globe(ctx, 0, 1 - smooth((t - (S('stuck').t1 - 0.6)) / 0.4));
+      globe(ctx, 0, 1 - smooth((t - (S('stuck').t1 - 0.75)) / 0.4));
     },
     hud: () => {},
   };
