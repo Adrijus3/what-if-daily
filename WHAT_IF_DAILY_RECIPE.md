@@ -230,7 +230,7 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
   1. In the repo clone, run `git checkout --orphan video-new`, `git rm -rq --cached .`, and remove the tracked files. Copy the master in as `episode.mp4`, commit it, then `git push -f origin video-new:video`. Note the commit SHA (`git rev-parse HEAD`).
   2. Use the cache-proof URL `https://raw.githubusercontent.com/Adrijus3/what-if-daily/<SHA>/episode.mp4`. The branch URL is cached for 5 minutes and could serve an old video. Check `curl -sI` returns 200 and that content-length matches the file.
   3. Call Metricool `createScheduledPost` with:
-     - blogId `7740291` (brand timezone Europe/London; TikTok account what._if.daily).
+     - blogId `7740291` (brand timezone Europe/London; TikTok account what._if.daily; YouTube channel UCILVwtGFtsHjT-CnojmLqFA).
      - date `<today>T18:30:00` with the correct UK offset (+00:00 in GMT, +01:00 in BST).
      - info containing:
        - `providers [{"network":"tiktok"}]`, `autoPublish true`, `draft false`.
@@ -240,6 +240,15 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
        - `tiktokData {privacyOption:"PUBLIC_TO_EVERYONE", title:"<short title, required>", disableComment:false, disableDuet:false, disableStitch:false, autoAddMusic:false, isAigc:false, commercialContentThirdParty:false, commercialContentOwnBrand:false, photoCoverIndex:0}`.
        - The other default fields, as in the tool description.
   4. Check that the response's media is a static.metricool.com URL (Metricool has copied the video) and that the TikTok status is PENDING. Confirm it with `getScheduledPosts`.
+  5. **YouTube Shorts (owner connected YouTube on 30 Oct 2026; no Instagram).** Make a SECOND, separate `createScheduledPost` call, so a YouTube problem can never block TikTok:
+     - Same blogId, date, `publicationDate`, `autoPublish true`, `draft false`, and the same SHA raw media URL.
+     - `providers [{"network":"youtube"}]`.
+     - `text` = the TikTok caption, with "Follow for a new "What If" every day!" changed to "Subscribe for a new "What If" every day!". Keep the same 5 hashtags.
+     - `youtubeData {title:"<the short question + 1–2 emojis, under 100 chars>", type:"short", privacy:"public", tags:[5–8 topic tags incl. "what if", "science", "what if daily"], category:"SCIENCE_TECHNOLOGY", madeForKids:false, isAiGeneratedContent:false}`.
+     - `madeForKids:false` is the OWNER'S DECISION (30 Oct 2026: general audience, teens and adults). Never change it. `isAiGeneratedContent` stays false because the videos are clearly cartoon animation, not realistic synthetic footage.
+     - Confirm both posts (TikTok and YouTube) are PENDING with `getScheduledPosts`.
+     - If the YouTube call fails but TikTok succeeded, keep the TikTok post and tell the owner what YouTube said.
+     - A viewer-idea credit ("Idea by @name 💡") goes in both captions.
 - **If any step fails or is blocked:** do NOT post. Push the video to the `video` branch anyway and write the caption to `pending/CAPTION.txt` on main. Then notify the owner with the raw video link and the caption, so they can upload it in TikTok Studio.
 - Never enter passwords. Never change account settings. Leave the AI-generated label off unless the owner says otherwise.
 - **Afterwards:**

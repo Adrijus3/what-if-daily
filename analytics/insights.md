@@ -8,7 +8,8 @@ _Last updated: 2026-10-29. Not enough data yet; the analyst starts adjusting onc
 - Length: about 60–65 s.
 
 ## Owner decisions (never override)
-- (none yet)
+- 2026-10-30: post every episode to TikTok AND YouTube Shorts (same video, same 18:30 slot). No Instagram.
+- 2026-10-30: YouTube audience = general audience (madeForKids: false). Never change it.
 
 ## Change log
 - 2026-10-29: file created (baseline = recipe defaults).
