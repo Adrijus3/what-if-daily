@@ -13,6 +13,8 @@ export const cue = (n: string) => {
   return v;
 };
 export const FPS = 30, W = 1080, H = 1920;
+/** output frame rate of the rendered video (owner request, 30 Oct 2026: 60 fps + motion blur). Animation logic, QA and timings still use FPS (30). */
+export const OUT_FPS = 60;
 
 export type Ease = 'lin' | 'smooth' | 'in' | 'out' | 'back' | 'step' | 'inout3';
 const backOut = (t: number) => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * (t - 1) ** 3 + c1 * (t - 1) ** 2; };

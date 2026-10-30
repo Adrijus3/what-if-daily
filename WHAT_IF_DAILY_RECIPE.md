@@ -23,7 +23,7 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
    - typescript must stay pinned at 5.5.
    - Run `pip install numpy scipy pillow --break-system-packages` if any are missing.
 2. Chromium for Remotion is at `/opt/pw-browsers/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell`. Pass it with `--browser-executable`.
-3. Shell commands are limited to about 300 s, and background renders get killed. Render in the foreground in chunks of 300 frames each with `--concurrency=1 --jpeg-quality=96 --muted`, then join them with ffmpeg concat (`-c copy`).
+3. Shell commands are limited to about 300 s, and background renders get killed. Render in chunks of 600 frames (the video is 60 fps, so a 64.5 s episode has about 3,870 frames; a chunk takes about 2.5 min) with `--concurrency=1 --jpeg-quality=96 --muted`, either in the foreground or as one background command (`run_in_background`) that renders every chunk in sequence. Then join them with ffmpeg concat (`-c copy`). A full render takes about 16 minutes.
 
 ## 0. Learning loop (read first)
 - **`analytics/insights.md`:** written weekly by the performance analyst from real TikTok AND YouTube Shorts numbers (analytics/metrics.csv has one row per video per platform). Follow its "Current guidance" for topic mix, hook style, caption style and length, within `analytics/GUARDRAILS.md`. It can never override the quality rules in sections 2–5b.
@@ -153,6 +153,12 @@ A sequel is allowed ONLY when the plan item is tagged `[SEQUEL of <episode-slug>
   - Captions sit in a narrow centre column (maxW 700, y ≈ 1285).
   - Nothing important goes in the top 230 px, the right-hand 160 px (TikTok buttons) or the bottom 330 px.
   - No distractions, nothing distorted.
+- **60 FPS + MOTION BLUR (owner request, 30 Oct 2026; automatic).** The video renders at 60 fps (`OUT_FPS` in anim.ts) through `drawFrameSmooth` in frame.ts:
+  - **The WORLD is blurred.** Background, props and mascot are averaged over a 180° shutter, using 3 sub-moments when calm and up to 10 on fast moves (`blurSamples`), so fast actions smear smoothly instead of showing copies.
+  - **Sub-moments never cross a scene cut**, so the invisible match cuts stay invisible.
+  - **The OVERLAY is always sharp.** HUD gauges and numbers, captions, bloom, vignette and the watermark are drawn at the exact frame time. Anything with changing digits or text MUST therefore be drawn in a scene's `hud`, never in `draw`, or it will smear.
+  - **Timing and QA stay on the 30 fps grid.** Animation timing, character life and `run_qa.mjs` still use `FPS` (30) and the sharp `drawFrame`, so every movement check is unchanged. `video_qa.py` checks the final file is 60 fps.
+  - Never set OUT_FPS back to 30 and never remove the blur. Both are owner decisions.
 - **WATERMARK (owner request, 30 Oct 2026; automatic).** `src/watermark.ts` draws "@what._if.daily" with a tiny mascot badge on every frame. It is centred low (y 1532), so it can't be cropped off, and it sits above the platforms' bottom UI band and clear of the captions. It is semi-transparent and identical on every frame, so it never pops at cuts and the loop stays seamless. Keep `drawWatermark(ctx)` as the last call in `drawFrame`. Never remove or move it, and keep important art and big text out of the area around y 1500–1560.
 - **PROP LIBRARY (use it, don't draw crude props from scratch).** `src/lib/props/` has 30 on-style, loop-safe props:
   - **space:** earth, moon, sun, mars, saturn, blackHole, asteroid, rocket, ufo, satellite
@@ -243,7 +249,7 @@ A sequel is allowed ONLY when the plan item is tagged `[SEQUEL of <episode-slug>
   - High-frequency share low (soft).
 
 ## 5. Encode
-- **Master:** libx264, preset veryfast, crf 16, yuv420p, bt709. Audio AAC 320k with `-aac_coder twoloop`. Use `-movflags +faststart`. 1080×1920 at 30 fps.
+- **Master:** libx264, preset veryfast, crf 16, yuv420p, bt709. Audio AAC 320k with `-aac_coder twoloop`. Use `-movflags +faststart`. 1080×1920 at **60 fps**.
 - **Upload copy = the master itself** (highest quality; the old 29 MB limit no longer applies). It must be under 95 MB, because GitHub's per-file limit is 100 MB and Metricool's TikTok limit is 500 MB. If it's bigger, re-encode at crf 16, then 17, until it fits. It must be H.264 (not HEVC), SDR, MP4.
 - Verify with ffprobe: duration, 1080×1920, both streams.
 

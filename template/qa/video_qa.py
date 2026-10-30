@@ -9,10 +9,12 @@ raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', mp4, '-vf', f'scale={w}:{h}
 F = np.frombuffer(raw, np.uint8).reshape(-1, h, w, 3).astype(np.int16)
 d = np.abs(np.diff(F, axis=0)).mean(axis=(1, 2, 3))
 fails, rep = [], {'frames': int(len(F)), 'size': f"{v['width']}x{v['height']}", 'fps': v['r_frame_rate']}
+from fractions import Fraction; FPSV = float(Fraction(v['r_frame_rate']))
+if round(FPSV) != 60: fails.append(f"frame rate is {v['r_frame_rate']}, expected 60 (owner decision: 60 fps + motion blur)")
 if (v['width'], v['height']) != (1080, 1920): fails.append('not 1080x1920')
 for i in range(1, len(F) - 1):
     a1, a2, sk = d[i - 1], d[i], np.abs(F[i + 1] - F[i - 1]).mean()
-    if a1 > 12 and a2 > 12 and sk < min(a1, a2) * 0.35: fails.append(f'one-frame flash/glitch at frame {i} ({i / 30:.2f}s)')
+    if a1 > 12 and a2 > 12 and sk < min(a1, a2) * 0.35: fails.append(f'one-frame flash/glitch at frame {i} ({i / FPSV:.2f}s)')
 seam = float(np.abs(F[-1] - F[0]).mean()); typ = float(np.median(d)); rep['loop_seam_pixel_step'] = round(seam, 2); rep['median_frame_step'] = round(typ, 2)
 if seam > max(3.0, 3 * float(np.percentile(d, 90))): fails.append(f'visual loop seam: last→first frame step {seam:.1f} vs typical {typ:.1f}')
 SR = 48000

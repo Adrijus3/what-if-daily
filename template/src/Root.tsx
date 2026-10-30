@@ -1,7 +1,7 @@
 import React from 'react';
 import {Composition, AbsoluteFill, staticFile, useCurrentFrame, useVideoConfig, delayRender, continueRender} from 'remotion';
-import {drawFrame} from './frame';
-import {FPS, W, H, TIMELINE} from './anim';
+import {drawFrameSmooth} from './frame';
+import {OUT_FPS, W, H, TIMELINE} from './anim';
 
 const Story: React.FC = () => {
   const frame = useCurrentFrame();
@@ -15,7 +15,7 @@ const Story: React.FC = () => {
   }, [handle]);
   React.useLayoutEffect(() => {
     if (!ready) return;
-    drawFrame(ref.current!.getContext('2d')!, frame / fps);
+    drawFrameSmooth(ref.current!.getContext('2d')!, frame / fps, fps);
   }, [frame, fps, ready]);
   return (
     <AbsoluteFill style={{background: '#0c0714'}}>
@@ -24,5 +24,5 @@ const Story: React.FC = () => {
   );
 };
 export const Root: React.FC = () => (
-  <Composition id="Story" component={Story} width={W} height={H} fps={FPS} durationInFrames={Math.round(TIMELINE.duration * FPS)} />
+  <Composition id="Story" component={Story} width={W} height={H} fps={OUT_FPS} durationInFrames={Math.round(TIMELINE.duration * OUT_FPS)} />
 );
