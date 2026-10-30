@@ -1,4 +1,7 @@
 # One idea per line. [S] = epic science, [F] = funny theoretical. Runs delete a line when they use it, and may add new ones.
+[F] What if your skeleton walked out of your body? [SCOUT 2026-10-30 score=23/25] why it's hot: Halloween weekend, skeleton content peaks Oct 28-Nov 1; relatable body what-if (206 bones, bone marrow makes blood cells) | source: https://www.accuweather.com/en/weather-news/this-is-your-brain-on-a-haunted-house/1829727
+[F] What if you ate all your Halloween candy in one night? (light "don't try this" framing) [SCOUT 2026-10-30 score=22/25] why it's hot: Halloween candy haul talk and trick-or-treat science roundups; very relatable | source: https://news.wisc.edu/media-advisory-have-no-fear-halloween-experts-are-here/
+[S] What if every satellite vanished overnight? [SCOUT 2026-10-30 score=21/25] why it's hot: ~15,900 active satellites incl. 10,000+ Starlink tracked this week, ISS solar-array spacewalks Oct 29 / Nov 5 | source: https://orbitalradar.com/blog/this-week-in-orbit-2026-10-21
 [S] What if the Moon disappeared?
 [S] What if Earth stopped spinning for one second?
 [S] What if you fell into a black hole?
