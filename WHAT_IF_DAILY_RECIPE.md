@@ -144,6 +144,7 @@ A sequel is allowed ONLY when the plan item is tagged `[SEQUEL of <episode-slug>
   - Captions sit in a narrow centre column (maxW 700, y ≈ 1285).
   - Nothing important goes in the top 230 px, the right-hand 160 px (TikTok buttons) or the bottom 330 px.
   - No distractions, nothing distorted.
+- **WATERMARK (owner request, 30 Oct 2026; automatic).** `src/watermark.ts` draws "@what._if.daily" with a tiny mascot badge on every frame. It is centred low (y 1532), so it can't be cropped off, and it sits above the platforms' bottom UI band and clear of the captions. It is semi-transparent and identical on every frame, so it never pops at cuts and the loop stays seamless. Keep `drawWatermark(ctx)` as the last call in `drawFrame`. Never remove or move it, and keep important art and big text out of the area around y 1500–1560.
 - **PROP LIBRARY (use it, don't draw crude props from scratch).** `src/lib/props/` has 30 on-style, loop-safe props:
   - **space:** earth, moon, sun, mars, saturn, blackHole, asteroid, rocket, ufo, satellite
   - **nature:** tree, cloudPuff, volcano, wave, rock, iceberg

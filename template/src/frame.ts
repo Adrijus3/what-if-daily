@@ -4,6 +4,7 @@ import {W, H, TIMELINE} from './anim';
 import {SCENES, sceneAt, ppAt} from './scenes';
 import {buildSims} from './puppet';
 import {drawCaptions} from './hud';
+import {drawWatermark} from './watermark';
 
 let simAt: ReturnType<typeof buildSims> | null = null;
 let tmp: HTMLCanvasElement | null = null;
@@ -63,6 +64,9 @@ export function drawFrame(ctx: Ctx, t: number) {
   ctx.drawImage(small, 0, 0, W, H); ctx.restore();
   ctx.fillStyle = rad(ctx, 540, 960, 600, 1350, [[0, 'rgba(8,3,16,0)'], [1, 'rgba(8,3,16,0.5)']]);
   ctx.fillRect(0, 0, W, H);
+
+  // channel watermark, drawn last so it stays crisp (constant on every frame)
+  drawWatermark(ctx);
 
   // no fade-out: the video loops seamlessly back to frame 0
   void SCENES; void clamp;
