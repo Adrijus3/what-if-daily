@@ -31,6 +31,15 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
 - **`ideas_backlog.txt`:** the full pool, used when plan.md is empty.
 - **`analytics/retention_playbook.md`:** apply every tactic when writing the script and staging the visuals. Before producing anything, spawn a **retention editor** (Agent tool, model "sonnet"). Give it the draft script and the playbook. It returns a tightened script; keep the facts, the voice tags and the loop line.
   - Include this in the retention editor's brief: **The 3-second rule is yours to enforce.** Before you return the script, check the opening against these limits and rewrite until it passes: (1) the first sentence is a single question or statement of 8 words or fewer, with no filler words ("so", "imagine", "have you ever wondered"), so that it can finish by about 2.5 s at the narrator's pace; (2) the most surprising fact, biggest number or most absurd image of the whole script is stated in the first two sentences, not saved for the middle; (3) the script's first lines name something that can be SHOWN in under 3 s, so add a one-line staging note after the hook in the form `[PAYOFF @ <=3.0 s: what appears on screen]` using one of the hook patterns in recipe section 1 (mid-action, scariest number first, before-you-blink, size flip, wrong-answer reveal, prop rushes camera). If the script gives you nothing visual to show by 3 s, move a later fact forward rather than padding the opening. Never add more than one new visual event per second, never break the loop line, never change the facts, voice tags or numbers, and keep the captions equal to the narration word for word. A script without a clear payoff note by 3.0 s is not finished.
+- **FACT-CHECKER (owner request, 30 Oct 2026). Mandatory, before narration is generated.** After the retention editor, spawn a separate **fact-checker** (Agent tool, model "sonnet"). Give it the final script, the source URLs and this brief:
+  - Verify EVERY number and claim with WebSearch/WebFetch against reputable sources (NASA, ESA, USGS, universities, peer-reviewed papers, major science outlets).
+  - Check the physics and logic of the premise, the escalation and the twist, not just the numbers.
+  - List the 3 objections a smart, nit-picky viewer would most likely comment. For example, on the Earth episode: "you'd just stop at the core because of gravity".
+  - For each objection: either confirm the script already covers it, or propose ONE short added or changed line that pre-empts it without slowing the pacing.
+  - Return a verdict:
+    - **PASS**, or
+    - **FIX** with exact line edits and a source for each.
+  Apply every FIX, keeping the hook, the 3-second rule, the voice tags and the loop line. If a claim can't be verified, cut it. Save the report as `episodes/<date>-<slug>/factcheck.md`. **Never generate narration for a script whose fact-check isn't PASS.**
 - **`episodes/<date>-<slug>/features.json`:** after the timeline is built, write the episode's measured structure so the analyst can link structure to retention:
   - `duration_s`, `kind`, `hook_words`, `hook_end_s` (when the hook question ends), `first_payoff_s`
   - `twist_at_pct`, `words_per_min`, `max_gap_without_visual_change_s`, `open_loop_by_s`
@@ -304,6 +313,14 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
   - The prefix never adds a hashtag: still exactly 5.
 - **TikTok title (tiktokData.title, required by Metricool):** the short question only, e.g. "What if you dug a hole through the Earth?".
 - Save the caption to `episodes/<date>-<slug>/CAPTION.txt`.
+- **Pinned comment (owner request, 30 Oct 2026):**
+  - Write ONE question for the owner to post and pin under the video on both platforms, saved to `episodes/<date>-<slug>/PINNED.txt`.
+  - Rules:
+    - 150 characters or less, with 1 emoji.
+    - Specific to the episode, and something anyone can answer in a few words, e.g. "Which country would YOUR tunnel come out in? 🌍".
+    - Different from the caption's comment question, so the two don't repeat.
+    - No links, and nothing that needs the viewer to know a fact.
+  - Put it in the owner's daily message under "📌 Pin this:" so it can be copy-pasted.
 - **Schedule at the times in `analytics/schedule.json`** (`tiktok_time` and `youtube_time`, Europe/London, the same day; both default to 18:30), visible to everyone, comments on. Only the owner changes these times. The strategist may only write a `pending_suggestion`, which is never applied until the owner says yes.
 - **Route (tested and working 29 Oct 2026): GitHub raw link → Metricool.**
   1. In the repo clone, run `git checkout --orphan video-new`, `git rm -rq --cached .`, and remove the tracked files. Copy the master in as `episode.mp4`, commit it, then `git push -f origin video-new:video`. Note the commit SHA (`git rev-parse HEAD`).
@@ -323,11 +340,17 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
      - Same blogId, date, `publicationDate`, `autoPublish true`, `draft false`, and the same SHA raw media URL.
      - `providers [{"network":"youtube"}]`.
      - `text` = the TikTok caption, with "Follow for a new "What If" every day!" changed to "Subscribe for a new "What If" every day!". Keep the same 5 hashtags.
-     - `youtubeData {title:"<the short question + 1–2 emojis, under 100 chars>", type:"short", privacy:"public", tags:[5–8 topic tags incl. "what if", "science", "what if daily"], category:"SCIENCE_TECHNOLOGY", madeForKids:false, isAiGeneratedContent:false}`.
+     - `youtubeData {title:"<SEARCH-FRIENDLY title, see below>", type:"short", privacy:"public", tags:[5–8 topic tags incl. "what if", "science", "what if daily"], category:"SCIENCE_TECHNOLOGY", madeForKids:false, isAiGeneratedContent:false}`.
      - `madeForKids:false` is the OWNER'S DECISION (30 Oct 2026: general audience, teens and adults). Never change it. `isAiGeneratedContent` stays false because the videos are clearly cartoon animation, not realistic synthetic footage.
      - Confirm both posts (TikTok and YouTube) are PENDING with `getScheduledPosts`.
      - If the YouTube call fails but TikTok succeeded, keep the TikTok post and tell the owner what YouTube said.
      - A viewer-idea credit ("Idea by @name 💡") goes in both captions.
+     - **YouTube title = SEARCH-FRIENDLY (owner request, 30 Oct 2026).** Shorts are found through YouTube search far more than TikToks, so phrase the YouTube title the way people actually type the question.
+       - Lead with the main keyword: "What happens if you fall through the Earth?", "What would happen if the Moon disappeared?".
+       - Keep it to 70 characters or less and at most 1 emoji, at the end. No clickbait the video doesn't deliver.
+       - Format prefixes ("Viewer Pick Wednesday 💡", "Funny Friday 😂", "Part 2:") go at the END on YouTube, e.g. "What happens if you fall through the Earth? (Part 2)", so the keyword stays first.
+       - The TikTok title stays the short punchy question.
+       - Tags: 5–8 search phrases people would type, e.g. "what if", "what happens if", plus the topic words.
 - **If any step fails or is blocked:** do NOT post. Push the video to the `video` branch anyway and write the caption to `pending/CAPTION.txt` on main. Then notify the owner with the raw video link and the caption, so they can upload it in TikTok Studio.
 - Never enter passwords. Never change account settings. Leave the AI-generated label off unless the owner says otherwise.
 - **Afterwards:**
