@@ -398,21 +398,68 @@ export function car(ctx: Ctx, x: number, y: number, s = 1, t = 0, o: CarOpts = {
 
 // ------------------------------------------------------------------------------------------------ plane
 export interface PlaneOpts extends PropOpts {
-  /** tail / wing-tip tone (default pink) */
+  /** livery tone: tail fin, wing tips, belly stripe (default pink) */
   tone?: Tone;
 }
-/** Airliner: chubby side-view jet, faces right, with a window row and a gentle flight bob. About 420 x 230. */
+/** Airliner: chubby side-view jet facing right. Swept, tapered wings with visible thickness and an engine pod under each, a tall swept tail fin with horizontal stabilisers, a window row and a gentle flight bob. About 490 x 300. */
 export function plane(ctx: Ctx, x: number, y: number, s = 1, t = 0, o: PlaneOpts = {}) {
-  const tn = o.tone ?? P.pink, ph = idle(t, 4);
+  const tn = o.tone ?? P.pink, ph = idle(t, 4), fan = idle(t, 0.7);
   place(ctx, x, y + 5 * Math.sin(ph), s, o);
   ctx.rotate(-0.012 + 0.02 * Math.sin(ph + 0.6));
-  const acc = lin(ctx, 0, -130, 0, -30, [[0, tn.hi], [0.35, tn.base], [1, tn.lo]]);
-  // far stabiliser + tail fin
-  inked(ctx, roundPoly([[-176, -10], [-208, -50], [-150, -48], [-120, -8]], 8), lin(ctx, 0, -50, 0, -8, [[0, '#d9d2f0'], [1, '#a79bd0']]), {ow: 6, rim: 2.4});
-  inked(ctx, roundPoly([[-112, -34], [-166, -134], [-206, -134], [-200, -28]], 14), acc, {ow: 7.5, rim: 3.2, detail: () => { gloss(ctx, -170, -88, 52, 8, -1.2, 0.35); }});
-  // far wing peeking out behind the fuselage
-  inked(ctx, roundPoly([[24, -44], [-38, -104], [8, -110], [112, -50]], 12), lin(ctx, 0, -110, 0, -44, [[0, '#c9c0e6'], [1, '#8f84bd']]), {ow: 7, rim: 2.6});
-  // fuselage
+  const acc = lin(ctx, 0, -160, 0, -30, [[0, tn.hi], [0.35, tn.base], [1, tn.lo]]);
+  const accH = lin(ctx, -240, 0, 80, 0, [[0, tn.lo], [0.45, tn.base], [1, tn.hi]]);
+  const polyTo = (pts: Pt[]) => { ctx.beginPath(); pts.forEach((q, i) => (i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]))); ctx.closePath(); };
+  /** a wing / stabiliser: dark underside slab offset below the top surface = visible thickness, then the lit top surface */
+  const wing = (pts: Pt[], r: number, th: number, top: CanvasGradient | string, under: CanvasGradient | string, ow: number, tip: Pt[] | null, lines: [Pt, Pt][], glossAt?: [number, number, number, number]) => {
+    inked(ctx, roundPoly(pts.map(([px, py]) => [px + th * 0.3, py + th] as Pt), r), under, {ow, rim: 0});
+    inked(ctx, roundPoly(pts, r), top, {
+      ow, rim: ow > 6 ? 3.2 : 2.4,
+      detail: () => {
+        if (tip) { polyTo(tip); ctx.fillStyle = accH; ctx.fill(); }
+        ctx.strokeStyle = 'rgba(70,50,130,0.32)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+        for (const [a, b] of lines) { ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+        if (glossAt) gloss(ctx, glossAt[0], glossAt[1], glossAt[2], 7, glossAt[3], 0.6);
+      },
+    });
+  };
+  /** engine pod (capsule + intake lip with a spinning fan) */
+  const pod = (cx: number, cy: number, w: number, h: number, far: boolean) => {
+    const c = far ? ['#d6dae9', '#a3a8c2', '#6b6f8e'] : ['#f9faff', '#cdd1e3', '#7f84a2'];
+    inked(ctx, rr(cx - w / 2, cy - h / 2, w, h, h / 2), lin(ctx, 0, cy - h / 2, 0, cy + h / 2, [[0, c[0]], [0.5, c[1]], [1, c[2]]]), {
+      ow: 6.5, rim: far ? 2.2 : 3,
+      detail: () => {
+        ctx.fillStyle = 'rgba(58,48,110,0.26)'; ctx.fillRect(cx - w / 2 - 2, cy - h / 2 - 2, w * 0.24, h + 4);
+        ctx.strokeStyle = 'rgba(58,48,110,0.3)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx - w * 0.12, cy - h / 2); ctx.lineTo(cx - w * 0.12, cy + h / 2); ctx.stroke();
+        gloss(ctx, cx - w * 0.04, cy - h * 0.27, w * 0.5, 5, 0, 0.6);
+      },
+    });
+    const ix = cx + w / 2 - h * 0.3, rx = h * 0.27, ry = h * 0.43;
+    inked(ctx, ell(ix, cy, rx, ry), far ? '#c9cde0' : '#eceffa', {ow: 4.5, rim: 0});
+    ell(ix + 1, cy, rx * 0.66, ry * 0.7)(ctx); ctx.fillStyle = '#2d2644'; ctx.fill();
+    ctx.save(); ell(ix + 1, cy, rx * 0.66, ry * 0.7)(ctx); ctx.clip();
+    ctx.strokeStyle = 'rgba(190,200,240,0.85)'; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+    for (let k = 0; k < 3; k++) { const a = fan + (k * TAU) / 3; ctx.beginPath(); ctx.moveTo(ix + 1, cy); ctx.lineTo(ix + 1 + Math.cos(a) * rx, cy + Math.sin(a) * ry); ctx.stroke(); }
+    ctx.restore();
+    dot(ctx, ix + 1, cy, Math.max(2.2, rx * 0.2), '#8e94bd');
+  };
+  const under = lin(ctx, 0, 0, 0, 170, [[0, '#a99fd2'], [1, '#7468a6']]);
+  const underFar = '#6c6199';
+
+  // ---- far side: stabiliser, wing, engine
+  wing([[-124, -14], [-206, -64], [-254, -64], [-210, -22]], 8, 8, lin(ctx, 0, -58, 0, -14, [[0, '#cfc6ea'], [1, '#9a8fc6']]), underFar, 6, null, []);
+  wing([[78, -52], [-34, -120], [-90, -120], [-56, -61]], 12, 12, lin(ctx, 0, -120, 0, -52, [[0, '#d4cbee'], [1, '#9b90c8']]), underFar, 6.5, [[-140, -108], [4, -124], [4, -150], [-140, -150]] as Pt[], [[[-36, -66], [-66, -112]]]);
+  pod(30, -86, 78, 32, true);
+  // ---- tail fin
+  inked(ctx, roundPoly([[-96, -48], [-168, -162], [-220, -162], [-214, -34]], 14), acc, {
+    ow: 7.5, rim: 3.2,
+    detail: () => {
+      ctx.strokeStyle = 'rgba(90,20,60,0.28)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-190, -156); ctx.lineTo(-188, -38); ctx.stroke();
+      gloss(ctx, -150, -100, 80, 8, -1.0, 0.4);
+    },
+  });
+  // ---- near horizontal stabiliser (root hides behind the tail cone)
+  wing([[-124, -8], [-195, 65], [-228, 65], [-204, 2]], 9, 10, lin(ctx, -230, 0, -120, 70, [[0, '#e4def6'], [1, '#b8aedc']]), under, 6.5, [[-240, 50], [-186, 46], [-186, 90], [-240, 90]] as Pt[], [], [-168, 20, 52, 0.8]);
+  // ---- fuselage
   const fus = (c: Ctx) => {
     c.beginPath(); c.moveTo(-206, -34);
     c.bezierCurveTo(-130, -58, 60, -66, 150, -54); c.bezierCurveTo(204, -46, 228, -10, 210, 16);
@@ -422,7 +469,6 @@ export function plane(ctx: Ctx, x: number, y: number, s = 1, t = 0, o: PlaneOpts
     ow: 8.5, rim: 3.6,
     detail: () => {
       ctx.fillStyle = lin(ctx, -210, 0, 220, 0, [[0, tn.lo], [0.35, tn.base], [1, tn.hi]]); ctx.beginPath(); ctx.moveTo(-230, 18); ctx.bezierCurveTo(-60, 28, 90, 28, 240, 12); ctx.lineTo(240, 32); ctx.bezierCurveTo(90, 46, -60, 46, -230, 36); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = INK; ctx.fillRect(-230, 12, 470, 0);
       for (let i = 0; i < 9; i++) {
         const wx = -132 + i * 27;
         outline(ctx, rr(wx - 9, -30, 18, 23, 9), 2.6);
@@ -431,14 +477,14 @@ export function plane(ctx: Ctx, x: number, y: number, s = 1, t = 0, o: PlaneOpts
       gloss(ctx, -40, -50, 200, 8, 0.0, 0.5);
     },
   });
-  // cockpit
+  // ---- near wing: long swept taper, livery tip, flap lines, thickness
+  wing([[80, 8], [-30, 148], [-90, 148], [-58, 24]], 16, 18, lin(ctx, -60, 10, 80, 150, [[0, '#ffffff'], [0.5, '#e6e0f8'], [1, '#b3a8d8']]), under, 7.5,
+    [[-140, 122], [10, 110], [10, 180], [-140, 180]] as Pt[], [[[-38, 34], [-72, 136]], [[-12, 30], [-20, 44]], [[-44, 84], [-28, 82]]], [26, 62, 120, -0.88]);
+  // ---- near engine: pylon, pod
+  inked(ctx, rr(-12, 54, 40, 40, 8), lin(ctx, 0, 54, 0, 94, [[0, '#9a9fba'], [1, '#6a6f8e']]), {ow: 5.5, rim: 1.6});
+  pod(8, 92, 100, 42, false);
+  // ---- cockpit
   inked(ctx, roundPoly([[134, -46], [178, -40], [193, -18], [128, -22]], 6), lin(ctx, 0, -40, 0, -14, [[0, '#9be6ff'], [1, '#2f6fd0']]), {ow: 4.5, rim: 0, detail: () => { gloss(ctx, 150, -36, 22, 5, -0.2, 0.7); }});
-  // engine + near wing
-  inked(ctx, rr(-14, 46, 92, 44, 22), lin(ctx, 0, 40, 0, 82, [[0, '#f2f4fb'], [0.5, '#c3c8da'], [1, '#7c819b']]), {ow: 6.5, rim: 3, detail: () => { dot(ctx, 78, 68, 19, '#2d2644'); dot(ctx, 74, 66, 11, '#4a4268'); }});
-  inked(ctx, roundPoly([[36, 8], [-112, 110], [-38, 120], [116, 20]], 16), lin(ctx, -60, 0, 100, 60, [[0, '#ffffff'], [0.5, '#e0daf6'], [1, '#a79bd0']]), {
-    ow: 7.5, rim: 3.2,
-    detail: () => { ctx.fillStyle = acc; ctx.beginPath(); ctx.moveTo(-120, 112); ctx.lineTo(-30, 126); ctx.lineTo(-52, 88); ctx.lineTo(-100, 78); ctx.closePath(); ctx.fill(); gloss(ctx, 6, 40, 96, 8, 0.62, 0.55); },
-  });
   ctx.restore();
 }
 
@@ -514,10 +560,15 @@ export interface CityOpts extends PropOpts {
   tone?: 'dusk' | 'night' | 'day';
   /** layout seed for the lit windows */
   seed?: number;
+  /** window detail: 'auto' (default) switches to a few big window blocks when drawn small (s < 0.75; a quick cross-fade between 0.73 and 0.77); 'full' / 'simple' force one */
+  lod?: 'auto' | 'full' | 'simple';
 }
-/** City block: a row of rounded skyscrapers with windows (some twinkle), a rooftop antenna with a blinking light. About 400 x 340, base at y = +160. */
+/** City block: a row of rounded skyscrapers with windows (some twinkle), a rooftop antenna with a blinking light. About 400 x 340, base at y = +160. Windows are individual panes at full size and chunky lit window blocks when small, so it stays clean at phone size. */
 export function cityBlock(ctx: Ctx, x: number, y: number, s = 1, t = 0, o: CityOpts = {}) {
-  const tone = o.tone ?? 'dusk', ph = idle(t, 3), R = rng(o.seed ?? 21);
+  const tone = o.tone ?? 'dusk', ph = idle(t, 3), R = rng(o.seed ?? 21), R2 = rng((o.seed ?? 21) + 1000);
+  // level of detail from the size it is really drawn at (prop scale x the caller's transform)
+  const m = ctx.getTransform(), eff = s * Math.hypot(m.a, m.b);
+  const fine = o.lod === 'full' ? 1 : o.lod === 'simple' ? 0 : clamp((eff - 0.73) / 0.04, 0, 1);
   const pal = {
     dusk: {b: [P.violet, P.blue, P.navy, P.teal, P.violet, P.blue] as Tone[], win: '#ffe08a', dark: 'rgba(40,24,100,0.7)', lit: 0.58},
     night: {b: [P.navy, {hi: '#4b4fb5', base: '#2c2f7e', lo: '#1c1c58', deep: '#10103a'}, P.navy, {hi: '#5a46b0', base: '#3a2c84', lo: '#241a5c', deep: '#140e3a'}, P.navy, {hi: '#4b4fb5', base: '#2c2f7e', lo: '#1c1c58', deep: '#10103a'}] as Tone[], win: '#ffd96b', dark: 'rgba(8,6,40,0.75)', lit: 0.7},
@@ -545,12 +596,27 @@ export function cityBlock(ctx: Ctx, x: number, y: number, s = 1, t = 0, o: CityO
     inked(ctx, rr(x0, y0, w, h + 8, 9), lin(ctx, x0, y0, x0 + w, base, [[0, tn.hi], [0.25, tn.base], [1, tn.lo]]), {
       ow: 7, rim: 3.2,
       detail: () => {
-        const cols = Math.max(2, Math.floor((w - 12) / 22)), rows = Math.floor((h - 34) / 30), gx = (w - cols * 14) / (cols + 1);
-        for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-          const wx = x0 + gx + c * (14 + gx), wy = y0 + 16 + r * 30, rr_ = R(), on = rr_ < pal.lit, twinkle = R() < 0.18;
-          const lit_ = twinkle ? Math.sin(ph * 2 + rr_ * 40) > -0.2 : on;
-          ctx.fillStyle = lit_ ? pal.win : pal.dark; rr(wx, wy, 14, 18, 4)(ctx); ctx.fill();
-          if (lit_) { ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(wx + 2, wy + 2, 5, 4); }
+        if (fine > 0) { // individual panes
+          ctx.save(); ctx.globalAlpha = fine;
+          const cols = Math.max(2, Math.floor((w - 12) / 22)), rows = Math.floor((h - 34) / 30), gx = (w - cols * 14) / (cols + 1);
+          for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+            const wx = x0 + gx + c * (14 + gx), wy = y0 + 16 + r * 30, rr_ = R(), on = rr_ < pal.lit, twinkle = R() < 0.18;
+            const lit_ = twinkle ? Math.sin(ph * 2 + rr_ * 40) > -0.2 : on;
+            ctx.fillStyle = lit_ ? pal.win : pal.dark; rr(wx, wy, 14, 18, 4)(ctx); ctx.fill();
+            if (lit_) { ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(wx + 2, wy + 2, 5, 4); }
+          }
+          ctx.restore();
+        }
+        if (fine < 1) { // small on screen: one or two chunky window blocks per floor
+          ctx.save(); ctx.globalAlpha = 1 - fine;
+          const rows = Math.max(1, Math.floor((h - 26) / 58)), cols = w < 70 ? 1 : 2, gx = 11, ww = (w - gx * (cols + 1)) / cols, wh = 32;
+          for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+            const wx = x0 + gx + c * (ww + gx), wy = y0 + 18 + r * 58, rr_ = R2(), twinkle = R2() < 0.2;
+            const lit_ = twinkle ? Math.sin(ph * 2 + rr_ * 40) > -0.2 : rr_ < pal.lit + 0.12;
+            ctx.fillStyle = lit_ ? pal.win : pal.dark; rr(wx, wy, ww, wh, 9)(ctx); ctx.fill();
+            if (lit_) { ctx.fillStyle = 'rgba(255,255,255,0.5)'; rr(wx + 4, wy + 4, Math.max(6, ww * 0.34), 6, 3)(ctx); ctx.fill(); }
+          }
+          ctx.restore();
         }
         ctx.fillStyle = 'rgba(20,10,60,0.22)'; ctx.fillRect(x0 + w * 0.62, y0, w * 0.4, h + 10);
         ctx.fillStyle = tone === 'day' ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.18)'; ctx.fillRect(x0 + 4, y0 + 4, 6, h);

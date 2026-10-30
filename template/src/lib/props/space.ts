@@ -183,35 +183,115 @@ export function sun(ctx: Ctx, x: number, y: number, s = 1, t = 0, o: SunOpts = {
 
 // ------------------------------------------------------------------------------------------------ mars
 export interface MarsOpts extends PropOpts {
+  /** longitude (degrees) facing the camera at t = 0 */
   lon?: number;
+  /** turn the surface with the idle loop (default true) */
   spin?: boolean;
 }
-const MARS_DARK: Pt[][] = [
-  [[-52, 6], [-38, 22], [-18, 28], [2, 20], [22, 26], [38, 14], [30, -2], [10, -10], [-8, -2], [-26, -12], [-44, -6]],
-  [[48, -12], [66, 0], [88, 2], [104, -12], [96, -30], [74, -40], [56, -30]],
-  [[-118, 14], [-100, 26], [-80, 16], [-70, -2], [-86, -14], [-108, -10]],
-  [[148, 24], [166, 34], [188, 26], [196, 8], [180, -6], [158, -2]],
-  [[-160, -26], [-132, -20], [-112, -34], [-128, -50], [-154, -46]],
+/** Chaikin corner-cutting: turns a rough lon/lat polygon into an organic outline */
+function chaikin(poly: Pt[], it = 2): Pt[] {
+  let p = poly;
+  for (let k = 0; k < it; k++) {
+    const q: Pt[] = [];
+    for (let i = 0; i < p.length; i++) { const a = p[i], b = p[(i + 1) % p.length]; q.push([a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25], [a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]); }
+    p = q;
+  }
+  return p;
+}
+/** dark rust terrain (lon/lat degrees) */
+const MARS_DARK: Pt[][] = ([
+  [[56, -8], [64, 10], [72, 26], [84, 36], [94, 20], [88, 0], [76, -14], [62, -18]],
+  [[-64, 30], [-44, 46], [-14, 52], [10, 42], [4, 26], [-22, 22], [-50, 14]],
+  [[-134, -34], [-112, -24], [-88, -30], [-60, -44], [-82, -56], [-112, -50], [-138, -46]],
+  [[148, -10], [168, 8], [190, 16], [214, -2], [198, -26], [170, -28]],
+  [[108, -30], [126, -18], [144, -32], [130, -50], [112, -46]],
+  [[14, -2], [30, 14], [48, 0], [40, -22], [22, -22]],
+  [[-170, 38], [-150, 52], [-124, 48], [-120, 34], [-146, 28]],
+  [[-112, -6], [-100, 12], [-84, 8], [-80, -10], [-96, -20]],
+] as Pt[][]).map((p) => chaikin(p, 2));
+/** pale dusty plains */
+const MARS_DUST: Pt[][] = ([
+  [[-22, -12], [-2, 10], [26, 6], [34, -14], [8, -30]],
+  [[94, 16], [116, 34], [144, 28], [138, 6], [110, -4]],
+  [[-172, 10], [-150, 30], [-122, 22], [-130, -2], [-156, -12]],
+] as Pt[][]).map((p) => chaikin(p, 2));
+/** north cap: a ragged ring at ~60 deg latitude closed through the pole (a ring alone would cancel itself out when filled) */
+const MARS_CAP: Pt[] = [...Array.from({length: 25}, (_, i) => [i * 15, 60 + 3.6 * Math.sin(i * 1.7) + 2.6 * Math.sin(i * 0.9 + 1)] as Pt), [360, 90], [0, 90]];
+/** Valles Marineris (lon, lat): one long meandering gash with a short fork at its west end */
+const MARS_CANYON: {pts: Pt[]; w: number}[] = [
+  {pts: [[-52, -4], [-40, -9], [-26, -10], [-12, -12], [2, -9], [14, -13]], w: 8.5},
+  {pts: [[-52, -4], [-58, 1], [-63, 7]], w: 5},
+  {pts: [[-52, -4], [-59, -8], [-65, -9]], w: 4.5},
 ];
-/** Mars: rusty-orange sphere with slowly turning dark regions, polar cap and craters. Radius 104. */
+/** Mars: rust-orange globe with dark terrain, pale plains, the big canyon, Olympus Mons, a white polar cap and a dusty atmosphere rim; the surface turns slowly. Radius 104. */
 export function mars(ctx: Ctx, x: number, y: number, s = 1, t = 0, o: MarsOpts = {}) {
-  const R = 104, ph = idle(t, 30), lam0 = dg(o.lon ?? 20) - (o.spin === false ? 0 : ph), phi0 = 0.3;
+  const R = 104, ph = idle(t, 30), lam0 = dg(o.lon ?? 20) - (o.spin === false ? 0 : ph), phi0 = 0.46;
   place(ctx, x, y, s, o);
-  ctx.fillStyle = rad(ctx, 0, 0, R * 0.95, R * 1.5, [[0, 'rgba(255,150,100,0.32)'], [1, 'rgba(255,150,100,0)']]);
-  ctx.beginPath(); ctx.arc(0, 0, R * 1.5, 0, TAU); ctx.fill();
-  inked(ctx, circle(0, 0, R), lin(ctx, -R, -R, R, R, [[0, '#ff9a6c'], [0.45, '#e8653c'], [1, '#a53a24']]), {
+  // dusty-orange atmosphere rim, thin and hugging the planet
+  ctx.fillStyle = rad(ctx, 0, 0, R * 0.99, R * 1.34, [[0, 'rgba(255,168,96,0.72)'], [0.16, 'rgba(255,150,86,0.4)'], [0.5, 'rgba(255,130,90,0.12)'], [1, 'rgba(255,130,90,0)']]);
+  ctx.beginPath(); ctx.arc(0, 0, R * 1.34, 0, TAU); ctx.fill();
+  inked(ctx, circle(0, 0, R), lin(ctx, -R, -R, R, R, [[0, '#ffa070'], [0.5, '#e6683c'], [1, '#b04526']]), {
     ow: 8, rim: 3.4,
     detail: () => {
-      for (const poly of MARS_DARK) { const p = sphereRegion(R, poly, lam0, phi0); if (p) { p(ctx); ctx.fillStyle = 'rgba(138,40,28,0.5)'; ctx.fill(); } }
-      const cap = sphereRegion(R, POLE_N, lam0, phi0); if (cap) { cap(ctx); ctx.fillStyle = '#fff4ea'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 3; ctx.stroke(); }
-      const cs: [number, number, number][] = [[-10, -22, 11], [40, 34, 9], [-70, 30, 13], [100, -10, 10], [150, 40, 8], [-130, -12, 11], [200, -30, 12]];
-      for (const [lo, la, r] of cs) sphereSpot(ctx, R, lo, la, lam0, phi0, (a) => {
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      // pale plains, then dark rust terrain with a soft edge
+      for (const poly of MARS_DUST) { const p = sphereRegion(R, poly, lam0, phi0); if (p) { p(ctx); ctx.fillStyle = 'rgba(255,198,128,0.5)'; ctx.fill(); } }
+      for (const poly of MARS_DARK) {
+        const p = sphereRegion(R, poly, lam0, phi0); if (!p) continue;
+        p(ctx); ctx.strokeStyle = 'rgba(120,36,34,0.24)'; ctx.lineWidth = 8; ctx.stroke();
+        p(ctx); ctx.fillStyle = 'rgba(122,38,40,0.72)'; ctx.fill();
+        p(ctx); ctx.strokeStyle = 'rgba(255,190,140,0.22)'; ctx.lineWidth = 2; ctx.stroke();
+      }
+      // Valles Marineris: a long tapered gash with a lit lower lip
+      const gash = (pts: Pt[], wMax: number, dx: number, dy: number, col: string) => {
+        const N = 28; ctx.strokeStyle = col;
+        const at = (u: number) => {
+          const f = u * (pts.length - 1), k = Math.min(pts.length - 2, Math.floor(f)), a = pts[k], b = pts[k + 1], e = f - k;
+          return proj(R, dg(a[0] + (b[0] - a[0]) * e), dg(a[1] + (b[1] - a[1]) * e + 0.9 * Math.sin(u * 15)), lam0, phi0);
+        };
+        let prev = at(0);
+        for (let i = 1; i <= N; i++) {
+          const cur = at(i / N);
+          if (prev.z > 0.05 && cur.z > 0.05) {
+            ctx.lineWidth = 1.6 + wMax * Math.sin((Math.PI * (i - 0.5)) / N) ** 0.55;
+            ctx.beginPath(); ctx.moveTo(prev.x + dx, prev.y + dy); ctx.lineTo(cur.x + dx, cur.y + dy); ctx.stroke();
+          }
+          prev = cur;
+        }
+      };
+      for (const c of MARS_CANYON) gash(c.pts, c.w, 1.6, 2.6, 'rgba(255,208,164,0.62)');
+      for (const c of MARS_CANYON) gash(c.pts, c.w, 0, 0, '#5c1a24');
+      // Olympus Mons: a pale shield volcano with a dark caldera
+      sphereSpot(ctx, R, -76, 22, lam0, phi0, (a) => {
         ctx.globalAlpha = a;
-        ctx.fillStyle = 'rgba(120,30,20,0.55)'; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
-        ctx.fillStyle = 'rgba(255,170,130,0.55)'; ctx.beginPath(); ctx.arc(r * 0.16, r * 0.18, r * 0.78, 0, TAU); ctx.fill();
+        dot(ctx, 0, 0, 20, 'rgba(110,30,36,0.38)');
+        dot(ctx, 0.5, 1, 16.5, rad(ctx, -3, -3, 1, 18, [[0, '#ffd2a6'], [1, '#f0925e']]));
+        dot(ctx, 1, 1, 4.2, 'rgba(120,34,40,0.8)'); dot(ctx, 0.2, 0.1, 2.4, 'rgba(255,200,160,0.5)');
         ctx.globalAlpha = 1;
       });
+      // a few small craters
+      const cs: [number, number, number][] = [[24, 40, 9], [88, -26, 11], [128, 14, 8], [-100, -8, 11], [-18, 26, 8], [160, 38, 9], [-150, -26, 10], [56, 52, 8]];
+      for (const [lo, la, r] of cs) sphereSpot(ctx, R, lo, la, lam0, phi0, (a) => {
+        ctx.globalAlpha = a;
+        dot(ctx, 0, 0, r, 'rgba(104,28,34,0.7)');
+        dot(ctx, r * 0.16, r * 0.2, r * 0.76, 'rgba(255,174,128,0.72)');
+        ctx.globalAlpha = 1;
+      });
+      // dust haze toward the limb, then the usual sphere shading, then the bright ice cap on top
+      ctx.fillStyle = rad(ctx, 0, 0, R * 0.66, R, [[0, 'rgba(255,176,120,0)'], [1, 'rgba(255,176,120,0.42)']]); ctx.fillRect(-R, -R, R * 2, R * 2);
       sphereShade(ctx, R, 0.5, 0.26, '70,10,30');
+      const cap = sphereRegion(R, MARS_CAP, lam0, phi0);
+      if (cap) {
+        const edge = () => { // only the ragged ring, not the seam that closes the polygon through the pole
+          ctx.beginPath();
+          let pen = false;
+          for (const [lo, la] of MARS_CAP.slice(0, 25)) { const q = proj(R, dg(lo), dg(la), lam0, phi0); if (q.z > 0.03) { pen ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y); pen = true; } else pen = false; }
+        };
+        edge(); ctx.strokeStyle = 'rgba(255,236,224,0.5)'; ctx.lineWidth = 9; ctx.stroke();
+        cap(ctx); ctx.fillStyle = lin(ctx, 0, -R, 0, -R * 0.4, [[0, '#ffffff'], [0.6, '#fff6f0'], [1, '#e4ecff']]); ctx.fill();
+        ctx.save(); cap(ctx); ctx.clip(); sphereShade(ctx, R, 0.34, 0, '60,50,140'); ctx.restore();
+        edge(); ctx.strokeStyle = 'rgba(160,180,230,0.55)'; ctx.lineWidth = 2.4; ctx.stroke();
+      }
       gloss(ctx, -R * 0.42, -R * 0.64, R * 0.5, 9, -0.45, 0.3);
     },
   });
@@ -310,35 +390,95 @@ export function blackHole(ctx: Ctx, x: number, y: number, s = 1, t = 0, o: Black
 
 // ------------------------------------------------------------------------------------------------ asteroid
 export interface AsteroidOpts extends PropOpts {
+  /** shape + crater-layout seed */
   seed?: number;
-  /** tumble through full turns with the idle loop (default: gentle wobble) */
+  /** slow spin through whole turns with the idle loop (default true); false = only a gentle wobble */
   tumble?: boolean;
+  /** faint dust + ember trail streaming off to the right (`flip` mirrors it) */
+  trail?: boolean;
 }
-/** Lumpy rock with craters and a gentle wobble. About 220 wide. */
-export function asteroid(ctx: Ctx, x: number, y: number, s = 1, t = 0, o: AsteroidOpts = {}) {
-  const r = rng(o.seed ?? 11), n = 9, R = 96;
-  const pts: Pt[] = Array.from({length: n}, (_, i) => {
-    const a = (i / n) * TAU + (r() - 0.5) * 0.4, rr_ = R * (0.78 + 0.3 * r());
-    return [Math.cos(a) * rr_ * 1.12, Math.sin(a) * rr_ * 0.92] as Pt;
+/** lumpy potato outline: elongated, with a few bumps and dents (smooth blob through 16 points) */
+function potatoPts(seed: number): Pt[] {
+  const r = rng(seed), n = 16, p1 = r() * TAU, p2 = r() * TAU, p3 = r() * TAU, p4 = r() * TAU;
+  return Array.from({length: n}, (_, i) => {
+    const a = (i / n) * TAU;
+    const k = 1 + 0.2 * Math.sin(2 * a + p1) + 0.14 * Math.sin(3 * a + p2) + 0.09 * Math.sin(5 * a + p3) + 0.06 * Math.sin(4 * a + p4) + (r() - 0.5) * 0.12;
+    return [Math.cos(a) * 132 * k, Math.sin(a) * 84 * k] as Pt;
   });
-  const ph = idle(t, 8);
-  place(ctx, x, y, s, o);
-  ctx.rotate(o.tumble ? ph : 0.1 * Math.sin(ph));
-  const path = roundPoly(pts, 30);
-  inked(ctx, path, lin(ctx, -R, -R, R, R, [[0, '#d9c0a6'], [0.45, '#b08a72'], [1, '#6e5048']]), {
+}
+/** Space rock: lumpy plum-brown potato with overlapping crater rims and a slow tumble (opt: dust + ember trail). About 250 x 170; the trail adds ~420 px to the right. */
+export function asteroid(ctx: Ctx, x: number, y: number, s = 1, t = 0, o: AsteroidOpts = {}) {
+  const r = rng((o.seed ?? 11) + 100), ph = idle(t, 16);
+  const rot = o.tumble === false ? 0.12 * Math.sin(ph) : ph % TAU; // wrapped so every whole loop hands the canvas the very same angle
+  place(ctx, x, y + 4 * Math.sin(ph), s, o);
+
+  // ---- trail (behind the rock, does not turn with it)
+  if (o.trail) {
+    const L = 430, X0 = 70, n = 15;
+    ctx.save();
+    // soft dust: overlapping round puffs along the axis, wider and fainter the further back
+    for (let i = 0; i <= 9; i++) {
+      const u = i / 9, cx = X0 + u * L, cy = 6 * u + 5 * Math.sin(ph + i * 0.9), rr_ = 44 + 76 * u, a = 0.38 * (1 - u) ** 1.25;
+      ctx.fillStyle = rad(ctx, cx, cy, 0, rr_, [[0, `rgba(255,176,120,${a})`], [0.55, `rgba(232,128,170,${a * 0.55})`], [1, 'rgba(164,124,255,0)']]);
+      ctx.beginPath(); ctx.arc(cx, cy, rr_, 0, TAU); ctx.fill();
+    }
+    // dust puffs that grow and fade as they drift back
+    for (let i = 0; i < 6; i++) {
+      const u = saw(t, 8, i / 6), yy = Math.sin(i * 2.4 + 1) * (20 + 50 * u), rr_ = 16 + 36 * u;
+      ctx.globalAlpha = 0.22 * Math.sin(Math.PI * u);
+      ctx.fillStyle = rad(ctx, X0 + 20 + u * (L - 40), yy, 0, rr_, [[0, '#ffd2b0'], [1, 'rgba(226,150,190,0)']]);
+      ctx.beginPath(); ctx.arc(X0 + 20 + u * (L - 40), yy, rr_, 0, TAU); ctx.fill();
+    }
+    // embers
+    for (let i = 0; i < n; i++) {
+      const lane = (i * 0.618) % 1, u = saw(t, 5, i / n), px = X0 + 10 + u * L * (0.7 + 0.3 * lane);
+      const py = (lane - 0.5) * (50 + 110 * u) + 7 * Math.sin(2 * idle(t, 5) + i * 1.9);
+      const a = Math.min(1, u * 7) * (1 - u) ** 1.3, rr_ = (3 + 3.4 * ((i * 0.37) % 1)) * (1 - 0.65 * u);
+      ctx.globalAlpha = a * 0.9;
+      dot(ctx, px, py, rr_ * 1.9, u < 0.5 ? 'rgba(255,150,70,0.35)' : 'rgba(210,110,190,0.3)');
+      dot(ctx, px, py, rr_, u < 0.35 ? '#ffb24d' : u < 0.65 ? '#ff7a8a' : '#c79bff');
+      dot(ctx, px - rr_ * 0.2, py - rr_ * 0.2, rr_ * 0.45, '#fff0b0');
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  ctx.rotate(rot);
+  // ---- crater rims: big ones first, smaller ones bite into their rims
+  const J = () => (r() - 0.5) * 8;
+  const craters: [number, number, number, number, number][] = ([[-30, -12, 40], [22, 10, 28], [66, -24, 20], [-76, 22, 20], [-6, 42, 20], [44, 40, 14], [-34, -50, 15], [100, 14, 12], [-108, -14, 12], [10, -34, 11]] as const).map(([cx, cy, c]) => [cx + J(), cy + J(), c, 0.72 + 0.28 * r(), (r() - 0.5) * 0.9]);
+  const pits: [number, number, number][] = Array.from({length: 11}, () => [(r() - 0.5) * 230, (r() - 0.5) * 140, 2 + r() * 2.6]);
+
+  const facets: [Pt[], string][] = [
+    [[[-120, 30], [-70, 56], [-20, 74], [-40, 100], [-130, 80]], 'rgba(48,28,64,0.26)'],
+    [[[70, -80], [120, -40], [96, -4], [60, -30]], 'rgba(48,28,64,0.22)'],
+    [[[-100, -60], [-40, -84], [10, -78], [-30, -50], [-84, -34]], 'rgba(255,236,220,0.18)'],
+    [[[40, 54], [100, 40], [130, 70], [70, 96]], 'rgba(255,236,220,0.12)'],
+  ];
+  inked(ctx, blob(potatoPts(o.seed ?? 11)), '#9a766f', {
     ow: 7.5, rim: 3.4,
     detail: () => {
-      // facets: darker underside plane
-      ctx.fillStyle = 'rgba(70,40,50,0.28)'; ctx.beginPath(); ctx.moveTo(-R, 12); ctx.lineTo(R * 0.4, -10); ctx.lineTo(R * 1.2, 40); ctx.lineTo(R * 1.2, R * 1.2); ctx.lineTo(-R, R * 1.2); ctx.fill();
-      const cr: [number, number, number][] = [[-30, -22, 24], [32, 20, 20], [-14, 36, 12], [44, -34, 11], [-58, 14, 9]];
-      for (const [cx, cy, c] of cr) {
-        ctx.save(); ctx.translate(cx, cy);
-        ctx.fillStyle = '#7c5a4e'; ctx.beginPath(); ctx.ellipse(0, 0, c, c * 0.82, 0, 0, TAU); ctx.fill();
-        ctx.fillStyle = '#a07e6c'; ctx.beginPath(); ctx.ellipse(c * 0.14, c * 0.16, c * 0.82, c * 0.68, 0, 0, TAU); ctx.fill();
-        ctx.strokeStyle = 'rgba(255,230,200,0.55)'; ctx.lineWidth = Math.max(2, c * 0.1); ctx.beginPath(); ctx.ellipse(0, 0, c * 1.02, c * 0.84, 0, dg(20), dg(95)); ctx.stroke();
+      // lighting stays on the screen's upper-left while the rock turns
+      ctx.save(); ctx.rotate(-rot);
+      ctx.fillStyle = rad(ctx, -60, -54, 12, 230, [[0, '#ecd0bc'], [0.3, '#bf9684'], [0.6, '#85625f'], [1, '#43304f']]);
+      ctx.fillRect(-320, -320, 640, 640);
+      ctx.restore();
+      // chipped facets: a few darker and lighter planes break up the smooth shading
+      for (const [pts, col] of facets) { ctx.fillStyle = col; ctx.beginPath(); pts.forEach((q, i) => (i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]))); ctx.closePath(); ctx.fill(); }
+      for (const [px, py, pr] of pits) dot(ctx, px, py, pr, 'rgba(52,28,70,0.34)');
+      for (const [cx, cy, c, k, ang] of craters) {
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(-rot);
+        ctx.fillStyle = 'rgba(58,32,82,0.85)'; ctx.beginPath(); ctx.ellipse(0, 0, c * 1.1, c * k * 1.1, ang, 0, TAU); ctx.fill();         // dark seam round the rim
+        ctx.fillStyle = lin(ctx, -c, -c, c, c, [[0, '#f0d6c2'], [1, '#a47f78']]); ctx.beginPath(); ctx.ellipse(0, 0, c, c * k, ang, 0, TAU); ctx.fill(); // raised lip
+        ctx.fillStyle = '#4d3358'; ctx.beginPath(); ctx.ellipse(c * 0.08, c * 0.1, c * 0.76, c * k * 0.74, ang, 0, TAU); ctx.fill();         // shaded bowl
+        ctx.fillStyle = lin(ctx, 0, -c * 0.4, 0, c * 0.7, [[0, '#8f6a6c'], [1, '#c9a08c']]); ctx.beginPath(); ctx.ellipse(c * 0.2, c * 0.24, c * 0.58, c * k * 0.5, ang, 0, TAU); ctx.fill(); // lit floor
+        ctx.strokeStyle = 'rgba(255,240,226,0.62)'; ctx.lineWidth = Math.max(2.4, c * 0.1); ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.ellipse(0, 0, c * 0.96, c * k * 0.96, ang, dg(190), dg(268)); ctx.stroke();                                          // lip catches the light
         ctx.restore();
       }
-      gloss(ctx, -R * 0.4, -R * 0.62, R * 0.5, 8, -0.3, 0.3);
+      ctx.save(); ctx.rotate(-rot);
+      gloss(ctx, -62, -52, 70, 9, -0.5, 0.3);
+      ctx.restore();
     },
   });
   ctx.restore();
