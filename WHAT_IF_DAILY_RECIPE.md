@@ -330,6 +330,7 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
 - **Schedule at the times in `analytics/schedule.json`** (`tiktok_time` and `youtube_time`, Europe/London, the same day; both default to 18:30), visible to everyone, comments on. Only the owner changes these times. The strategist may only write a `pending_suggestion`, which is never applied until the owner says yes.
 - **Route (tested and working 29 Oct 2026): GitHub raw link → Metricool.**
   1. In the repo clone, run `git checkout --orphan video-new`, `git rm -rq --cached .`, and remove the tracked files. Copy the master in as `episode.mp4`, commit it, then `git push -f origin video-new:video`. Note the commit SHA (`git rev-parse HEAD`).
+     **Keep a permanent copy for the weekly compilation:** also run `git tag -f ep-<YYYY-MM-DD> HEAD` and `git push -f origin ep-<YYYY-MM-DD>`. The tag keeps that day's master downloadable after the `video` branch is overwritten the next day.
   2. Use the cache-proof URL `https://raw.githubusercontent.com/Adrijus3/what-if-daily/<SHA>/episode.mp4`. The branch URL is cached for 5 minutes and could serve an old video. Check `curl -sI` returns 200 and that content-length matches the file.
   3. Call Metricool `createScheduledPost` with:
      - blogId `7740291` (brand timezone Europe/London; TikTok account what._if.daily; YouTube channel UCILVwtGFtsHjT-CnojmLqFA).
@@ -362,3 +363,33 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
 - **Afterwards:**
   - Append to topics_used.txt and post_log.txt.
   - Send a short summary to the owner: title, scheduled time, caption, fact source.
+
+## 7. Weekly compilation (owner request, 30 Oct 2026; first one covers Mon 2 – Sun 8 Nov 2026)
+Every Sunday evening, a separate scheduled task merges that week's episodes (Monday to Sunday) into ONE long YouTube video. Rules:
+- **Clips:** the week's masters, from the `ep-<date>` tags (`git fetch origin tag ep-<date>`, then take `episode.mp4` from it), in date order. Skip a day with no tag. If fewer than 4 episodes exist, don't make a compilation; tell the owner instead. Use each episode exactly as posted: 60 fps, full length, its own audio.
+- **Format:** 1920×1080 at 60 fps, a normal (long-form) YouTube video.
+  - The vertical episode sits centred at full height.
+  - Behind it: a blurred, darkened, enlarged copy of the same clip, so there are no black bars.
+  - The episode watermark stays as it is.
+- **Clean transitions between clips:**
+  - A 0.5 s soft crossfade into a 1.2 s branded card: the purple sunburst from the banner, the mascot badge, and "What if #N" with the episode's question in Lilita One. Then a 0.5 s crossfade into the next clip.
+  - Audio crossfades with the picture.
+  - No hard cuts between episodes, no flashes, no slides or wipes.
+- **Intro:** a 3 s card, "What If Daily: Week of <2–8 Nov>", with the soft score.
+- **Outro:** a 5 s card, "Subscribe for a new What If every day!", with the mascot waving. No external links.
+- **Chapters:** the description lists YouTube chapters (`0:00 Intro`, then `m:ss What if …?` for each episode, then the outro). Each chapter must be at least 10 s and the first must be 0:00. Under the chapters, add one line per episode crediting viewer ideas ("Idea by @name").
+- **Post:** Metricool createScheduledPost to YouTube only, Sunday at 20:30 Europe/London:
+  - youtubeData: type "video", privacy "public", category "SCIENCE_TECHNOLOGY", madeForKids false (owner's decision), isAiGeneratedContent false.
+  - Title, search-friendly: "7 Mind-Blowing What Ifs: <most searchable topic> & More | What If Daily Week <n>". 100 characters or fewer.
+  - Tags: search phrases.
+  - The upload must be under 500 MB. Encode with libx264 crf 18–20 at 60 fps, AAC 192k, faststart, and use a GitHub Release asset or the `weekly` branch with a SHA URL for the media link.
+- **QA before posting:**
+  - ffprobe: 1920×1080, 60 fps, and the expected duration (the sum of the clips plus cards).
+  - Look at a contact sheet with every transition (3 frames each) and the first frame of each clip.
+  - Check the audio for clipping and confirm it doesn't drop out at a transition.
+  - If anything fails, don't post; tell the owner.
+- **Afterwards:**
+  - Log it in post_log.txt as `<date> | WEEKLY COMPILATION week of <dates> | 20:30 | YouTube post <id>`.
+  - Tell the owner the title, the chapter list and the video link.
+  - Delete `ep-<date>` tags older than 21 days, so the repository stays small.
+
