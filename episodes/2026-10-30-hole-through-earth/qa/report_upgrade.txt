@@ -1,0 +1,20 @@
+FRAME QA — 1935 frames, 64.5s — 0 FAIL, 2 WARN
+LOOP SEAM: pixel step 0.14 vs normal 0.14
+BUSIEST ARMS (deg per 2 s): {"left":{"deg":304,"t":47.25},"right":{"deg":277,"t":10}}
+
+CUTS:
+  cut    4.433s hook → countdown: head moves 0px, size ×1, zoom ×1, arms turn 0°
+  cut    9.433s countdown → fall: head moves 5px, size ×1.01, zoom ×1, arms turn 0°
+  cut   14.933s fall → fall: head moves 0px, size ×1, zoom ×1, arms turn 0°
+  cut   18.933s fall → fall: head moves 1px, size ×1, zoom ×1, arms turn 1°
+  cut   24.933s fall → fall: head moves 1px, size ×1, zoom ×1, arms turn 1°
+  cut   30.933s fall → fall: head moves 1px, size ×1, zoom ×1, arms turn 1°
+  cut   39.433s fall → pop: head moves 5px, size ×1, zoom ×1, arms turn 0°
+  cut   46.933s pop → yoyo: head moves 3px, size ×1, zoom ×1, arms turn 0°
+  cut   51.433s yoyo → stuck: head moves 2px, size ×1, zoom ×1, arms turn 4°
+  cut   58.933s stuck → outro: head moves 1px, size ×1, zoom ×1, arms turn 0°
+  loop       0s outro → hook: head moves 0px, size ×1, zoom ×1, arms turn 0°
+
+ISSUES:
+  WARN   8.933s (f268) [limb-fast] fL rotates 924°/s — check it reads as a deliberate move
+  WARN   8.933s (f268) [limb-fast] fR rotates 924°/s — check it reads as a deliberate move
