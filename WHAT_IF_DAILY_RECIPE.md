@@ -421,8 +421,8 @@ Every Sunday evening, a separate scheduled task merges that week's episodes (Mon
     - the `chapters.txt` lines exactly (first at 0:00)
     - one "Idea by @name 💡" line per viewer-pick episode
     - "Subscribe for a new What If every day!"
-    - 5 hashtags
-  - Tags: search phrases.
+    - exactly 5 hashtags at the end of the description
+  - Owner decision (31 Oct 2026): ONLY a title and a description (hashtags inside the description). Send youtubeData with NO `tags` field.
   - Confirm it with getScheduledPosts.
 - **Afterwards:**
   - Log it in post_log.txt as `<date> | WEEKLY COMPILATION week of <dates> | 20:30 | YouTube post <id>`.
