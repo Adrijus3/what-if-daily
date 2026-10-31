@@ -1,0 +1,14 @@
+FRAME QA — 1875 frames, 62.5s — 0 FAIL, 4 WARN
+LOOP SEAM: pixel step 0.12 vs normal 0.12
+BUSIEST ARMS (deg per 2 s): {"left":{"deg":161,"t":58},"right":{"deg":137,"t":2}}
+
+CUTS:
+  cut       20s field → xray: head moves 0px, size ×1, zoom ×1, arms turn 0°
+  cut       38s xray → night: head moves 0px, size ×1, zoom ×1, arms turn 0°
+  loop       0s night → field: head moves 0px, size ×1, zoom ×1, arms turn 0°
+
+ISSUES:
+  WARN   1.583s (f48) [limb-fast] uL rotates 797°/s — check it reads as a deliberate move
+  WARN   1.583s (f48) [limb-fast] fL rotates 784°/s — check it reads as a deliberate move
+  WARN   1.583s (f48) [limb-fast] uR rotates 797°/s — check it reads as a deliberate move
+  WARN   1.583s (f48) [limb-fast] fR rotates 784°/s — check it reads as a deliberate move

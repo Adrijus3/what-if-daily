@@ -11,3 +11,8 @@ Not changed (accepted by reviewer): transitional arm lift through horizontal; em
 
 ## Round 2: APPROVE
 "All three must-fix items are resolved... Automated QA: 0 FAIL, 0 WARN. The cuts have 0 px head movement and 0° arm change, and the loop seam step is 0.12 against a normal 0.12... The 1.3 s still is the first visual payoff, and by 3.0 s the full skeleton and flopped mascot are on screen."
+
+## v2 (owner fix, 31 Oct 17:45)
+Owner: "that's not how a flat person with no bones is supposed to look". Rebuilt from 1.5 s: fast gravity flop (arms limp, knees buckle, ease-in ~0.45 s, splat + jelly bounce) into a deflated hoodie heap with the head flopped on top, legs hidden; pop-up at 56.3 s. Owner approved the still and the flop clip ("Perfect").
+Frame QA 0 FAIL (4 WARN = deliberate limp-arm drop at 1.58 s). video_qa pass: 3750 frames 60 fps, A/V 0 ms, loop 0.34. Independent Sonnet reviewer: first REJECT (ghost at the heap hand-over), fixed (smash-flat at impact, 1–2 frame hand-over), then APPROVE.
+Posts moved 18:30 -> 21:00 by the owner; media swapped to video SHA cde195a.

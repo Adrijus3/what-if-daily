@@ -1,7 +1,8 @@
-import {Ctx, softShadow, rad, lin, rrect} from './lib/draw';
+import {Ctx, softShadow, rad, lin, rrect, rimDisc} from './lib/draw';
 import {clamp, smooth, lerp} from './lib/math';
 import {Rig, Keys, TIMELINE, hold} from './anim';
-import {DEF, PP, resolvePP, drawPuppet, Sim, ikInfo, elbowScore} from './puppet';
+import {DEF, PP, resolvePP, drawPuppet, drawHead, geom, Sim, ikInfo, elbowScore} from './puppet';
+import {C} from './palette';
 import {drawBG, FLOOR} from './backgrounds';
 import {drawBurst} from './props';
 import {commentBubble} from './props2';
@@ -38,27 +39,28 @@ const FLOOR_Y = 1153;
 const MX = 360, SKX = 735;
 const START = {x: MX, y: 770, ...STAND, ...NEUTRAL, ...HIPS, smile: 0.8, ex: 4};
 /** the boneless puddle: a deep frog-squat (feet stay on the floor) that the draw squashes into a jelly blob */
-const FLOP = {y: 808, lLa: -40, lLb: -5, lRa: 40, lRb: 5, aLa: -22, aLb: -6, aRa: 22, aRb: 6};
-const W0 = K.walked + 0.02, W1 = K.walked + 0.29;           // flop: 0.27 s
+const FLOP = {y: 1113, hx: -50, hy: 183, hr: -0.75, lLa: -40, lLb: -5, lRa: 40, lRb: 5, aLa: -22, aLb: -6, aRa: 22, aRb: 6};   // owner fix 31 Oct: deflated heap (see drawDeflated)
+const W0 = K.walked + 0.02, W1 = K.walked + 0.47;           // owner fix 31 Oct: a full ~1 s DROOP as the skeleton walks away (was a 0.27 s flop)
 const UP0 = 56.25, UP1 = 56.52;                              // pops back up when the skeleton is back inside (0.27 s)
-const flopAt = (t: number) => smooth((t - W0) / (W1 - W0)) * (1 - smooth((t - UP0) / (UP1 - UP0)));
+const flopAt = (t: number) => clamp((t - W0) / (W1 - W0), 0, 1) ** 2 * (1 - smooth((t - UP0) / (UP1 - UP0)));   // falls like a dropped sack
 const PT_BUBBLE = {aRa: 67, aRb: 73};
 const mascotKeys: Keys<PP> = [
   [0, START, 'step'],
   [0.65, {ex: 7, brow: 0.5}],
   [1.25, {ew: 1.18, pr: 5.5, open: 0.35, brow: 0.9, smile: 0.3}],
-  [W0, hold(...ARMS, ...LEGS, 'y')],
-  [W1, FLOP],
+  [W0, hold(...ARMS, ...LEGS, 'y', 'hx', 'hy', 'hr')],
+  [W0 + 0.1, {aLa: -6, aLb: -2, aRa: 6, aRb: 2, hr: -0.12, hy: 10, y: 790}],   // the arms drop limp first, the head starts to tip
+  [W1, FLOP, 'in'],                                          // gravity: it accelerates into the floor
   [W1 + 0.35, {ew: 1, pr: 7, eye: 0.8, open: 0.15, smile: 0.1, brow: 0.3, ex: 6}],
   [K.flop + 0.35, {smile: -0.2, brow: 0.2, open: 0.3}],
   [K.puddle + 0.35, {smile: 0.3, open: 0, ex: 2}],
   [K.weirdest + 0.35, {ex: 6, brow: 0.6, smile: 0.2}],
   // "Your muscles pull..." he tries to lift his arm: one slow gesture, then it flops on "No bones?"
-  [K.muscles - 0.1, hold(...ARMS)], [K.muscles + 0.6, {aLa: -145, aLb: -168, brow: 0.8, open: 0.2, smile: -0.1, ex: -2, ey: -3}],
-  [K.nobones - 0.35, hold(...ARMS)], [K.nobones + 0.05, {aLa: -22, aLb: -6, brow: 0.2, open: 0.3, ey: 0, ex: 4}],
-  [K.standing, {y: 808}], [K.standing + 0.3, {y: 788}], [K.standing + 0.65, {y: 808}],      // tries to stand... nope
-  [K.highfive - 0.25, hold(...ARMS)], [K.highfive + 0.15, {aRa: 34, aRb: 20, ex: 7, ey: -3, smile: -0.2, brow: 0.8}],  // the floppy arm only twitches: no high five
-  [K.highfive + 0.45, hold(...ARMS)], [K.highfive + 0.8, {aRa: 22, aRb: 6, smile: 0.1}],
+  [K.muscles - 0.1, hold(...ARMS)], [K.muscles + 0.6, {brow: 0.8, open: 0.2, smile: -0.1, ex: -2, ey: -3}],   // a feeble floppy lift, never overhead
+  [K.nobones - 0.35, hold(...ARMS)], [K.nobones + 0.05, {brow: 0.2, open: 0.3, ey: 0, ex: 4}],
+  [K.standing, {y: 1113}], [K.standing + 0.3, {y: 1088}], [K.standing + 0.65, {y: 1113}],      // tries to stand... nope
+  [K.highfive - 0.25, hold(...ARMS)], [K.highfive + 0.15, {ex: 7, ey: -3, smile: -0.2, brow: 0.8}],  // the floppy arm only twitches: no high five
+  [K.highfive + 0.45, hold(...ARMS)], [K.highfive + 0.8, {smile: 0.1}],
   [K.skull + 0.35, {ex: 6, ey: -2, brow: 0.5, open: 0, smile: 0.4}],
   [K.cage + 0.35, {smile: 0.6, ey: 0}],
   [K.marrow + 0.35, {smile: 0.3, ex: 5, ey: 3}],
@@ -74,8 +76,8 @@ const mascotKeys: Keys<PP> = [
   [K.rebuild + 0.35, {open: 0, smile: 0.7}],
   [K.putback + 0.2, {ex: 7, smile: 0.9, brow: 0.6}],
   // back to full height: the skeleton is inside again
-  [UP0, hold(...ARMS, ...LEGS, 'y')],
-  [UP1, {y: 770, ...STAND, ...RELAX, eye: 1, ew: 1, pr: 8, smile: 0.9, brow: 0.6, open: 0.3, ex: 4}],
+  [UP0, hold(...ARMS, ...LEGS, 'y', 'hx', 'hy', 'hr')],
+  [UP1, {y: 770, hx: 0, hy: 0, hr: 0, ...STAND, ...RELAX, eye: 1, ew: 1, pr: 8, smile: 0.9, brow: 0.6, open: 0.3, ex: 4}],
   [K.comment - 0.2, hold(...ARMS)], [K.comment + 0.4, {...PT_BUBBLE, ex: 7, ey: -2, hr: 0.08, open: 0}],   // points at the bubble as it pops up
   [K.you - 0.35, hold(...ARMS)], [K.you + 0.2, {...L_HIP}],
   [K.tonight - 0.45, hold(...ARMS, 'ex', 'ey', 'hr')], [K.tonight + 0.25, {...R_HIP, ex: -6, ey: 0, hr: 0, brow: 0.7, smile: 0.3}],
@@ -83,8 +85,19 @@ const mascotKeys: Keys<PP> = [
   [D_, {...START}],
 ];
 const mascotRig = new Rig(DEF, mascotKeys);
+/** while he sinks, the knees buckle outward so the feet stay planted on the grass (simple 2-bone solve) */
+const LEGL = 190 * 0.9, STAND_Y = 770;
+function buckle(p: PP) {
+  const D = 2 * LEGL * Math.cos(3 * Math.PI / 180) - (p.y - STAND_Y);       // hip-to-ankle height left
+  if (D >= 2 * LEGL * 0.998) return;
+  let lo = 0, hi = 1.45;
+  for (let i = 0; i < 18; i++) { const a = (lo + hi) / 2; (LEGL * (Math.cos(a) + Math.cos(0.45 * a)) > D ? (lo = a) : (hi = a)); }
+  const a = (lo + hi) / 2 * 180 / Math.PI;
+  p.lLa = -a; p.lLb = 0.45 * a; p.lRa = a; p.lRb = -0.45 * a;
+}
 const mascotProc = (t: number, p: PP) => {
   const f = flopAt(t);
+  if (f > 1e-4) buckle(p);
   p.y += 2.5 * loopw(t, 2.4) * (1 - f);
   p.hr += 0.035 * Math.sin(t * 46) * bump(t, K.rattle, 0.5);      // a tiny shiver on "rattle" (head only, the feet never move)
 };
@@ -94,17 +107,86 @@ function puddleXform(ctx: Ctx, t: number, p: PP) {
   if (f < 1e-4) return;
   const wob = 0.035 * Math.sin(t * 8.5) * f + 0.07 * Math.sin((t - K.wobbly) * 15) * Math.exp(-Math.max(0, t - K.wobbly) / 0.5) * (t > K.wobbly ? 1 : 0)
     + 0.06 * Math.sin((t - W1) * 15) * Math.exp(-Math.max(0, t - W1) / 0.35) * (t > W1 ? 1 : 0) * (t < UP0 ? 1 : 0);
-  const sy = 1 - 0.3 * f + wob, sx = Math.pow(sy, -0.85);
+  const sy = 1 - 0.6 * f ** 4 + wob, sx = Math.pow(sy, -0.85);   // smashed flat right at impact, so the hand-over to the heap has no upright ghost
   ctx.translate(p.x, FLOOR_Y); ctx.scale(sx, sy); ctx.translate(-p.x, -FLOOR_Y);
 }
+/** owner fix 31 Oct: what a person with NO BONES looks like -- a deflated pool toy, not a squashed one.
+ *  A crumpled hoodie heap on the grass, arms and legs as limp noodles lying on the ground, and his head
+ *  flopped sideways on top of the pile. Nothing is stretched: the parts keep their normal size. */
+const INK = C.ink;
+function noodle(ctx: Ctx, pts: [number, number][], w: number, fill: string, hi?: string) {
+  const path = () => {
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length - 1; i++) {
+      const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+      ctx.quadraticCurveTo(pts[i][0], pts[i][1], i === pts.length - 2 ? pts[i + 1][0] : mx, i === pts.length - 2 ? pts[i + 1][1] : my);
+    }
+  };
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  path(); ctx.strokeStyle = INK; ctx.lineWidth = w + 7; ctx.stroke();
+  path(); ctx.strokeStyle = fill; ctx.lineWidth = w; ctx.stroke();
+  if (hi) { ctx.save(); ctx.translate(0, -w * 0.22); path(); ctx.strokeStyle = hi; ctx.lineWidth = w * 0.22; ctx.stroke(); ctx.restore(); }
+}
+function shoe(ctx: Ctx, x: number, y: number, flip: number) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(flip, 1);
+  ctx.fillStyle = INK; ctx.beginPath(); ctx.ellipse(10, -12, 40, 20, 0.15, 0, TAU2); ctx.fill();
+  ctx.fillStyle = '#f4f1fa'; ctx.beginPath(); ctx.ellipse(10, -13, 36, 16, 0.15, 0, TAU2); ctx.fill();
+  ctx.fillStyle = '#ff4a8a'; ctx.fillRect(-24, -5, 66, 5);
+  ctx.restore();
+}
+const TAU2 = Math.PI * 2;
+function drawDeflated(ctx: Ctx, t: number, p: PP, sim: Sim, a: number) {
+  const x = MX, F = FLOOR_Y;
+  const stand = clamp((FLOOP_Y - p.y) / 25, 0, 1);          // "tries to stand": the pile bulges up a little, then sags
+  const w = (k: number, sp: number, ph: number) => k * Math.sin(t * sp + ph);
+  const lift = bump(t, K.muscles, 1.6) * 0.8 + bump(t, K.highfive - 0.05, 0.7) * 0.5;   // feeble arm attempts
+  ctx.save(); ctx.globalAlpha = a;
+  // legs: completely inside the pile (owner: no legs showing); only the two shoe tips peek out under the hem
+  shoe(ctx, x + 172, F + 8, 1);
+  shoe(ctx, x - 176, F + 10, -1);
+  // the crumpled hoodie heap (folds, hood collar, drawstrings, logo), no skeleton inside to hold it up
+  const settle = t > W1 && t < UP0 ? -26 * Math.sin((t - W1) * 16) * Math.exp(-(t - W1) / 0.28) : 0;   // splat + jelly bounce   // jelly settle
+  const top = F - 118 - 22 * stand - 50 * (1 - a) + settle;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(x - 190, F + 4);
+  ctx.bezierCurveTo(x - 205, F - 50, x - 150, top + 30, x - 95, top + 18 + w(3, 2.4, 0));
+  ctx.bezierCurveTo(x - 50, top - 4, x - 10, top + 30, x + 30, top + 10 + w(3, 2, 1));
+  ctx.bezierCurveTo(x + 80, top - 8, x + 140, top + 26, x + 165, top + 58);
+  ctx.bezierCurveTo(x + 200, F - 40, x + 200, F - 8, x + 185, F + 4);
+  ctx.closePath();
+  ctx.fillStyle = lin(ctx, 0, top, 0, F, [[0, C.hoodHi], [0.25, C.hood], [1, C.hoodLo]]);
+  ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 6; ctx.stroke();
+  ctx.clip();
+  ctx.strokeStyle = C.hoodDeep; ctx.lineWidth = 5; ctx.lineCap = 'round';
+  for (const [x0, y0, x1, y1, cx, cy] of [[-150, -40, -60, -70, -110, -20], [-40, -30, 70, -60, 10, -5], [60, -20, 150, -50, 110, 0], [-120, -95, -20, -88, -70, -70], [20, -96, 120, -80, 80, -66]]) {
+    ctx.beginPath(); ctx.moveTo(x + x0, F + y0); ctx.quadraticCurveTo(x + cx, F + cy, x + x1, F + y1); ctx.stroke();
+  }
+  ctx.fillStyle = '#ff4a8a';
+  for (let i = -2; i <= 2; i++) ctx.fillRect(x + 20 + i * 14, F - 52 - Math.abs(i) * 2, 7, 14 - Math.abs(i) * 3);
+  ctx.restore();
+  // drawstrings flopped on the pile
+  noodle(ctx, [[x - 30, top + 40], [x - 44, top + 70], [x - 30, top + 92]], 6, '#f4f1fa');
+  noodle(ctx, [[x + 10, top + 38], [x + 22, top + 66], [x + 6, top + 88]], 6, '#f4f1fa');
+  // arms: limp teal sleeve noodles draped off the pile onto the grass (a feeble lift on "muscles" / "high five")
+  const lh = 70 * lift;
+  noodle(ctx, [[x - 120, top + 50], [x - 190, F - 40 - lh * 0.4], [x - 260, F - 10 - lh + w(4, 2.6, 0.7)], [x - 330, F - 6 - lh * 0.6]], 42, C.hood, 'rgba(160,255,240,0.35)');
+  rimDisc(ctx, x - 352, F - 10 - lh * 0.6, 18, {base: C.skin, outline: INK, rimL: C.rimL, rimR: C.rimR}, 3);
+  noodle(ctx, [[x + 120, top + 54], [x + 200, F - 38], [x + 255, F - 8 + w(4, 2.2, 2)], [x + 210, F + 4]], 42, C.hood, 'rgba(160,255,240,0.35)');
+  rimDisc(ctx, x + 188, F + 4, 18, {base: C.skin, outline: INK, rimL: C.rimL, rimR: C.rimR}, 3);
+  // his head, flopped sideways on top of the pile (the real head: same face, expressions and headband)
+  drawHead(ctx, p, geom(p), sim, t);
+  ctx.restore();
+}
+const FLOOP_Y = 1113;
 function drawMascot(ctx: Ctx, t: number, p: PP, sim: Sim) {
   const f = flopAt(t);
-  softShadow(ctx, p.x, FLOOR - 2, 150 + 110 * f, 24, 0.5);
-  if (f > 0.01) {   // a soft teal goo puddle under him
-    ctx.save(); ctx.globalAlpha = 0.55 * f; ctx.fillStyle = rad(ctx, p.x, FLOOR_Y + 4, 10, 300, [[0, 'rgba(16,181,164,0.7)'], [1, 'rgba(16,181,164,0)']]);
-    ctx.beginPath(); ctx.ellipse(p.x, FLOOR_Y + 4, 300, 40, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-  }
-  ctx.save(); puddleXform(ctx, t, p); drawPuppet(ctx, p, sim, t); ctx.restore();
+  softShadow(ctx, p.x, FLOOR - 2, 150 + 150 * f, 24, 0.5);
+  // the droop: the real body sinks and buckles first; only in the last part, when its silhouette already matches the pile,
+  // does the empty hoodie heap take over (with a jelly settle), so it reads as one continuous collapse
+  const ha = smooth((f - 0.9) / 0.1);
+  if (ha < 0.999) { ctx.save(); ctx.globalAlpha = 1 - ha; puddleXform(ctx, t, p); drawPuppet(ctx, p, sim, t); ctx.restore(); }
+  if (ha > 0.001) drawDeflated(ctx, t, p, sim, ha);
 }
 
 // ------------------------------------------------------------------ the skeleton (same rig, drawn as a prop)

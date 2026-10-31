@@ -182,6 +182,17 @@ A sequel is allowed ONLY when the plan item is tagged `[SEQUEL of <episode-slug>
     - Motion is calm and never pulls focus from the mascot.
     - Nothing busy behind the caption band (y 1200–1370).
     - No flicker, nothing that could read as text, no Math.random.
+- **PHYSICAL TRUTH OF THE PREMISE (owner rule, 31 Oct 2026).** The mascot's body must SHOW the premise, every second it applies. Read each line of the script and ask what his body would really look like.
+  - **Example, boneless or jelly or "no skeleton":** he must NOT stand, squat, wave or lift his arms overhead. He collapses like a deflated pool toy:
+    - a crumpled hoodie heap on the ground
+    - his head flopped sideways on top
+    - limp sleeves draped on the grass
+    - legs hidden inside the pile
+  - **Never fake it by squashing or stretching the whole puppet.** The owner rejected that ("he's stretched and squashed").
+  - **Transformations are ANIMATED, never cut or faded.** A collapse is a fast gravity flop: arms go limp, knees buckle with the feet planted, the fall accelerates (ease-in) over about 0.45 s, then a splat and a jelly bounce. A slow 1 s droop was rejected as unnatural.
+  - Reference implementation: `episodes/2026-10-31-skeleton-walks-out/code/scenes.ts` (`drawDeflated`, `buckle`, `flopAt`).
+  - Gestures the script mentions as impossible ("no high five") are a feeble twitch at most.
+  - The independent reviewer must check this rule explicitly.
 - **CHARACTER LIFE (automatic, don't fight it).** `src/lib/life.ts` gives the mascot the following, all built from the episode's own motion and periodic over the video:
   - blinks
   - breathing
@@ -330,7 +341,7 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
 - **Schedule at the times in `analytics/schedule.json`** (`tiktok_time` and `youtube_time`, Europe/London, the same day; both default to 18:30), visible to everyone, comments on. Only the owner changes these times. The strategist may only write a `pending_suggestion`, which is never applied until the owner says yes.
 - **Route (tested and working 29 Oct 2026): GitHub raw link → Metricool.**
   1. In the repo clone, run `git checkout --orphan video-new`, `git rm -rq --cached .`, and remove the tracked files. Copy the master in as `episode.mp4`, commit it, then `git push -f origin video-new:video`. Note the commit SHA (`git rev-parse HEAD`).
-     **Keep a permanent copy for the weekly compilation:** also run `git tag -f ep-<YYYY-MM-DD> HEAD` and `git push -f origin ep-<YYYY-MM-DD>`. The tag keeps that day's master downloadable after the `video` branch is overwritten the next day.
+     **Keep a copy for the Sunday weekly compilation:** also run `git push -f origin HEAD:refs/heads/ep-<mon|tue|wed|thu|fri|sat|sun>` (today's weekday, lowercase 3 letters). These 7 branches are reused every week, so nothing piles up. Tags, and deleting branches, are NOT permitted from these sessions, so don't try them.
   2. Use the cache-proof URL `https://raw.githubusercontent.com/Adrijus3/what-if-daily/<SHA>/episode.mp4`. The branch URL is cached for 5 minutes and could serve an old video. Check `curl -sI` returns 200 and that content-length matches the file.
   3. Call Metricool `createScheduledPost` with:
      - blogId `7740291` (brand timezone Europe/London; TikTok account what._if.daily; YouTube channel UCILVwtGFtsHjT-CnojmLqFA).
@@ -368,8 +379,8 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
 Every Sunday evening, a separate scheduled task merges that week's episodes (Monday to Sunday) into ONE long YouTube video. **Build it with the tested tool `weekly/compile.py`. Don't hand-roll ffmpeg.**
 
 - **Clips:**
-  - Use the week's masters, from the `ep-<date>` tags: `git fetch origin tag ep-<date>`, then `git show ep-<date>:episode.mp4 > ep-<date>.mp4`. Keep them in date order.
-  - Skip a day with no tag.
+  - Use the week's masters, from the weekday branches `ep-mon` … `ep-sun`: `git fetch origin ep-<day>`, then `git show FETCH_HEAD:episode.mp4 > ep-<day>.mp4`. Check each branch's commit date (`git log -1 --format=%cs FETCH_HEAD`) is in THIS week (Monday to today); a branch still holding last week's episode means that day was missed. Keep them in date order.
+  - Skip a missed day.
   - Fewer than 4 episodes: no compilation; tell the owner instead.
   - Each episode is used exactly as posted: 60 fps, full length, its own audio.
   - Titles come from `episodes/<date>-*/features.json` (`"title"`). If it isn't there, use the first line of CAPTION.txt up to the "?".
@@ -409,4 +420,4 @@ Every Sunday evening, a separate scheduled task merges that week's episodes (Mon
   - Log it in post_log.txt as `<date> | WEEKLY COMPILATION week of <dates> | 20:30 | YouTube post <id>`.
   - Commit `weekly/<week-start-date>/` (manifest, chapters.txt, qa.json, transitions.jpg; no video) to main.
   - Tell the owner the title, the chapters and the video link.
-  - Delete `ep-<date>` tags older than 21 days (`git push origin :refs/tags/ep-<date>`), so the repository stays small.
+  - Don't delete anything; next week's episodes overwrite the weekday branches.
