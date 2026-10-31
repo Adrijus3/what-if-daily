@@ -365,31 +365,48 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
   - Send a short summary to the owner: title, scheduled time, caption, fact source.
 
 ## 7. Weekly compilation (owner request, 30 Oct 2026; first one covers Mon 2 – Sun 8 Nov 2026)
-Every Sunday evening, a separate scheduled task merges that week's episodes (Monday to Sunday) into ONE long YouTube video. Rules:
-- **Clips:** the week's masters, from the `ep-<date>` tags (`git fetch origin tag ep-<date>`, then take `episode.mp4` from it), in date order. Skip a day with no tag. If fewer than 4 episodes exist, don't make a compilation; tell the owner instead. Use each episode exactly as posted: 60 fps, full length, its own audio.
-- **Format:** 1920×1080 at 60 fps, a normal (long-form) YouTube video.
-  - The vertical episode sits centred at full height.
-  - Behind it: a blurred, darkened, enlarged copy of the same clip, so there are no black bars.
-  - The episode watermark stays as it is.
-- **Clean transitions between clips:**
-  - A 0.5 s soft crossfade into a 1.2 s branded card: the purple sunburst from the banner, the mascot badge, and "What if #N" with the episode's question in Lilita One. Then a 0.5 s crossfade into the next clip.
-  - Audio crossfades with the picture.
-  - No hard cuts between episodes, no flashes, no slides or wipes.
-- **Intro:** a 3 s card, "What If Daily: Week of <2–8 Nov>", with the soft score.
-- **Outro:** a 5 s card, "Subscribe for a new What If every day!", with the mascot waving. No external links.
-- **Chapters:** the description lists YouTube chapters (`0:00 Intro`, then `m:ss What if …?` for each episode, then the outro). Each chapter must be at least 10 s and the first must be 0:00. Under the chapters, add one line per episode crediting viewer ideas ("Idea by @name").
-- **Post:** Metricool createScheduledPost to YouTube only, Sunday at 20:30 Europe/London:
+Every Sunday evening, a separate scheduled task merges that week's episodes (Monday to Sunday) into ONE long YouTube video. **Build it with the tested tool `weekly/compile.py`. Don't hand-roll ffmpeg.**
+
+- **Clips:**
+  - Use the week's masters, from the `ep-<date>` tags: `git fetch origin tag ep-<date>`, then `git show ep-<date>:episode.mp4 > ep-<date>.mp4`. Keep them in date order.
+  - Skip a day with no tag.
+  - Fewer than 4 episodes: no compilation; tell the owner instead.
+  - Each episode is used exactly as posted: 60 fps, full length, its own audio.
+  - Titles come from `episodes/<date>-*/features.json` (`"title"`). If it isn't there, use the first line of CAPTION.txt up to the "?".
+  - The episode number is the channel's running count from post_log.txt (TikTok lines).
+- **Run:** write `manifest.json` (`{"week_label":"2–8 Nov","week_no":N,"episodes":[{"date","n","title","mp4"}...]}`), then run `python3 weekly/compile.py manifest.json out/weekly`. Needs `pip install --break-system-packages brotli numpy pillow` only if missing. A full 7-episode week takes about 25–35 minutes on the cloud machine (tested 31 Oct 2026: 7:47 long, 89.5 MB, QA pass). Run it in the background and wait for it.
+- **What it makes (keep these settings):**
+  - **Format:** 1920×1080, 60 fps. The vertical episode sits centred at full height over a STILL, softly blurred purple-sunburst brand backdrop (no black bars). It's still on purpose: a moving backdrop wasted bits and made the digits blocky. The episode watermark stays.
+  - **Intro:** 3 s, "What If Daily / Week of …", on the purple sunburst with the mascot badge.
+  - **Before each episode:** a 2.2 s branded card with "Episode #N" and the question in Lilita One.
+  - **Outro:** 5 s, "Subscribe for a new What If every day!", with the mascot badge wobbling a wave.
+  - **Every join:** a 0.5 s soft crossfade of picture AND audio. No hard cuts, no flashes, no slides or wipes.
+  - **Audio:** a soft synthesised pad under the cards, with loudness normalised to −14 LUFS.
+  - **Encode:** H.264 (medium, tune animation), with the bitrate sized automatically so the file lands at about 90 MB (GitHub's limit is 100 MB per file). It re-encodes smaller by itself if needed. AAC 160k, faststart.
+- **QA (built in):** the tool exits non-zero and writes `qa.json` with `"pass": false` if any check fails:
+  - size, fps or duration is wrong
+  - the file is over 95 MB
+  - a chapter is under 10 s
+  - the audio clips, drops out, or dips at a join
+  - there is a flash or black frame at a join
+
+  Also LOOK at `transitions.jpg` yourself. It holds 3 frames around every join plus each episode's first frame. If anything fails or looks wrong, don't post; tell the owner.
+- **Host:**
+  - Put `weekly.mp4` on an orphan branch `weekly`: `git checkout --orphan weekly-new`, commit just `weekly.mp4`, then `git push -f origin weekly-new:weekly`.
+  - The media URL is `https://raw.githubusercontent.com/Adrijus3/what-if-daily/<SHA>/weekly.mp4`. The tool already keeps the file under 95 MB. Never push a bigger file, because GitHub rejects it. GitHub Releases are NOT available to these sessions, so don't try them.
+- **Post:** Metricool createScheduledPost to YouTube only, Sunday at 20:30 Europe/London (autoPublish true, not a draft):
   - youtubeData: type "video", privacy "public", category "SCIENCE_TECHNOLOGY", madeForKids false (owner's decision), isAiGeneratedContent false.
-  - Title, search-friendly: "7 Mind-Blowing What Ifs: <most searchable topic> & More | What If Daily Week <n>". 100 characters or fewer.
+  - Title (100 characters or fewer), search-friendly, e.g. "7 Mind-Blowing What Ifs: <most searchable topic> & More | What If Daily Week <n>". Use the real episode count.
+  - Description:
+    - a one-line hook
+    - the `chapters.txt` lines exactly (first at 0:00)
+    - one "Idea by @name 💡" line per viewer-pick episode
+    - "Subscribe for a new What If every day!"
+    - 5 hashtags
   - Tags: search phrases.
-  - The upload must be under 500 MB. Encode with libx264 crf 18–20 at 60 fps, AAC 192k, faststart, and use a GitHub Release asset or the `weekly` branch with a SHA URL for the media link.
-- **QA before posting:**
-  - ffprobe: 1920×1080, 60 fps, and the expected duration (the sum of the clips plus cards).
-  - Look at a contact sheet with every transition (3 frames each) and the first frame of each clip.
-  - Check the audio for clipping and confirm it doesn't drop out at a transition.
-  - If anything fails, don't post; tell the owner.
+  - Confirm it with getScheduledPosts.
 - **Afterwards:**
   - Log it in post_log.txt as `<date> | WEEKLY COMPILATION week of <dates> | 20:30 | YouTube post <id>`.
-  - Tell the owner the title, the chapter list and the video link.
-  - Delete `ep-<date>` tags older than 21 days, so the repository stays small.
-
+  - Commit `weekly/<week-start-date>/` (manifest, chapters.txt, qa.json, transitions.jpg; no video) to main.
+  - Tell the owner the title, the chapters and the video link.
+  - Delete `ep-<date>` tags older than 21 days (`git push origin :refs/tags/ep-<date>`), so the repository stays small.
