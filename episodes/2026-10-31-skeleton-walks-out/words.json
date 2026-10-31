@@ -1,0 +1,847 @@
+[
+{
+"text": "[excited]",
+"start": 0.0,
+"end": 0.067
+},
+{
+"text": "What",
+"start": 0.08,
+"end": 0.24
+},
+{
+"text": "if",
+"start": 0.32,
+"end": 0.4
+},
+{
+"text": "your",
+"start": 0.52,
+"end": 0.64
+},
+{
+"text": "skeleton",
+"start": 0.68,
+"end": 1.2
+},
+{
+"text": "just",
+"start": 1.28,
+"end": 1.44
+},
+{
+"text": "walked",
+"start": 1.52,
+"end": 1.84
+},
+{
+"text": "out?",
+"start": 1.92,
+"end": 2.4
+},
+{
+"text": "[laughing]",
+"start": 2.56,
+"end": 3.2
+},
+{
+"text": "Two",
+"start": 3.28,
+"end": 3.36
+},
+{
+"text": "hundred",
+"start": 3.44,
+"end": 3.68
+},
+{
+"text": "and",
+"start": 3.8,
+"end": 3.92
+},
+{
+"text": "six",
+"start": 4.04,
+"end": 4.16
+},
+{
+"text": "adult",
+"start": 4.24,
+"end": 4.64
+},
+{
+"text": "bones...",
+"start": 4.72,
+"end": 5.44
+},
+{
+"text": "all",
+"start": 5.6,
+"end": 5.76
+},
+{
+"text": "strolling",
+"start": 5.92,
+"end": 6.4
+},
+{
+"text": "away.",
+"start": 6.48,
+"end": 7.2
+},
+{
+"text": "And",
+"start": 7.28,
+"end": 7.36
+},
+{
+"text": "you'd",
+"start": 7.44,
+"end": 7.68
+},
+{
+"text": "flop",
+"start": 7.72,
+"end": 8.0
+},
+{
+"text": "into",
+"start": 8.08,
+"end": 8.24
+},
+{
+"text": "a",
+"start": 8.32,
+"end": 8.48
+},
+{
+"text": "wobbly,",
+"start": 8.52,
+"end": 9.2
+},
+{
+"text": "boneless",
+"start": 9.32,
+"end": 9.68
+},
+{
+"text": "puddle.",
+"start": 9.76,
+"end": 10.48
+},
+{
+"text": "But",
+"start": 10.56,
+"end": 10.64
+},
+{
+"text": "that's",
+"start": 10.72,
+"end": 10.88
+},
+{
+"text": "not",
+"start": 10.96,
+"end": 11.04
+},
+{
+"text": "even",
+"start": 11.16,
+"end": 11.28
+},
+{
+"text": "the",
+"start": 11.36,
+"end": 11.44
+},
+{
+"text": "weirdest",
+"start": 11.52,
+"end": 11.92
+},
+{
+"text": "part.",
+"start": 12.08,
+"end": 12.56
+},
+{
+"text": "Your",
+"start": 12.64,
+"end": 12.8
+},
+{
+"text": "muscles",
+"start": 12.88,
+"end": 13.36
+},
+{
+"text": "pull",
+"start": 13.48,
+"end": 13.6
+},
+{
+"text": "on",
+"start": 13.68,
+"end": 13.76
+},
+{
+"text": "your",
+"start": 13.84,
+"end": 13.92
+},
+{
+"text": "bones",
+"start": 14.08,
+"end": 14.24
+},
+{
+"text": "to",
+"start": 14.32,
+"end": 14.4
+},
+{
+"text": "move",
+"start": 14.48,
+"end": 14.72
+},
+{
+"text": "you.",
+"start": 14.8,
+"end": 15.28
+},
+{
+"text": "No",
+"start": 15.36,
+"end": 15.44
+},
+{
+"text": "bones?",
+"start": 15.52,
+"end": 16.24
+},
+{
+"text": "No",
+"start": 16.32,
+"end": 16.4
+},
+{
+"text": "standing,",
+"start": 16.56,
+"end": 17.28
+},
+{
+"text": "no",
+"start": 17.36,
+"end": 17.44
+},
+{
+"text": "walking...",
+"start": 17.52,
+"end": 18.32
+},
+{
+"text": "not",
+"start": 18.4,
+"end": 18.56
+},
+{
+"text": "even",
+"start": 18.64,
+"end": 18.8
+},
+{
+"text": "a",
+"start": 18.84,
+"end": 18.88
+},
+{
+"text": "high",
+"start": 18.96,
+"end": 19.04
+},
+{
+"text": "five.",
+"start": 19.2,
+"end": 20.08
+},
+{
+"text": "Your",
+"start": 20.2,
+"end": 20.32
+},
+{
+"text": "skull",
+"start": 20.4,
+"end": 20.72
+},
+{
+"text": "was",
+"start": 20.8,
+"end": 20.96
+},
+{
+"text": "your",
+"start": 21.04,
+"end": 21.12
+},
+{
+"text": "brain's",
+"start": 21.28,
+"end": 21.52
+},
+{
+"text": "helmet.",
+"start": 21.64,
+"end": 22.32
+},
+{
+"text": "Your",
+"start": 22.4,
+"end": 22.48
+},
+{
+"text": "ribs?",
+"start": 22.56,
+"end": 23.12
+},
+{
+"text": "A",
+"start": 23.2,
+"end": 23.28
+},
+{
+"text": "cage",
+"start": 23.36,
+"end": 23.68
+},
+{
+"text": "for",
+"start": 23.76,
+"end": 23.84
+},
+{
+"text": "your",
+"start": 23.96,
+"end": 24.08
+},
+{
+"text": "heart",
+"start": 24.2,
+"end": 24.32
+},
+{
+"text": "and",
+"start": 24.4,
+"end": 24.48
+},
+{
+"text": "lungs.",
+"start": 24.56,
+"end": 25.28
+},
+{
+"text": "And",
+"start": 25.36,
+"end": 25.44
+},
+{
+"text": "your",
+"start": 25.56,
+"end": 25.68
+},
+{
+"text": "bone",
+"start": 25.8,
+"end": 25.92
+},
+{
+"text": "marrow",
+"start": 26.0,
+"end": 26.32
+},
+{
+"text": "makes",
+"start": 26.4,
+"end": 26.48
+},
+{
+"text": "about",
+"start": 26.56,
+"end": 26.88
+},
+{
+"text": "two",
+"start": 26.96,
+"end": 27.04
+},
+{
+"text": "million",
+"start": 27.28,
+"end": 27.68
+},
+{
+"text": "red",
+"start": 27.76,
+"end": 27.92
+},
+{
+"text": "blood",
+"start": 28.0,
+"end": 28.24
+},
+{
+"text": "cells...",
+"start": 28.32,
+"end": 28.96
+},
+{
+"text": "every",
+"start": 29.16,
+"end": 29.36
+},
+{
+"text": "second.",
+"start": 29.44,
+"end": 30.24
+},
+{
+"text": "That",
+"start": 30.36,
+"end": 30.48
+},
+{
+"text": "factory",
+"start": 30.68,
+"end": 30.88
+},
+{
+"text": "just",
+"start": 30.96,
+"end": 31.2
+},
+{
+"text": "walked",
+"start": 31.32,
+"end": 31.52
+},
+{
+"text": "off.",
+"start": 31.6,
+"end": 32.24
+},
+{
+"text": "Rude.",
+"start": 32.32,
+"end": 33.12
+},
+{
+"text": "It",
+"start": 33.2,
+"end": 33.28
+},
+{
+"text": "took",
+"start": 33.44,
+"end": 33.6
+},
+{
+"text": "ninety-nine",
+"start": 33.68,
+"end": 34.08
+},
+{
+"text": "percent",
+"start": 34.16,
+"end": 34.48
+},
+{
+"text": "of",
+"start": 34.52,
+"end": 34.56
+},
+{
+"text": "your",
+"start": 34.64,
+"end": 34.72
+},
+{
+"text": "calcium",
+"start": 34.88,
+"end": 35.28
+},
+{
+"text": "too,",
+"start": 35.36,
+"end": 35.92
+},
+{
+"text": "teeth",
+"start": 36.0,
+"end": 36.24
+},
+{
+"text": "included.",
+"start": 36.32,
+"end": 37.28
+},
+{
+"text": "[dramatic]",
+"start": 37.314,
+"end": 37.451
+},
+{
+"text": "But",
+"start": 37.486,
+"end": 37.52
+},
+{
+"text": "here's",
+"start": 37.64,
+"end": 37.84
+},
+{
+"text": "the",
+"start": 37.92,
+"end": 38.08
+},
+{
+"text": "crazy",
+"start": 38.16,
+"end": 38.64
+},
+{
+"text": "part.",
+"start": 38.8,
+"end": 39.28
+},
+{
+"text": "Your",
+"start": 39.36,
+"end": 39.52
+},
+{
+"text": "skeleton",
+"start": 39.6,
+"end": 40.16
+},
+{
+"text": "couldn't",
+"start": 40.24,
+"end": 40.48
+},
+{
+"text": "walk",
+"start": 40.64,
+"end": 40.8
+},
+{
+"text": "either!",
+"start": 40.88,
+"end": 41.6
+},
+{
+"text": "Bones",
+"start": 41.64,
+"end": 42.0
+},
+{
+"text": "can't",
+"start": 42.08,
+"end": 42.32
+},
+{
+"text": "move",
+"start": 42.44,
+"end": 42.56
+},
+{
+"text": "by",
+"start": 42.64,
+"end": 42.72
+},
+{
+"text": "themselves.",
+"start": 42.8,
+"end": 43.68
+},
+{
+"text": "Muscles",
+"start": 43.76,
+"end": 44.16
+},
+{
+"text": "do",
+"start": 44.24,
+"end": 44.32
+},
+{
+"text": "all",
+"start": 44.4,
+"end": 44.48
+},
+{
+"text": "the",
+"start": 44.52,
+"end": 44.56
+},
+{
+"text": "pulling.",
+"start": 44.64,
+"end": 45.28
+},
+{
+"text": "So",
+"start": 45.44,
+"end": 45.6
+},
+{
+"text": "it",
+"start": 45.68,
+"end": 45.76
+},
+{
+"text": "would",
+"start": 45.88,
+"end": 46.0
+},
+{
+"text": "clatter",
+"start": 46.08,
+"end": 46.4
+},
+{
+"text": "into",
+"start": 46.52,
+"end": 46.64
+},
+{
+"text": "a",
+"start": 46.68,
+"end": 46.72
+},
+{
+"text": "pile...",
+"start": 46.8,
+"end": 47.52
+},
+{
+"text": "right",
+"start": 47.64,
+"end": 47.76
+},
+{
+"text": "next",
+"start": 47.84,
+"end": 48.0
+},
+{
+"text": "to",
+"start": 48.08,
+"end": 48.12
+},
+{
+"text": "your",
+"start": 48.16,
+"end": 48.24
+},
+{
+"text": "puddle.",
+"start": 48.32,
+"end": 48.64
+},
+{
+"text": "[cheerful]",
+"start": 49.04,
+"end": 49.107
+},
+{
+"text": "Good",
+"start": 49.12,
+"end": 49.2
+},
+{
+"text": "news?",
+"start": 49.28,
+"end": 49.92
+},
+{
+"text": "Bones",
+"start": 49.96,
+"end": 50.32
+},
+{
+"text": "are",
+"start": 50.4,
+"end": 50.48
+},
+{
+"text": "alive.",
+"start": 50.56,
+"end": 51.44
+},
+{
+"text": "You",
+"start": 51.52,
+"end": 51.6
+},
+{
+"text": "rebuild",
+"start": 51.68,
+"end": 52.0
+},
+{
+"text": "your",
+"start": 52.12,
+"end": 52.24
+},
+{
+"text": "whole",
+"start": 52.36,
+"end": 52.48
+},
+{
+"text": "skeleton",
+"start": 52.56,
+"end": 53.04
+},
+{
+"text": "about",
+"start": 53.2,
+"end": 53.36
+},
+{
+"text": "every",
+"start": 53.52,
+"end": 53.68
+},
+{
+"text": "ten",
+"start": 53.8,
+"end": 53.92
+},
+{
+"text": "years.",
+"start": 54.12,
+"end": 54.56
+},
+{
+"text": "So...",
+"start": 54.68,
+"end": 55.12
+},
+{
+"text": "just",
+"start": 55.24,
+"end": 55.36
+},
+{
+"text": "put",
+"start": 55.44,
+"end": 55.52
+},
+{
+"text": "it",
+"start": 55.56,
+"end": 55.6
+},
+{
+"text": "back",
+"start": 55.68,
+"end": 55.84
+},
+{
+"text": "in.",
+"start": 55.92,
+"end": 56.48
+},
+{
+"text": "[playful]",
+"start": 56.493,
+"end": 56.547
+},
+{
+"text": "So",
+"start": 56.56,
+"end": 56.72
+},
+{
+"text": "comment",
+"start": 56.8,
+"end": 57.12
+},
+{
+"text": "which",
+"start": 57.24,
+"end": 57.36
+},
+{
+"text": "bone",
+"start": 57.52,
+"end": 57.68
+},
+{
+"text": "YOU'D",
+"start": 57.76,
+"end": 58.0
+},
+{
+"text": "miss",
+"start": 58.12,
+"end": 58.24
+},
+{
+"text": "first.",
+"start": 58.32,
+"end": 58.96
+},
+{
+"text": "[whispers]",
+"start": 58.983,
+"end": 59.074
+},
+{
+"text": "And",
+"start": 59.097,
+"end": 59.12
+},
+{
+"text": "tonight,",
+"start": 59.24,
+"end": 59.84
+},
+{
+"text": "if",
+"start": 59.92,
+"end": 60.0
+},
+{
+"text": "you",
+"start": 60.08,
+"end": 60.16
+},
+{
+"text": "hear",
+"start": 60.24,
+"end": 60.32
+},
+{
+"text": "a",
+"start": 60.4,
+"end": 60.48
+},
+{
+"text": "rattle...",
+"start": 60.52,
+"end": 61.28
+},
+{
+"text": "ask",
+"start": 61.44,
+"end": 61.6
+},
+{
+"text": "yourself...",
+"start": 61.68,
+"end": 62.4
+}
+]

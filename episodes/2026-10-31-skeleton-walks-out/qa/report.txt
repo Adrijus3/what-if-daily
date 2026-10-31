@@ -1,0 +1,10 @@
+FRAME QA — 1875 frames, 62.5s — 0 FAIL, 0 WARN
+LOOP SEAM: pixel step 0.12 vs normal 0.12
+BUSIEST ARMS (deg per 2 s): {"left":{"deg":285,"t":17},"right":{"deg":131,"t":59.5}}
+
+CUTS:
+  cut       20s field → xray: head moves 0px, size ×1, zoom ×1, arms turn 0°
+  cut       38s xray → night: head moves 0px, size ×1, zoom ×1, arms turn 0°
+  loop       0s night → field: head moves 0px, size ×1, zoom ×1, arms turn 0°
+
+ISSUES:
