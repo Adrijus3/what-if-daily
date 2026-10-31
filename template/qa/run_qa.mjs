@@ -28,7 +28,7 @@ async function job(k) {
   return page.evaluate((o) => window.runQA(o), o);
 }
 const parts = await Promise.all(Array.from({length: P}, (_, k) => job(k)));
-const rep = {frames: N, duration: parts[0].duration, cuts: parts[0].cuts, seam: parts[0].seam, armMax: parts[0].armMax, issues: parts.flatMap((r) => r.issues).sort((a, b) => a.t - b.t)};
+const rep = {frames: N, duration: parts[0].duration, cuts: parts[0].cuts, bgSteps: parts[0].bgSteps, seam: parts[0].seam, armMax: parts[0].armMax, issues: parts.flatMap((r) => r.issues).sort((a, b) => a.t - b.t)};
 // text that flashes on screen too briefly (merged across the parallel workers)
 const spans = {};
 for (const r of parts) for (const [k, v] of Object.entries(r.spans)) { spans[k] ??= {first: v.first, last: v.last}; spans[k].first = Math.min(spans[k].first, v.first); spans[k].last = Math.max(spans[k].last, v.last); }
@@ -42,6 +42,7 @@ const OUT = RANGE ? 'qa/report_partial' : 'qa/report';
 fs.writeFileSync(path.join(root, OUT + '.json'), JSON.stringify(rep, null, 1));
 const lines = [`FRAME QA — ${rep.frames} frames, ${rep.duration}s — ${rep.fails} FAIL, ${rep.warns} WARN`, `LOOP SEAM: pixel step ${rep.seam?.seamDiff} vs normal ${rep.seam?.normalDiff}`, `BUSIEST ARMS (deg per 2 s): ${JSON.stringify(rep.armMax)}`, '', 'CUTS:'];
 for (const c of rep.cuts) lines.push(`  ${c.kind.padEnd(4)} ${String(c.at).padStart(7)}s ${c.from} → ${c.to}: head moves ${c.headMovePx}px, size ×${c.sizeRatio}, zoom ×${c.camZoomRatio}, arms turn ${c.maxArmTurnDeg}°`);
+for (const b of rep.bgSteps ?? []) lines.push(`  bg step at ${b.t}s: ${b.step} vs normal ${b.normal} (flagged above max(8, 5x normal): FAIL if normal < 3, else WARN)`);
 lines.push('', 'ISSUES:');
 for (const i of rep.issues) lines.push(`  ${i.severity} ${String(i.t).padStart(7)}s (f${i.frame}) [${i.check}] ${i.msg}`);
 fs.writeFileSync(path.join(root, OUT + '.txt'), lines.join('\n') + '\n');

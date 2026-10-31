@@ -17,6 +17,9 @@ export interface SceneDef {
   proc?: (t: number, p: PP) => void;
   draw: (ctx: Ctx, t: number, p: PP, sim: Sim) => void;
   hud: (ctx: Ctx, t: number) => void;
+  /** seconds: when this scene's BACKGROUND differs from the previous one, cross-dissolve the two worlds over this long, centred on the cut
+   *  (characters are identical in both, so only the backdrop melts). Owner, 31 Oct 2026: calm one-frame background swaps look choppy. Use 0.36. */
+  dissolveIn?: number;
 }
 const K = TIMELINE.cues as Record<string, number>;
 const S = (id: string) => TIMELINE.scenes.find((s) => s.id === id)!;

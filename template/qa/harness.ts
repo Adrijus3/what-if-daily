@@ -28,6 +28,9 @@ type Grp = {peak: number; texts: string[]};
 type Seg = {a: {x: number; y: number}; b: {x: number; y: number}; lw: number; group: number};
 let hudGroups = new Map<number, Grp>();
 let hudLines: Seg[] = [];
+/** filled HUD panels/pills (bounding boxes) drawn this frame: text centred inside one must fit inside it (owner, 31 Oct 2026) */
+let hudPanels: {box: Box; group: number}[] = [];
+let pbb = {x0: 1e9, y0: 1e9, x1: -1e9, y1: -1e9};
 let depth = 0, gid = 0, cur = -1;
 let path: {pts: {x: number; y: number}[]; complex: boolean} = {pts: [], complex: false};
 const curGroup = () => (layer === 'hud' ? (depth > 0 ? cur : -1) : -2);
@@ -47,10 +50,22 @@ function patchGfx() {
   for (const fn of ['fill', 'fillRect', 'strokeRect', 'drawImage']) wrap(fn, (c) => touch(c));
   for (const fn of ['fillText', 'strokeText']) wrap(fn, (c, a) => touch(c, String(a[0])));
   const T = (c: CanvasRenderingContext2D, x: number, y: number) => { const m = c.getTransform(); return {x: m.a * x + m.c * y + m.e, y: m.b * x + m.d * y + m.f}; };
-  wrap('beginPath', () => { path = {pts: [], complex: false}; });
-  wrap('moveTo', (c, a) => { path.pts.push(T(c, a[0], a[1])); });
-  wrap('lineTo', (c, a) => { path.pts.push(T(c, a[0], a[1])); });
-  for (const fn of ['arc', 'arcTo', 'ellipse', 'rect', 'roundRect', 'quadraticCurveTo', 'bezierCurveTo']) wrap(fn, () => { path.complex = true; });
+  const grow = (q: {x: number; y: number}) => { pbb.x0 = Math.min(pbb.x0, q.x); pbb.y0 = Math.min(pbb.y0, q.y); pbb.x1 = Math.max(pbb.x1, q.x); pbb.y1 = Math.max(pbb.y1, q.y); };
+  wrap('beginPath', () => { path = {pts: [], complex: false}; pbb = {x0: 1e9, y0: 1e9, x1: -1e9, y1: -1e9}; });
+  wrap('moveTo', (c, a) => { const q = T(c, a[0], a[1]); path.pts.push(q); grow(q); });
+  wrap('lineTo', (c, a) => { const q = T(c, a[0], a[1]); path.pts.push(q); grow(q); });
+  for (const fn of ['arc', 'arcTo', 'ellipse', 'rect', 'roundRect', 'quadraticCurveTo', 'bezierCurveTo']) wrap(fn, (c, a) => {
+    path.complex = true;
+    if (fn === 'arc') { for (const [dx, dy] of [[-1, -1], [1, 1]]) grow(T(c, a[0] + dx * a[2], a[1] + dy * a[2])); }
+    else if (fn === 'ellipse') { for (const [dx, dy] of [[-1, -1], [1, 1]]) grow(T(c, a[0] + dx * a[2], a[1] + dy * a[3])); }
+    else if (fn === 'rect' || fn === 'roundRect') { grow(T(c, a[0], a[1])); grow(T(c, a[0] + a[2], a[1] + a[3])); }
+    else for (let i = 0; i + 1 < a.length && i < 6; i += 2) grow(T(c, a[i], a[i + 1]));
+  });
+  wrap('fill', (c) => {
+    if (layer !== 'hud' || c.globalAlpha < 0.3) return;
+    const w = pbb.x1 - pbb.x0, h = pbb.y1 - pbb.y0;
+    if (w > 120 && h > 44 && w < 1000 && h < 900) hudPanels.push({box: {...pbb}, group: curGroup()});
+  });
   wrap('stroke', (c) => {
     touch(c);
     // a plain straight stroke (needle, tick, underline) is remembered so the harness can test whether it crosses text of the same element
@@ -211,6 +226,7 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
   const step = doMotion ? 1 : sub;
   const at = (t: number) => sk[Math.max(0, Math.min(sk.length - 1, Math.round((t * FPS * sub) / step)))];
   const cutRep: any[] = [];
+  const bgSteps: {t: number; step: number; normal: number}[] = [];
   const pairs: [number, number, string][] = cuts.map((c) => [c - 1 / FPS, c, 'cut']);
   pairs.push([TIMELINE.duration - 1 / FPS, 0, 'loop']);
   if (doMotion) for (const [ta, tb, kind] of pairs) {
@@ -248,7 +264,7 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
   let pm2: Uint8ClampedArray | null = null, pm1: Uint8ClampedArray | null = null;
   for (let f = Math.max(0, from - 2); f < Math.min(N, opts.textTo ?? N); f++) {
     const t = f / FPS;
-    rec.length = 0; hudGroups = new Map(); hudLines = [];
+    rec.length = 0; hudGroups = new Map(); hudLines = []; hudPanels = [];
     drawFrame(ctx, t);
     const px = grab();
     if (pm2 && pm1) {   // one-frame flash/glitch: frame f-1 differs from both neighbours while they match each other
@@ -279,6 +295,16 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
       }
       if (hit) flagOnce('lot' + norm(r.text), t, () => add('line-over-text', 'FAIL', t, `a line (needle/tick, ${Math.round(L.lw)} px wide) crosses the HUD text "${r.text}" — the readout is covered`));
     }
+    // ---- HUD text centred inside a panel/pill must fit inside it, with a little padding (owner, 31 Oct 2026: a label ran out of its box)
+    for (const r of rec) {
+      if (r.layer !== 'hud' || r.alpha < 0.5 || r.px < 16) continue;
+      const cx = (r.box.x0 + r.box.x1) / 2, cy = (r.box.y0 + r.box.y1) / 2;
+      const host = hudPanels.filter((P) => cx > P.box.x0 && cx < P.box.x1 && cy > P.box.y0 && cy < P.box.y1).sort((a, b) => area(a.box) - area(b.box))[0];
+      if (!host) continue;
+      const pad = 6, B = host.box;
+      const over = Math.max(B.x0 + pad - r.box.x0, r.box.x1 - (B.x1 - pad));   // sideways spill only (small labels may hang off a pill's top/bottom on purpose)
+      if (over > 0) flagOnce('tov' + norm(r.text), t, () => add('text-overflow', 'FAIL', t, `the HUD text "${r.text}" runs ${Math.round(over)} px outside its box — shrink the font (measureText) or widen the box`));
+    }
     const q = at(t);
     textFrames.push({t, recs: rec.map((r) => ({...r})), head: {...q.pts.head, r: q.headR}});
   }
@@ -293,6 +319,14 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
       for (const x of A) if (!B.has(x)) add('cut-element', 'FAIL', tb, `${where}: "${x}" disappears exactly on the cut`);
       for (const x of B) if (!A.has(x)) add('cut-element', 'FAIL', tb, `${where}: "${x}" appears exactly on the cut`);
     }
+    // a cut that swaps the whole background in ONE frame reads as choppy (owner, 31 Oct 2026): it must dissolve (~0.36 s, characters held)
+    { const F1 = 1 / FPS;
+      for (const c of cuts) {
+        const step = pdiff(pixels(c - F1), pixels(c));
+        const norm2 = [pdiff(pixels(c - 4 * F1), pixels(c - 3 * F1)), pdiff(pixels(c - 3 * F1), pixels(c - 2 * F1)), pdiff(pixels(c + F1), pixels(c + 2 * F1))].sort((x, y) => x - y)[1];
+        bgSteps.push({t: +c.toFixed(2), step: +step.toFixed(1), normal: +norm2.toFixed(1)});
+        if (step > Math.max(8, norm2 * 5)) add('hard-bg-switch', norm2 < 3 ? 'FAIL' : 'WARN', c, `cut at ${c.toFixed(2)}s: the picture changes ${step.toFixed(1)} in one frame (normal ${norm2.toFixed(1)}) — ${norm2 < 3 ? 'on a calm shot this reads as choppy: dissolve the backgrounds over ~0.36 s with the characters held (see recipe)' : 'there is fast motion here: check on the strip that the swap is hidden by it, otherwise dissolve'}`);
+      } }
     // the loop seam must look like any other frame-to-frame step (no fade, no jump)
     const D = TIMELINE.duration, F = 1 / FPS;
     const seam = pdiff(pixels(D - F), pixels(0));
@@ -338,7 +372,7 @@ export async function runQA(opts: {sub?: number; textFrom?: number; textTo?: num
   }
 
   const fails = issues.filter((i) => i.severity === 'FAIL').length;
-  return {armMax, seam: seamInfo, spans: byText, frames: N, duration: TIMELINE.duration, fails, warns: issues.length - fails, issues: issues.sort((a, b) => a.t - b.t), cuts: cutRep};
+  return {armMax, seam: seamInfo, spans: byText, frames: N, duration: TIMELINE.duration, fails, warns: issues.length - fails, issues: issues.sort((a, b) => a.t - b.t), cuts: cutRep, bgSteps};
 }
 (window as any).runQA = runQA;
 
