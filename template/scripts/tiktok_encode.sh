@@ -1,4 +1,5 @@
 #!/bin/bash
+# NOT USED (owner, 31 Oct 2026): both platforms get the 60 fps master. Kept for reference only.
 # TikTok copy of the 60 fps master (owner, 31 Oct 2026: TikTok made the 60 fps upload look blurry; YouTube keeps the 60 fps master).
 #  - 30 fps by keeping EVERY OTHER frame (no frame blending; the master already has motion blur)
 #  - light sharpening to survive TikTok's re-compression
