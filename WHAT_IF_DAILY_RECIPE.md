@@ -15,7 +15,7 @@ The channel is "What If" Daily on TikTok. Every day it posts one roughly 60–65
   - `qa/`: the mandatory test suite (frame QA, contact sheets, audio and video QA, loudness). See section 5b.
 - **`topics_used.txt`:** one topic per line. **Never repeat or closely re-do a topic.** Append the new one when done.
 - **`post_log.txt`:** append `date | title | scheduled time | status | fact source`.
-- **Branch `video`:** holds ONLY today's `episode.mp4`. It is force-pushed as a fresh orphan commit each day, so old videos don't pile up. Its public URL is `https://raw.githubusercontent.com/Adrijus3/what-if-daily/video/episode.mp4`.
+- **Branch `video`:** holds ONLY today's `episode.mp4` (60 fps master, YouTube) and `episode_tiktok.mp4` (30 fps TikTok copy). It is force-pushed as a fresh orphan commit each day, so old videos don't pile up. Its public URL is `https://raw.githubusercontent.com/Adrijus3/what-if-daily/video/episode.mp4`.
 - Commit messages end with the session's attribution lines. Push main normally; before pushing, fetch origin main (shallow clone).
 
 ## Setup (fresh container)
@@ -348,9 +348,10 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
   - Put it in the owner's daily message under "📌 Pin this:" so it can be copy-pasted.
 - **Schedule at the times in `analytics/schedule.json`** (`tiktok_time` and `youtube_time`, Europe/London, the same day; both default to 18:30), visible to everyone, comments on. Only the owner changes these times. The strategist may only write a `pending_suggestion`, which is never applied until the owner says yes.
 - **Route (tested and working 29 Oct 2026): GitHub raw link → Metricool.**
-  1. In the repo clone, run `git checkout --orphan video-new`, `git rm -rq --cached .`, and remove the tracked files. Copy the master in as `episode.mp4`, commit it, then `git push -f origin video-new:video`. Note the commit SHA (`git rev-parse HEAD`).
+  0. **TikTok copy (owner, 31 Oct 2026: the 60 fps upload looked blurry on TikTok; YouTube shows the 60 fps master perfectly).** Run `bash scripts/tiktok_encode.sh out/final_60.mp4 out/final_tiktok.mp4`. It keeps every other frame for 30 fps (no blending), sharpens lightly, encodes high quality under 90 MB, and self-checks (exit 0 = OK). The master itself still has to pass video_qa at 60 fps. The TikTok file is the same frames, so it needs no extra QA beyond the script's own check.
+  1. In the repo clone, run `git checkout --orphan video-new`, `git rm -rq --cached .`, and remove the tracked files. Copy the master in as `episode.mp4` AND the TikTok copy as `episode_tiktok.mp4`, commit both, then `git push -f origin video-new:video`. Note the commit SHA (`git rev-parse HEAD`). **TikTok's post uses `episode_tiktok.mp4`; YouTube's uses `episode.mp4`.** The weekday `ep-*` branch keeps the same commit (the weekly compilation uses `episode.mp4`).
      **Keep a copy for the Sunday weekly compilation:** also run `git push -f origin HEAD:refs/heads/ep-<mon|tue|wed|thu|fri|sat|sun>` (today's weekday, lowercase 3 letters). These 7 branches are reused every week, so nothing piles up. Tags, and deleting branches, are NOT permitted from these sessions, so don't try them.
-  2. Use the cache-proof URL `https://raw.githubusercontent.com/Adrijus3/what-if-daily/<SHA>/episode.mp4`. The branch URL is cached for 5 minutes and could serve an old video. Check `curl -sI` returns 200 and that content-length matches the file.
+  2. Use the cache-proof URLs `https://raw.githubusercontent.com/Adrijus3/what-if-daily/<SHA>/episode_tiktok.mp4` (TikTok) and `.../<SHA>/episode.mp4` (YouTube). The branch URL is cached for 5 minutes and could serve an old video. Check `curl -sI` returns 200 and that content-length matches the file.
   3. Call Metricool `createScheduledPost` with:
      - blogId `7740291` (brand timezone Europe/London; TikTok account what._if.daily; YouTube channel UCILVwtGFtsHjT-CnojmLqFA).
      - date `<today>T18:30:00` with the correct UK offset (+00:00 in GMT, +01:00 in BST).
