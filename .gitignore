@@ -5,3 +5,4 @@ qa/sheets/
 qa/.bundle.js
 qa/report.*
 qa/_dbg.ts
+__pycache__/
