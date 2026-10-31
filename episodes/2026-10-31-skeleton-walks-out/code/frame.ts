@@ -28,15 +28,30 @@ function shake(t: number) {
 }
 
 /** the WORLD: background, props, mascot (everything that lives inside the camera). This is the only layer that gets motion blur. */
-function drawWorld(ctx: Ctx, t: number) {
-  if (!simAt) simAt = buildSims(ppAt);
-  const sc = sceneAt(t), p = ppAt(t), sim = simAt(t), cam = sc.cam.at(t);
+let xb: HTMLCanvasElement | null = null;
+function worldOf(ctx: Ctx, t: number, sc: (typeof SCENES)[number], p: ReturnType<typeof ppAt>, sim: ReturnType<ReturnType<typeof buildSims>>) {
+  const cam = sc.cam.at(t);
   const [sx, sy] = shake(t);
   ctx.save();
   ctx.fillStyle = '#0c0714'; ctx.fillRect(0, 0, W, H);
   ctx.translate(540 + sx, 960 + sy); ctx.scale(cam.z, cam.z); ctx.translate(-cam.cx, -cam.cy);
   sc.draw(ctx, t, p, sim);
   ctx.restore();
+}
+/** owner fix 31 Oct: the x-ray -> night cut is a soft 0.36 s background dissolve (the characters are identical in both, so they hold still) */
+const XRAY_OUT = (TIMELINE.scenes as {id: string; t0: number}[]).find((s) => s.id === 'night')!.t0, XD = 0.36;
+function drawWorld(ctx: Ctx, t: number) {
+  if (!simAt) simAt = buildSims(ppAt);
+  const sc = sceneAt(t), p = ppAt(t), sim = simAt(t);
+  const u = (t - (XRAY_OUT - XD / 2)) / XD;
+  if (u > 0 && u < 1) {
+    const k = u * u * (3 - 2 * u);
+    worldOf(ctx, t, SCENES.find((s) => s.id === 'night')!, p, sim);
+    if (!xb) xb = offscreen(W, H);
+    const g = xb.getContext('2d')!; g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H);
+    worldOf(g, t, SCENES.find((s) => s.id === 'xray')!, p, sim);
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1 - k; ctx.drawImage(xb, 0, 0); ctx.restore();
+  } else worldOf(ctx, t, sc, p, sim);
   if (p.gray > 0.01) {
     if (!tmp) tmp = offscreen(W, H);
     const g = tmp.getContext('2d')!;
