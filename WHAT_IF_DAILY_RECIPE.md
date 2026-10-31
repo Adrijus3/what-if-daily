@@ -182,6 +182,7 @@ A sequel is allowed ONLY when the plan item is tagged `[SEQUEL of <episode-slug>
     - Motion is calm and never pulls focus from the mascot.
     - Nothing busy behind the caption band (y 1200–1370).
     - No flicker, nothing that could read as text, no Math.random.
+- **HUD TEXT MUST FIT ITS BOX (owner, 31 Oct 2026).** Every label drawn inside a pill or panel is auto-fitted: measure it with `ctx.measureText` and shrink the font until it fits with at least 30 px of padding each side. Check the longest value a counter reaches, too. On the contact sheet, look at every box at its widest moment.
 - **PHYSICAL TRUTH OF THE PREMISE (owner rule, 31 Oct 2026).** The mascot's body must SHOW the premise, every second it applies. Read each line of the script and ask what his body would really look like.
   - **Example, boneless or jelly or "no skeleton":** he must NOT stand, squat, wave or lift his arms overhead. He collapses like a deflated pool toy:
     - a crumpled hoodie heap on the ground

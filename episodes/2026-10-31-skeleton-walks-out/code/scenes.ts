@@ -319,7 +319,7 @@ function hudAll(ctx: Ctx, t: number) {
     if (a > 0.001) {
       ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
       rrect(ctx, 200, 236, 680, 156, 36); ctx.fillStyle = 'rgba(14,8,28,0.82)'; ctx.fill(); ctx.lineWidth = 5; ctx.strokeStyle = '#ff4d6a'; ctx.stroke();
-      ctx.font = `40px ${FONT}`; ctx.fillStyle = '#ffb3c0'; ctx.fillText('RED BLOOD CELLS MADE (2 MILLION / SEC)', 540, 276);
+      { const L = 'RED BLOOD CELLS MADE (2 MILLION / SEC)'; let fs = 40; ctx.font = `${fs}px ${FONT}`; while (fs > 22 && ctx.measureText(L).width > 620) { fs -= 1; ctx.font = `${fs}px ${FONT}`; } ctx.fillStyle = '#ffb3c0'; ctx.fillText(L, 540, 276); }   // owner fix: always fits inside the box
       ctx.font = `76px ${FONT}`; ctx.fillStyle = '#ff4d6a'; ctx.fillText(fmt(Math.max(0, t - K.million) * 2e6), 540, 344);
       ctx.restore();
     } }
