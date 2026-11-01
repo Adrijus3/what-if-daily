@@ -352,7 +352,13 @@ If you cannot get a clean pass AND reviewer approval, do NOT post. Tell the owne
   0. **Both platforms get the 60 fps master `episode.mp4` (owner, 31 Oct 2026).** A 30 fps TikTok copy was tried and dropped. TikTok's profile grid plays a low-quality stream at first, but the same video opened from a notification or comment plays in full HD. So the upload was fine all along. `scripts/tiktok_encode.sh` is kept only for reference; don't use it unless the owner asks.
   1. In the repo clone, run `git checkout --orphan video-new`, `git rm -rq --cached .`, and remove the tracked files. Copy the master in as `episode.mp4`, commit it, then `git push -f origin video-new:video`. Note the commit SHA (`git rev-parse HEAD`). Both TikTok and YouTube use `episode.mp4`. The weekday `ep-*` branch keeps the same commit.
      **Keep a copy for the Sunday weekly compilation:** also run `git push -f origin HEAD:refs/heads/ep-<mon|tue|wed|thu|fri|sat|sun>` (today's weekday, lowercase 3 letters). These 7 branches are reused every week, so nothing piles up. Tags, and deleting branches, are NOT permitted from these sessions, so don't try them.
-  2. Use the cache-proof URL `https://raw.githubusercontent.com/Adrijus3/what-if-daily/<SHA>/episode.mp4` for both posts. The branch URL is cached for 5 minutes and could serve an old video. Check `curl -sI` returns 200 and that content-length matches the file.
+  2. Use the cache-proof URL `https://raw.githubusercontent.com/Adrijus3/what-if-daily/<SHA>/episode.mp4` for both posts.
+  2b. **COVER FRAME (owner, 1 Nov 2026).** Every post sets its own thumbnail. Don't let TikTok or YouTube pick a random, often mid-blink, frame.
+     - Choose the best moment: the payoff at its most striking, usually first_payoff_s + about 1 s, or the biggest visual of the episode (e.g. the full candy mountain).
+     - On the chosen frame: the mascot's eyes are open (not mid-blink), no fade or dissolve is in progress, and no prop is mid-flight across his face. Check by rendering 3 candidate stills (`W=200 node qa/moments.mjs <t1> <t2> <t3>` or ffmpeg from the master) and looking at them.
+     - Pass `"videoCoverMilliseconds": <ms>` in the info of BOTH createScheduledPost calls, using the same value.
+     - If a platform rejects the post with VIDEO_THUMBNAIL_NOT_APPLICABLE, send that post again without the field. Never lose a post over a cover.
+     - Write `"cover_ms"` into features.json. The branch URL is cached for 5 minutes and could serve an old video. Check `curl -sI` returns 200 and that content-length matches the file.
   3. Call Metricool `createScheduledPost` with:
      - blogId `7740291` (brand timezone Europe/London; TikTok account what._if.daily; YouTube channel UCILVwtGFtsHjT-CnojmLqFA).
      - date `<today>T18:30:00` with the correct UK offset (+00:00 in GMT, +01:00 in BST).
