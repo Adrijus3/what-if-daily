@@ -161,12 +161,25 @@ function mountain(ctx: Ctx, t: number, p: PP) {
     const eatIdx = N - 1 - i;   // the top slot is eaten first; each gulp is a small handful, so the WHOLE mountain is gone
     const gulp = Math.floor((eatIdx * fromMount) / N), eaten = arrive(gulp) + 0.05 * (eatIdx % 2);
     if (t >= eaten) continue;
-    let pos = u < 1 ? arc(from.x + ((i * 37) % 120 - 60) * (1 - u) * 3, from.y, sl.x, sl.y, 420 + 90 * ((i * 7) % 5), u * (2 - u)) : {x: sl.x, y: sl.y};
+    // owner fix 1 Nov: candy must visibly SHOOT UP OUT of the bucket's mouth (a geyser), never rain down from above the frame
+    const sx0 = from.x + ((i * 37) % 80 - 40) * 0.6;
+    let pos = u < 1 ? arc(sx0, from.y, sl.x, sl.y, 50 + 25 * ((i * 7) % 4), u * (2 - u)) : {x: sl.x, y: sl.y};
     let sc = sl.s * (u < 1 ? 0.6 + 0.4 * u : 1), r = sl.r + (u < 1 ? (1 - u) * 6 : 0);
     const fly = t - (eaten - 0.4);   // flight to the mouth (0.4 s)
     if (fly > 0) { const m = mouthOf(), k = fly / 0.4; pos = arc(sl.x, sl.y, m.x, m.y, 120, smooth(k)); sc *= 1 - 0.55 * k; r += k * 5; }
     candy(ctx, pos.x, pos.y, sc, r, sl.c, sl.k);
   }
+  // a short burst at the bucket's mouth as the eruption starts (sparks + puff), so the source of the candy is obvious
+  { const bu = (t - ERUPT0) / 0.45;
+    if (bu > 0 && bu < 1) {
+      ctx.save(); ctx.globalAlpha = 1 - bu; ctx.lineCap = 'round';
+      for (let k = 0; k < 9; k++) {
+        const ang = -Math.PI / 2 + (k - 4) * 0.28, r0 = 30 + 90 * bu, r1 = r0 + 46 * (1 - bu * 0.5);
+        ctx.strokeStyle = ['#ffd23f', '#ff5c9d', '#3ff0d6'][k % 3]; ctx.lineWidth = 9 * (1 - bu * 0.6);
+        ctx.beginPath(); ctx.moveTo(from.x + Math.cos(ang) * r0, from.y + Math.sin(ang) * r0 * 0.9); ctx.lineTo(from.x + Math.cos(ang) * r1, from.y + Math.sin(ang) * r1 * 0.9); ctx.stroke();
+      }
+      ctx.restore();
+    } }
   for (let j = fromMount; j < NEAT; j++) {
     const fly = t - (arrive(j) - 0.4); if (fly <= 0 || fly >= 0.4) continue;
     const m = mouthOf(), k = fly / 0.4, pos = arc(BUCKET.x - 40 + (j % 3) * 40, BUCKET.y - BUCKET.h / 2 - 20, m.x, m.y, 140, smooth(k));
