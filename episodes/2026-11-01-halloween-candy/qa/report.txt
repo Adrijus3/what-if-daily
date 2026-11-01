@@ -1,0 +1,14 @@
+FRAME QA — 1845 frames, 61.5s — 0 FAIL, 2 WARN
+LOOP SEAM: pixel step 0.12 vs normal 0.11
+BUSIEST ARMS (deg per 2 s): {"left":{"deg":263,"t":47.25},"right":{"deg":263,"t":42}}
+
+CUTS:
+  cut     27.5s field → road: head moves 0px, size ×1, zoom ×1, arms turn 0°
+  cut     37.5s road → field2: head moves 0px, size ×1, zoom ×1, arms turn 0°
+  loop       0s field2 → field: head moves 0px, size ×1, zoom ×1, arms turn 0°
+  bg step at 27.5s: 3.8 vs normal 3.1 (flagged above max(8, 5x normal): FAIL if normal < 3, else WARN)
+  bg step at 37.5s: 3.6 vs normal 2.7 (flagged above max(8, 5x normal): FAIL if normal < 3, else WARN)
+
+ISSUES:
+  WARN  23.133s (f694) [text-flash] "starts" is on screen for only 0.27 s
+  WARN  30.167s (f905) [text-flash] "have" is on screen for only 0.23 s

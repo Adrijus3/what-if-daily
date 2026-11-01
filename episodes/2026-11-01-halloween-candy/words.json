@@ -1,0 +1,847 @@
+[
+{
+"text": "[excited]",
+"start": 0.0,
+"end": 0.133
+},
+{
+"text": "What",
+"start": 0.16,
+"end": 0.32
+},
+{
+"text": "if",
+"start": 0.4,
+"end": 0.48
+},
+{
+"text": "you",
+"start": 0.56,
+"end": 0.64
+},
+{
+"text": "ate",
+"start": 0.8,
+"end": 0.96
+},
+{
+"text": "all",
+"start": 1.04,
+"end": 1.2
+},
+{
+"text": "your",
+"start": 1.28,
+"end": 1.44
+},
+{
+"text": "Halloween",
+"start": 1.48,
+"end": 1.92
+},
+{
+"text": "candy?",
+"start": 2.0,
+"end": 2.6
+},
+{
+"text": "[laughing]",
+"start": 2.72,
+"end": 3.32
+},
+{
+"text": "A",
+"start": 3.36,
+"end": 3.44
+},
+{
+"text": "big",
+"start": 3.52,
+"end": 3.68
+},
+{
+"text": "haul",
+"start": 3.76,
+"end": 4.0
+},
+{
+"text": "can",
+"start": 4.08,
+"end": 4.16
+},
+{
+"text": "hit",
+"start": 4.24,
+"end": 4.48
+},
+{
+"text": "seven",
+"start": 4.56,
+"end": 4.88
+},
+{
+"text": "thousand",
+"start": 5.04,
+"end": 5.52
+},
+{
+"text": "calories...",
+"start": 5.6,
+"end": 6.44
+},
+{
+"text": "in",
+"start": 6.48,
+"end": 6.72
+},
+{
+"text": "one",
+"start": 6.8,
+"end": 7.04
+},
+{
+"text": "night.",
+"start": 7.2,
+"end": 7.76
+},
+{
+"text": "That's",
+"start": 7.84,
+"end": 7.96
+},
+{
+"text": "about",
+"start": 8.0,
+"end": 8.32
+},
+{
+"text": "three",
+"start": 8.48,
+"end": 8.64
+},
+{
+"text": "days",
+"start": 8.72,
+"end": 8.96
+},
+{
+"text": "of",
+"start": 9.0,
+"end": 9.04
+},
+{
+"text": "adult",
+"start": 9.24,
+"end": 9.44
+},
+{
+"text": "food.",
+"start": 9.52,
+"end": 10.16
+},
+{
+"text": "But",
+"start": 10.24,
+"end": 10.32
+},
+{
+"text": "that's",
+"start": 10.4,
+"end": 10.64
+},
+{
+"text": "not",
+"start": 10.72,
+"end": 10.8
+},
+{
+"text": "even",
+"start": 10.88,
+"end": 11.04
+},
+{
+"text": "the",
+"start": 11.12,
+"end": 11.2
+},
+{
+"text": "weirdest",
+"start": 11.24,
+"end": 11.6
+},
+{
+"text": "part.",
+"start": 11.68,
+"end": 12.24
+},
+{
+"text": "Your",
+"start": 12.32,
+"end": 12.48
+},
+{
+"text": "blood",
+"start": 12.64,
+"end": 12.8
+},
+{
+"text": "sugar",
+"start": 12.88,
+"end": 13.36
+},
+{
+"text": "rockets.",
+"start": 13.44,
+"end": 14.32
+},
+{
+"text": "Your",
+"start": 14.44,
+"end": 14.56
+},
+{
+"text": "body",
+"start": 14.76,
+"end": 14.96
+},
+{
+"text": "pumps",
+"start": 15.0,
+"end": 15.28
+},
+{
+"text": "out",
+"start": 15.36,
+"end": 15.52
+},
+{
+"text": "insulin.",
+"start": 15.64,
+"end": 16.373
+},
+{
+"text": "It",
+"start": 16.427,
+"end": 16.48
+},
+{
+"text": "stashes",
+"start": 16.56,
+"end": 16.96
+},
+{
+"text": "sugar",
+"start": 17.0,
+"end": 17.28
+},
+{
+"text": "in",
+"start": 17.32,
+"end": 17.36
+},
+{
+"text": "your",
+"start": 17.44,
+"end": 17.6
+},
+{
+"text": "liver",
+"start": 17.707,
+"end": 17.92
+},
+{
+"text": "and",
+"start": 18.0,
+"end": 18.08
+},
+{
+"text": "muscles...",
+"start": 18.2,
+"end": 18.827
+},
+{
+"text": "and",
+"start": 18.933,
+"end": 19.04
+},
+{
+"text": "the",
+"start": 19.12,
+"end": 19.2
+},
+{
+"text": "rest",
+"start": 19.28,
+"end": 19.6
+},
+{
+"text": "becomes",
+"start": 19.76,
+"end": 20.16
+},
+{
+"text": "fat.",
+"start": 20.24,
+"end": 20.96
+},
+{
+"text": "Your",
+"start": 21.08,
+"end": 21.2
+},
+{
+"text": "teeth?",
+"start": 21.28,
+"end": 21.92
+},
+{
+"text": "Every",
+"start": 22.12,
+"end": 22.32
+},
+{
+"text": "sugary",
+"start": 22.4,
+"end": 22.8
+},
+{
+"text": "bite",
+"start": 22.92,
+"end": 23.04
+},
+{
+"text": "starts",
+"start": 23.12,
+"end": 23.36
+},
+{
+"text": "a",
+"start": 23.44,
+"end": 23.52
+},
+{
+"text": "twenty",
+"start": 23.72,
+"end": 23.92
+},
+{
+"text": "minute",
+"start": 24.0,
+"end": 24.24
+},
+{
+"text": "acid",
+"start": 24.32,
+"end": 24.64
+},
+{
+"text": "attack.",
+"start": 24.72,
+"end": 25.44
+},
+{
+"text": "Your",
+"start": 25.56,
+"end": 25.68
+},
+{
+"text": "toothbrush",
+"start": 25.76,
+"end": 26.24
+},
+{
+"text": "is",
+"start": 26.32,
+"end": 26.56
+},
+{
+"text": "sweating.",
+"start": 26.6,
+"end": 27.52
+},
+{
+"text": "And",
+"start": 27.56,
+"end": 27.6
+},
+{
+"text": "to",
+"start": 27.68,
+"end": 27.76
+},
+{
+"text": "burn",
+"start": 27.84,
+"end": 27.92
+},
+{
+"text": "it",
+"start": 28.0,
+"end": 28.08
+},
+{
+"text": "all",
+"start": 28.16,
+"end": 28.24
+},
+{
+"text": "off?",
+"start": 28.32,
+"end": 28.88
+},
+{
+"text": "A",
+"start": 28.96,
+"end": 29.04
+},
+{
+"text": "hundred",
+"start": 29.08,
+"end": 29.36
+},
+{
+"text": "pound",
+"start": 29.4,
+"end": 29.6
+},
+{
+"text": "kid",
+"start": 29.68,
+"end": 29.92
+},
+{
+"text": "would",
+"start": 30.0,
+"end": 30.08
+},
+{
+"text": "have",
+"start": 30.16,
+"end": 30.24
+},
+{
+"text": "to",
+"start": 30.32,
+"end": 30.4
+},
+{
+"text": "stroll",
+"start": 30.44,
+"end": 30.72
+},
+{
+"text": "for",
+"start": 30.8,
+"end": 30.96
+},
+{
+"text": "nearly",
+"start": 31.12,
+"end": 31.44
+},
+{
+"text": "forty",
+"start": 31.56,
+"end": 31.84
+},
+{
+"text": "four",
+"start": 32.0,
+"end": 32.16
+},
+{
+"text": "hours.",
+"start": 32.44,
+"end": 33.04
+},
+{
+"text": "Nonstop.",
+"start": 33.12,
+"end": 34.4
+},
+{
+"text": "Sounds",
+"start": 34.56,
+"end": 34.72
+},
+{
+"text": "like",
+"start": 34.8,
+"end": 34.88
+},
+{
+"text": "candy",
+"start": 34.96,
+"end": 35.28
+},
+{
+"text": "turns",
+"start": 35.4,
+"end": 35.56
+},
+{
+"text": "you",
+"start": 35.6,
+"end": 35.64
+},
+{
+"text": "into",
+"start": 35.68,
+"end": 35.84
+},
+{
+"text": "a",
+"start": 35.92,
+"end": 36.0
+},
+{
+"text": "monster,",
+"start": 36.08,
+"end": 36.64
+},
+{
+"text": "right?",
+"start": 36.72,
+"end": 37.16
+},
+{
+"text": "[dramatic]",
+"start": 37.36,
+"end": 37.424
+},
+{
+"text": "But",
+"start": 37.44,
+"end": 37.6
+},
+{
+"text": "here's",
+"start": 37.68,
+"end": 38.0
+},
+{
+"text": "the",
+"start": 38.08,
+"end": 38.16
+},
+{
+"text": "crazy",
+"start": 38.24,
+"end": 38.72
+},
+{
+"text": "part.",
+"start": 38.92,
+"end": 39.44
+},
+{
+"text": "The",
+"start": 39.52,
+"end": 39.6
+},
+{
+"text": "famous",
+"start": 39.64,
+"end": 39.92
+},
+{
+"text": "sugar",
+"start": 40.0,
+"end": 40.24
+},
+{
+"text": "rush?",
+"start": 40.44,
+"end": 40.96
+},
+{
+"text": "It's",
+"start": 41.04,
+"end": 41.2
+},
+{
+"text": "a",
+"start": 41.28,
+"end": 41.36
+},
+{
+"text": "myth!",
+"start": 41.44,
+"end": 42.16
+},
+{
+"text": "Sixteen",
+"start": 42.24,
+"end": 42.8
+},
+{
+"text": "studies",
+"start": 42.88,
+"end": 43.2
+},
+{
+"text": "found",
+"start": 43.28,
+"end": 43.52
+},
+{
+"text": "sugar",
+"start": 43.56,
+"end": 44.0
+},
+{
+"text": "doesn't",
+"start": 44.12,
+"end": 44.32
+},
+{
+"text": "make",
+"start": 44.4,
+"end": 44.56
+},
+{
+"text": "kids",
+"start": 44.68,
+"end": 44.8
+},
+{
+"text": "hyper.",
+"start": 44.88,
+"end": 45.52
+},
+{
+"text": "Parents",
+"start": 45.72,
+"end": 45.92
+},
+{
+"text": "who",
+"start": 45.96,
+"end": 46.0
+},
+{
+"text": "were",
+"start": 46.08,
+"end": 46.16
+},
+{
+"text": "only",
+"start": 46.36,
+"end": 46.56
+},
+{
+"text": "TOLD",
+"start": 46.6,
+"end": 46.96
+},
+{
+"text": "their",
+"start": 47.04,
+"end": 47.12
+},
+{
+"text": "kid",
+"start": 47.2,
+"end": 47.36
+},
+{
+"text": "had",
+"start": 47.48,
+"end": 47.6
+},
+{
+"text": "sugar",
+"start": 47.64,
+"end": 48.0
+},
+{
+"text": "rated",
+"start": 48.16,
+"end": 48.32
+},
+{
+"text": "them",
+"start": 48.44,
+"end": 48.56
+},
+{
+"text": "more",
+"start": 48.68,
+"end": 48.8
+},
+{
+"text": "hyper.",
+"start": 48.88,
+"end": 49.6
+},
+{
+"text": "The",
+"start": 49.68,
+"end": 49.76
+},
+{
+"text": "buzz",
+"start": 49.96,
+"end": 50.16
+},
+{
+"text": "is",
+"start": 50.24,
+"end": 50.48
+},
+{
+"text": "just",
+"start": 50.56,
+"end": 50.8
+},
+{
+"text": "Halloween",
+"start": 50.84,
+"end": 51.28
+},
+{
+"text": "itself.",
+"start": 51.36,
+"end": 52.24
+},
+{
+"text": "[cheerful]",
+"start": 52.251,
+"end": 52.309
+},
+{
+"text": "So",
+"start": 52.32,
+"end": 52.56
+},
+{
+"text": "please",
+"start": 52.64,
+"end": 53.04
+},
+{
+"text": "don't",
+"start": 53.08,
+"end": 53.2
+},
+{
+"text": "try",
+"start": 53.32,
+"end": 53.44
+},
+{
+"text": "this",
+"start": 53.52,
+"end": 53.6
+},
+{
+"text": "at",
+"start": 53.68,
+"end": 53.76
+},
+{
+"text": "home.",
+"start": 53.84,
+"end": 54.32
+},
+{
+"text": "Save",
+"start": 54.44,
+"end": 54.56
+},
+{
+"text": "some",
+"start": 54.64,
+"end": 54.72
+},
+{
+"text": "for",
+"start": 54.8,
+"end": 54.88
+},
+{
+"text": "tomorrow.",
+"start": 55.0,
+"end": 55.76
+},
+{
+"text": "[playful]",
+"start": 55.806,
+"end": 55.989
+},
+{
+"text": "Comment",
+"start": 56.034,
+"end": 56.08
+},
+{
+"text": "which",
+"start": 56.2,
+"end": 56.32
+},
+{
+"text": "candy",
+"start": 56.48,
+"end": 56.8
+},
+{
+"text": "YOU'D",
+"start": 56.88,
+"end": 57.04
+},
+{
+"text": "eat",
+"start": 57.16,
+"end": 57.28
+},
+{
+"text": "first.",
+"start": 57.48,
+"end": 58.0
+},
+{
+"text": "[whispers]",
+"start": 58.023,
+"end": 58.114
+},
+{
+"text": "But",
+"start": 58.137,
+"end": 58.16
+},
+{
+"text": "before",
+"start": 58.36,
+"end": 58.56
+},
+{
+"text": "you",
+"start": 58.64,
+"end": 58.72
+},
+{
+"text": "grab",
+"start": 58.8,
+"end": 59.04
+},
+{
+"text": "that",
+"start": 59.16,
+"end": 59.28
+},
+{
+"text": "bucket...",
+"start": 59.48,
+"end": 60.08
+},
+{
+"text": "ask",
+"start": 60.16,
+"end": 60.4
+},
+{
+"text": "yourself...",
+"start": 60.52,
+"end": 61.2
+}
+]

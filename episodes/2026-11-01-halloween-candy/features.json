@@ -1,0 +1,38 @@
+{
+ "date": "2026-11-01",
+ "slug": "halloween-candy",
+ "title": "What if you ate all your Halloween candy?",
+ "youtube_title": "What happens if you eat all your Halloween candy in one night? 🍬",
+ "format": "regular",
+ "kind": "funny",
+ "source": "SCOUT",
+ "duration_s": 61.5,
+ "hook_words": 8,
+ "hook_end_s": 2.45,
+ "first_payoff_s": 1.2,
+ "hook_pattern": "before_you_blink",
+ "twist_at_pct": 61,
+ "words_per_min": 161,
+ "max_gap_without_visual_change_s": 3.25,
+ "open_loop_by_s": 11.2,
+ "scenes": 3,
+ "caption_chars": 266,
+ "viewer_idea": false,
+ "scores": {
+  "curiosity": 5,
+  "relatable": 5,
+  "surprise": 4,
+  "visual": 5,
+  "comment": 4
+ },
+ "qa": {
+  "run_qa": "0 FAIL, 2 WARN (caption text-flash, judged OK)",
+  "structure": "PASS",
+  "audio_qa": "PASS",
+  "video_qa": "PASS",
+  "reviewer": "APPROVE"
+ },
+ "video_sha": "1bb6d174d8923bad137f5dcdee73716127b5c3bc",
+ "tiktok_post": 412967615,
+ "youtube_post": 412967709
+}
