@@ -47,7 +47,7 @@ def badge(d, cx, cy, r):
 
 def card(img, w):
     """vertical 9:16 episode frame -> rounded card with white border + shadow"""
-    src = img.crop((0, 250, 1080, 1580))  # main action band (skip top/bottom UI zones)
+    src = img.crop((0, 200, 1080, 1170))  # the picture only: above the episode's captions (y ~1200-1370), so no in-video text
     h = int(w * src.height / src.width)
     c = src.resize((w, h), Image.LANCZOS)
     m = Image.new('L', (w, h), 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, w - 1, h - 1], 26, fill=255)
@@ -64,19 +64,28 @@ def main():
     picks = eps if n <= 3 else [eps[0], eps[n // 2], eps[-1]]
     img = sunburst().convert('RGBA')
     tmp = tempfile.mkdtemp()
-    xs = [(800, -8), (970, 4), (1135, -5)][-len(picks):] if len(picks) == 3 else [(760, -6), (980, 5)][:len(picks)]
-    for (x, ang), e in zip(xs, picks):
+    # layout from the headline's MEASURED width, so the cards can never overlap the text
+    probe = ImageDraw.Draw(Image.new('RGB', (10, 10)))
+    HS = 138
+    head_r = 50 + max(probe.textlength(f'{n} CRAZY', font=ImageFont.truetype(FONT, HS)),
+                      probe.textlength('WHAT IFS', font=ImageFont.truetype(FONT, HS))) + HS // 11
+    left, right = head_r + 50, TW - 24
+    k = len(picks); cw = int(min(250, (right - left) / (0.62 * (k - 1) + 1.08)))
+    step = (right - left - cw * 1.08) / max(1, k - 1)
+    angs = [-7, 4, -4][:k]
+    for i, e in enumerate(picks):
         f = frame(e['mp4'], float(e.get('cover_s', 2.8)), os.path.join(tmp, 'f.png'))
-        cd = card(f, 225).rotate(ang, expand=True, resample=Image.BICUBIC)
+        cd = card(f, cw).rotate(angs[i], expand=True, resample=Image.BICUBIC)
+        x = int(left + cw * 0.54 + i * step)
         sh = Image.new('RGBA', cd.size, (0, 0, 0, 0)); sh.putalpha(cd.split()[3].point(lambda a: int(a * 0.45)))
-        img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(14)), (x - cd.width // 2 + 10, 360 - cd.height // 2 + 16))
-        img.alpha_composite(cd, (x - cd.width // 2, 360 - cd.height // 2))
+        img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(14)), (x - cd.width // 2 + 10, 340 - cd.height // 2 + 16))
+        img.alpha_composite(cd, (x - cd.width // 2, 340 - cd.height // 2))
     d = ImageDraw.Draw(img)
     def txt(x, y, s, sz, fill):
         f = ImageFont.truetype(FONT, sz)
         d.text((x, y), s, font=f, fill=fill, stroke_width=max(6, sz // 11), stroke_fill=INK)
-    txt(50, 160, f'{n} CRAZY', 138, (255, 255, 255))
-    txt(50, 300, 'WHAT IFS', 138, (255, 210, 63))
+    txt(50, 160, f'{n} CRAZY', HS, (255, 255, 255))
+    txt(50, 300, 'WHAT IFS', HS, (255, 210, 63))
     txt(60, 470, man.get('subtitle', 'in one video!'), 64, (255, 255, 255))
     badge(d, 120, 600, 62)
     txt(200, 568, 'What If Daily', 54, (255, 255, 255))
