@@ -1,6 +1,6 @@
 # Insights the daily episode run must follow (within GUARDRAILS.md)
 
-_Last updated: 2026-10-29. Not enough data yet; the analyst starts adjusting once there are 5+ automated episodes per comparison._
+_Last updated: 2026-11-01. Not enough data yet; the analyst starts adjusting once there are 5+ automated episodes per comparison._
 
 ## Current guidance
 - Topic mix: alternate epic science and funny theoretical (recipe default).
@@ -16,3 +16,4 @@ _Last updated: 2026-10-29. Not enough data yet; the analyst starts adjusting onc
 
 ## Change log
 - 2026-10-29: file created (baseline = recipe defaults).
+- 2026-11-01: weekly review, no guidance change. Only 3 measured TikTok videos (views 365/282/868, avg-watch not reported), 0 YouTube rows; below the 5-per-side evidence rule. Posting-time review skipped (needs 14 days and 10 posts per platform). No hits for sequels (3 of 6 needed videos).
