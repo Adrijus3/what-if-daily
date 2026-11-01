@@ -418,8 +418,12 @@ Every Sunday evening, a separate scheduled task merges that week's episodes (Mon
   - there is a flash or black frame at a join
 
   Also LOOK at `transitions.jpg` yourself. It holds 3 frames around every join plus each episode's first frame. If anything fails or looks wrong, don't post; tell the owner.
+- **Thumbnail (owner verified the YouTube channel, 1 Nov 2026):**
+  - After compile.py passes, run `python3 weekly/thumbnail.py manifest.json /home/claude/wk/out/thumbnail.jpg`. Give each manifest episode `"cover_s"` = its features.json `cover_ms`/1000 when present.
+  - It makes a 1280×720 JPG under 2 MB: "<N> CRAZY WHAT IFS", 3 of the week's episodes as tilted cards, and the brand badge.
+  - LOOK at it: readable, no text over the cards, 3 different episodes.
 - **Host:**
-  - Put `weekly.mp4` on an orphan branch `weekly`: `git checkout --orphan weekly-new`, commit just `weekly.mp4`, then `git push -f origin weekly-new:weekly`.
+  - Put `weekly.mp4` AND `thumbnail.jpg` on an orphan branch `weekly`: `git checkout --orphan weekly-new`, commit just those two files, then `git push -f origin weekly-new:weekly`.
   - The media URL is `https://raw.githubusercontent.com/Adrijus3/what-if-daily/<SHA>/weekly.mp4`. The tool already keeps the file under 95 MB. Never push a bigger file, because GitHub rejects it. GitHub Releases are NOT available to these sessions, so don't try them.
 - **Post:** Metricool createScheduledPost to YouTube only, Sunday at 20:30 Europe/London (autoPublish true, not a draft):
   - youtubeData: type "video", privacy "public", category "SCIENCE_TECHNOLOGY", madeForKids false (owner's decision), isAiGeneratedContent false.
@@ -431,6 +435,7 @@ Every Sunday evening, a separate scheduled task merges that week's episodes (Mon
     - "Subscribe for a new What If every day!"
     - exactly 5 hashtags at the end of the description
   - Owner decision (31 Oct 2026): ONLY a title and a description (hashtags inside the description). Send youtubeData with NO `tags` field.
+  - Thumbnail: add `"videoThumbnailUrl": "https://raw.githubusercontent.com/Adrijus3/what-if-daily/<SHA>/thumbnail.jpg"` to the post info. If Metricool rejects it with VIDEO_THUMBNAIL_NOT_APPLICABLE, post again without it and tell the owner.
   - Confirm it with getScheduledPosts.
 - **Afterwards:**
   - Log it in post_log.txt as `<date> | WEEKLY COMPILATION week of <dates> | 20:30 | YouTube post <id>`.
