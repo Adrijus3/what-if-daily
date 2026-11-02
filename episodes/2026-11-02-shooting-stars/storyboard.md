@@ -23,3 +23,13 @@ Verdict: **FIX** (3 row edits), all applied above before animating:
 2. 33-47: the landing dust is separate tiny specks that start glowing at the trail ends, slow, cool to grey-white and drift down; the roof magnifier grows out of the roof.
 3. 14-22: the slow hero meteor gets a "SLOW-MO" tag so it doesn't contradict 72 km/s.
 Body/arms: PASS (he stands the whole time, the premise never touches his body; one gesture per beat; no background changes).
+
+## Staging additions made while animating (2026-11-02 retry run), all within the rows above
+None of these touch the mascot's body: he stands, hands on hips, with the same three single gestures (sand lens, Moon, comment bubble).
+- 0.9-6 s: while the shower is busy the upper sky glows softly (smooth 0.45 s ramp, never a flash), so the eruption reads on a muted phone.
+- 17-23.7 s ("tiny fireball" / "squeezed" / "1,600 degrees"): a close-up lens GROWS OUT of the slow-mo hero meteor (dashed callout lines to it) showing the rock, the glowing squeezed-air cap in front and hot gas streaming back; the "1,600 °C" pill sits under the lens. The lens shrinks back into the meteor before "vaporise".
+- 27.5-29.4 s ("Now take the air away"): the air is shown as a soft teal glow layer over the sky that lifts up and fades away.
+- 31-40.8 s (Moon lens): impacts get brighter on "every speck hits", one bigger impact puff on "Nothing slows them down", the view pans across the surface on "its whole surface", and a stream of grains sweeps across it on "sandblasted".
+- 42.6-45.5 s ("already land!"): the sky glows warmly again while the 7 tiny dust meteors burn out (the specks start at their trail ends).
+- 46-50 s ("tiniest bits slow down, cool off, and drift down"): a lens grows out of one speck and shows it close up: speed lines shrink (slowing), orange cools to grey-white, then it drifts down.
+- 59.6-61.3 s ("make a wish"): the sky glows softly behind the wish meteor, back to frame-0 brightness before the loop.
