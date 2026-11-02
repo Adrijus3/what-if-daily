@@ -1,0 +1,7 @@
+~25 million meteoroids enter Earth's atmosphere each day: https://en.wikipedia.org/wiki/Meteoroid (citing NASA/Science) ; https://www.nasa.gov/solar-system/meteors-meteorites/
+Most meteors are the size of a grain of sand; enter at 11-72 km/s: https://science.nasa.gov/solar-system/meteors-meteorites/facts/
+Heated to ~1,650 C (3,000 F) by compression of air in front; burn up at ~76-100 km altitude: https://science.nasa.gov/solar-system/meteors-meteorites/facts/ ; https://www.amsmeteors.org/meteor-showers/meteor-faq/
+Moon has no atmosphere, micrometeorites bombard its surface (regolith "gardening"): https://science.nasa.gov/moon/ ; https://en.wikipedia.org/wiki/Impact_gardening
+~5,200 tonnes/year of micrometeorites reach Earth's surface (Rojas et al. 2021, EPSL, Antarctic Concordia): https://www.sciencedirect.com/science/article/pii/S0012821X21000637
+Micrometeorites found on city rooftops (Genge, Larsen et al. 2016, Geology): https://www.sciencedaily.com/releases/2017/01/170124193612.htm
+5,200 t/yr reaching the surface (CNRS summary of Rojas et al. 2021): https://www.cnrs.fr/en/more-5000-tons-extraterrestrial-dust-fall-earth-each-year
