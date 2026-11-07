@@ -1,0 +1,39 @@
+{
+ "date": "2026-11-07",
+ "slug": "dinosaurs-never-extinct",
+ "title": "What if dinosaurs never went extinct?",
+ "youtube_title": "What would happen if dinosaurs never went extinct? 🦖",
+ "format": "regular",
+ "kind": "science",
+ "source": "BACKLOG",
+ "duration_s": 66.5,
+ "hook_words": 6,
+ "hook_end_s": 2.39,
+ "first_payoff_s": 0.6,
+ "hook_pattern": "before_you_blink",
+ "twist_at_pct": 62,
+ "words_per_min": 143,
+ "max_gap_without_visual_change_s": 3,
+ "open_loop_by_s": 8.5,
+ "scenes": 1,
+ "caption_chars": 274,
+ "viewer_idea": false,
+ "cover_ms": 2000,
+ "scores": {
+  "curiosity": 5,
+  "relatable": 4,
+  "surprise": 5,
+  "visual": 5,
+  "comment": 4
+ },
+ "qa": {
+  "run_qa": "0 FAIL, 1 WARN (text-flash 'is' 0.27 s, judged harmless)",
+  "structure": "PASS",
+  "audio_qa": "PASS",
+  "video_qa": "PASS",
+  "reviewer": "APPROVE (round 1)"
+ },
+ "video_sha": "f979dd4ea7f6260df9284bf88886f8b93258f2d4",
+ "tiktok_post": 419964408,
+ "youtube_post": 419964502
+}

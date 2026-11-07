@@ -1,0 +1,9 @@
+FRAME QA — 1995 frames, 66.5s — 0 FAIL, 1 WARN
+LOOP SEAM: pixel step 0.17 vs normal 0.16
+BUSIEST ARMS (deg per 2 s): {"left":{"deg":0,"t":66.5},"right":{"deg":225,"t":20.75}}
+
+CUTS:
+  loop       0s field → field: head moves 0px, size ×1, zoom ×1, arms turn 0°
+
+ISSUES:
+  WARN  61.233s (f1837) [text-flash] "is" is on screen for only 0.27 s

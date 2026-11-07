@@ -1,0 +1,797 @@
+[
+{
+"text": "[excited]",
+"start": 0.0,
+"end": 0.15
+},
+{
+"text": "What",
+"start": 0.2,
+"end": 0.32
+},
+{
+"text": "if",
+"start": 0.36,
+"end": 0.54
+},
+{
+"text": "dinosaurs",
+"start": 0.58,
+"end": 1.22
+},
+{
+"text": "never",
+"start": 1.44,
+"end": 1.7
+},
+{
+"text": "went",
+"start": 1.78,
+"end": 1.9
+},
+{
+"text": "extinct?",
+"start": 1.94,
+"end": 2.56
+},
+{
+"text": "A",
+"start": 3.0,
+"end": 3.08
+},
+{
+"text": "T. rex",
+"start": 3.16,
+"end": 3.58
+},
+{
+"text": "weighed",
+"start": 3.68,
+"end": 3.86
+},
+{
+"text": "about",
+"start": 3.92,
+"end": 4.26
+},
+{
+"text": "8",
+"start": 4.34,
+"end": 4.56
+},
+{
+"text": "tonnes...",
+"start": 4.64,
+"end": 5.1
+},
+{
+"text": "as",
+"start": 5.36,
+"end": 5.48
+},
+{
+"text": "heavy",
+"start": 5.56,
+"end": 5.88
+},
+{
+"text": "as",
+"start": 5.94,
+"end": 6.02
+},
+{
+"text": "a",
+"start": 6.08,
+"end": 6.16
+},
+{
+"text": "hundred",
+"start": 6.28,
+"end": 6.7
+},
+{
+"text": "people.",
+"start": 6.82,
+"end": 7.24
+},
+{
+"text": "But",
+"start": 7.56,
+"end": 7.66
+},
+{
+"text": "that's",
+"start": 7.72,
+"end": 7.98
+},
+{
+"text": "not",
+"start": 8.02,
+"end": 8.16
+},
+{
+"text": "even",
+"start": 8.2,
+"end": 8.36
+},
+{
+"text": "the",
+"start": 8.38,
+"end": 8.48
+},
+{
+"text": "craziest",
+"start": 8.54,
+"end": 9.1
+},
+{
+"text": "part.",
+"start": 9.2,
+"end": 9.48
+},
+{
+"text": "66",
+"start": 10.06,
+"end": 10.5
+},
+{
+"text": "million",
+"start": 10.64,
+"end": 11.02
+},
+{
+"text": "years",
+"start": 11.1,
+"end": 11.3
+},
+{
+"text": "ago,",
+"start": 11.36,
+"end": 11.6
+},
+{
+"text": "an",
+"start": 11.8,
+"end": 12.0
+},
+{
+"text": "asteroid",
+"start": 12.1,
+"end": 12.54
+},
+{
+"text": "about",
+"start": 12.58,
+"end": 12.82
+},
+{
+"text": "10",
+"start": 12.9,
+"end": 13.1
+},
+{
+"text": "kilometres",
+"start": 13.2,
+"end": 13.7
+},
+{
+"text": "wide",
+"start": 13.8,
+"end": 14.08
+},
+{
+"text": "slammed",
+"start": 14.28,
+"end": 14.78
+},
+{
+"text": "into",
+"start": 14.84,
+"end": 15.06
+},
+{
+"text": "Earth.",
+"start": 15.12,
+"end": 15.44
+},
+{
+"text": "Now",
+"start": 15.8,
+"end": 15.9
+},
+{
+"text": "say",
+"start": 16.059,
+"end": 16.2
+},
+{
+"text": "it",
+"start": 16.239,
+"end": 16.34
+},
+{
+"text": "missed.",
+"start": 16.56,
+"end": 17.0
+},
+{
+"text": "Dinosaurs",
+"start": 17.46,
+"end": 18.0
+},
+{
+"text": "had",
+"start": 18.02,
+"end": 18.24
+},
+{
+"text": "already",
+"start": 18.34,
+"end": 18.66
+},
+{
+"text": "ruled",
+"start": 18.8,
+"end": 19.06
+},
+{
+"text": "for",
+"start": 19.12,
+"end": 19.22
+},
+{
+"text": "over",
+"start": 19.28,
+"end": 19.48
+},
+{
+"text": "160",
+"start": 19.66,
+"end": 20.66
+},
+{
+"text": "million",
+"start": 20.88,
+"end": 21.32
+},
+{
+"text": "years.",
+"start": 21.42,
+"end": 21.84
+},
+{
+"text": "Mammals",
+"start": 22.22,
+"end": 22.52
+},
+{
+"text": "like",
+"start": 22.56,
+"end": 22.72
+},
+{
+"text": "us?",
+"start": 22.82,
+"end": 23.02
+},
+{
+"text": "Most",
+"start": 23.44,
+"end": 23.7
+},
+{
+"text": "were",
+"start": 23.74,
+"end": 23.88
+},
+{
+"text": "no",
+"start": 23.94,
+"end": 24.04
+},
+{
+"text": "bigger",
+"start": 24.14,
+"end": 24.34
+},
+{
+"text": "than",
+"start": 24.38,
+"end": 24.48
+},
+{
+"text": "a",
+"start": 24.52,
+"end": 24.62
+},
+{
+"text": "badger,",
+"start": 24.66,
+"end": 25.1
+},
+{
+"text": "hiding",
+"start": 25.3,
+"end": 25.58
+},
+{
+"text": "in",
+"start": 25.62,
+"end": 25.68
+},
+{
+"text": "the",
+"start": 25.72,
+"end": 25.82
+},
+{
+"text": "dark.",
+"start": 25.86,
+"end": 26.22
+},
+{
+"text": "With",
+"start": 26.64,
+"end": 26.8
+},
+{
+"text": "dinosaurs",
+"start": 26.84,
+"end": 27.36
+},
+{
+"text": "still",
+"start": 27.44,
+"end": 27.6
+},
+{
+"text": "in",
+"start": 27.64,
+"end": 27.76
+},
+{
+"text": "charge,",
+"start": 27.8,
+"end": 28.18
+},
+{
+"text": "there'd",
+"start": 28.36,
+"end": 28.56
+},
+{
+"text": "probably",
+"start": 28.6,
+"end": 29.04
+},
+{
+"text": "be",
+"start": 29.08,
+"end": 29.24
+},
+{
+"text": "no",
+"start": 29.3,
+"end": 29.46
+},
+{
+"text": "room",
+"start": 29.58,
+"end": 29.8
+},
+{
+"text": "for",
+"start": 29.84,
+"end": 29.96
+},
+{
+"text": "big",
+"start": 29.98,
+"end": 30.12
+},
+{
+"text": "mammals.",
+"start": 30.2,
+"end": 30.64
+},
+{
+"text": "No",
+"start": 31.02,
+"end": 31.12
+},
+{
+"text": "mammoths.",
+"start": 31.24,
+"end": 31.74
+},
+{
+"text": "No",
+"start": 32.06,
+"end": 32.159
+},
+{
+"text": "apes.",
+"start": 32.34,
+"end": 32.68
+},
+{
+"text": "Maybe...",
+"start": 33.1,
+"end": 33.56
+},
+{
+"text": "no",
+"start": 34.08,
+"end": 34.24
+},
+{
+"text": "you.",
+"start": 34.44,
+"end": 34.68
+},
+{
+"text": "A",
+"start": 35.24,
+"end": 35.32
+},
+{
+"text": "T. rex",
+"start": 35.4,
+"end": 35.84
+},
+{
+"text": "bite",
+"start": 35.88,
+"end": 36.1
+},
+{
+"text": "hit",
+"start": 36.16,
+"end": 36.26
+},
+{
+"text": "around",
+"start": 36.3,
+"end": 36.66
+},
+{
+"text": "35,000",
+"start": 36.84,
+"end": 37.96
+},
+{
+"text": "newtons...",
+"start": 38.02,
+"end": 38.48
+},
+{
+"text": "the",
+"start": 38.74,
+"end": 38.84
+},
+{
+"text": "strongest",
+"start": 38.96,
+"end": 39.46
+},
+{
+"text": "of",
+"start": 39.5,
+"end": 39.58
+},
+{
+"text": "any",
+"start": 39.84,
+"end": 40.02
+},
+{
+"text": "known",
+"start": 40.14,
+"end": 40.4
+},
+{
+"text": "land",
+"start": 40.46,
+"end": 40.7
+},
+{
+"text": "animal.",
+"start": 40.78,
+"end": 41.14
+},
+{
+"text": "But",
+"start": 41.5,
+"end": 41.64
+},
+{
+"text": "here's",
+"start": 41.74,
+"end": 42.04
+},
+{
+"text": "the",
+"start": 42.08,
+"end": 42.18
+},
+{
+"text": "crazy",
+"start": 42.26,
+"end": 42.74
+},
+{
+"text": "part.",
+"start": 42.86,
+"end": 43.14
+},
+{
+"text": "Dinosaurs",
+"start": 43.54,
+"end": 44.12
+},
+{
+"text": "DID",
+"start": 44.34,
+"end": 44.52
+},
+{
+"text": "survive.",
+"start": 44.62,
+"end": 45.18
+},
+{
+"text": "One",
+"start": 45.64,
+"end": 45.8
+},
+{
+"text": "dinosaur",
+"start": 45.88,
+"end": 46.3
+},
+{
+"text": "group",
+"start": 46.4,
+"end": 46.62
+},
+{
+"text": "made",
+"start": 46.7,
+"end": 46.84
+},
+{
+"text": "it",
+"start": 46.88,
+"end": 47.02
+},
+{
+"text": "through",
+"start": 47.04,
+"end": 47.28
+},
+{
+"text": "the",
+"start": 47.32,
+"end": 47.4
+},
+{
+"text": "impact...",
+"start": 47.46,
+"end": 47.94
+},
+{
+"text": "birds.",
+"start": 48.42,
+"end": 48.94
+},
+{
+"text": "Scientists",
+"start": 49.46,
+"end": 49.92
+},
+{
+"text": "say",
+"start": 49.96,
+"end": 50.1
+},
+{
+"text": "birds",
+"start": 50.26,
+"end": 50.52
+},
+{
+"text": "ARE",
+"start": 50.84,
+"end": 51.08
+},
+{
+"text": "dinosaurs.",
+"start": 51.1,
+"end": 51.84
+},
+{
+"text": "About",
+"start": 52.12,
+"end": 52.32
+},
+{
+"text": "11,000",
+"start": 52.36,
+"end": 53.34
+},
+{
+"text": "kinds",
+"start": 53.4,
+"end": 53.7
+},
+{
+"text": "are",
+"start": 53.74,
+"end": 53.82
+},
+{
+"text": "alive",
+"start": 53.86,
+"end": 54.12
+},
+{
+"text": "today.",
+"start": 54.18,
+"end": 54.56
+},
+{
+"text": "That",
+"start": 54.98,
+"end": 55.14
+},
+{
+"text": "duck?",
+"start": 55.18,
+"end": 55.44
+},
+{
+"text": "A",
+"start": 55.84,
+"end": 55.88
+},
+{
+"text": "dinosaur.",
+"start": 55.92,
+"end": 56.46
+},
+{
+"text": "The",
+"start": 56.82,
+"end": 56.9
+},
+{
+"text": "pigeon",
+"start": 56.94,
+"end": 57.18
+},
+{
+"text": "on",
+"start": 57.24,
+"end": 57.34
+},
+{
+"text": "your",
+"start": 57.36,
+"end": 57.42
+},
+{
+"text": "street?",
+"start": 57.54,
+"end": 57.76
+},
+{
+"text": "Also",
+"start": 58.24,
+"end": 58.54
+},
+{
+"text": "a",
+"start": 58.6,
+"end": 58.64
+},
+{
+"text": "dinosaur.",
+"start": 58.68,
+"end": 59.26
+},
+{
+"text": "Comment",
+"start": 59.64,
+"end": 59.98
+},
+{
+"text": "which",
+"start": 60.02,
+"end": 60.22
+},
+{
+"text": "bird",
+"start": 60.26,
+"end": 60.46
+},
+{
+"text": "YOU",
+"start": 60.72,
+"end": 60.88
+},
+{
+"text": "think",
+"start": 60.94,
+"end": 61.16
+},
+{
+"text": "is",
+"start": 61.2,
+"end": 61.3
+},
+{
+"text": "the",
+"start": 61.34,
+"end": 61.42
+},
+{
+"text": "most",
+"start": 61.54,
+"end": 61.82
+},
+{
+"text": "dinosaur.",
+"start": 61.86,
+"end": 62.48
+},
+{
+"text": "But",
+"start": 62.88,
+"end": 63.02
+},
+{
+"text": "next",
+"start": 63.08,
+"end": 63.32
+},
+{
+"text": "time",
+"start": 63.36,
+"end": 63.52
+},
+{
+"text": "a",
+"start": 63.56,
+"end": 63.66
+},
+{
+"text": "duck",
+"start": 63.7,
+"end": 63.88
+},
+{
+"text": "stares",
+"start": 64.019,
+"end": 64.28
+},
+{
+"text": "at",
+"start": 64.319,
+"end": 64.44
+},
+{
+"text": "you...",
+"start": 64.5,
+"end": 64.62
+},
+{
+"text": "ask",
+"start": 65.22,
+"end": 65.4
+},
+{
+"text": "yourself...",
+"start": 65.44,
+"end": 65.92
+}
+]

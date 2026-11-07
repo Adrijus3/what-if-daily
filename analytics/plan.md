@@ -8,7 +8,6 @@ _Updated 2026-11-03 (Tuesday run, triggered by 2 new scout ideas). Metricool sti
 2026-11-04 (Wednesday) | regular | [BACKLOG] [S] What if all the ice on Earth melted? | no qualifying viewer idea for Viewer Pick Wednesday; evergreen, new theme (Earth/climate)
 2026-11-05 (Thursday) | regular | [SCOUT] [S] What if fireworks exploded in space? | score 22/25; lands on Bonfire Night Nov 5; twist = total silence, perfect sphere
 2026-11-06 (Friday) | funny_friday | [BACKLOG] [F] What if you had to fight 100 ducks? | best funny pick with high share potential; avoids a third space-themed episode in 4 days
-2026-11-07 (Saturday) | regular | [BACKLOG] [S] What if dinosaurs never went extinct? | evergreen, fresh theme (biology)
 2026-11-08 (Sunday) | regular | [SCOUT] [F] What if everyone on Earth held hands in one line? | score 22/25; very visual, evergreen; keeps the funny/science alternation
 2026-11-09 (Monday) | regular | [SCOUT] [S] What if every satellite vanished overnight? | score 21/25; moved back from Nov 5 so fireworks get the Bonfire Night slot; ISS spacewalk news
 2026-11-10 (Tuesday) | regular | [SCOUT] [F] What if you could hibernate all winter? | score 22/25; dark cold November mood, ESA/NASA torpor research; funny slot after a science day, no space theme
