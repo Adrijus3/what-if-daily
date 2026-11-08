@@ -87,9 +87,9 @@ def main():
         d.text((x, y), s, font=f, fill=fill, stroke_width=max(6, sz // 11), stroke_fill=INK)
     txt(50, 160, f'{n} CRAZY', HS, (255, 255, 255))
     txt(50, 300, 'WHAT IFS', HS, (255, 210, 63))
-    txt(60, 470, man.get('subtitle', 'in one video!'), 64, (255, 255, 255))
-    badge(d, 120, 600, 62)
-    txt(200, 568, 'What If Daily', 54, (255, 255, 255))
+    txt(60, 448, man.get('subtitle', 'in one video!'), 60, (255, 255, 255))   # owner 8 Nov: clear gap above the badge
+    badge(d, 112, 628, 52)
+    txt(184, 600, 'What If Daily', 50, (255, 255, 255))
     rgb = img.convert('RGB')
     q = 92
     while True:
