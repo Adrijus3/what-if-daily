@@ -187,7 +187,8 @@ def main():
     trim = float(sys.argv[sys.argv.index('--trim') + 1]) if '--trim' in sys.argv else None
     os.makedirs(od, exist_ok=True); seg = os.path.join(od, 'seg'); os.makedirs(seg, exist_ok=True)
     eps = sorted(man['episodes'], key=lambda e: e['date'])
-    if len(eps) < (1 if trim else 4):
+    min_eps = int(sys.argv[sys.argv.index('--min-episodes') + 1]) if '--min-episodes' in sys.argv else 4   # owner override only
+    if len(eps) < (1 if trim else min_eps):
         sys.exit(f'only {len(eps)} episodes: recipe section 7 needs at least 4, no compilation')
 
     bg = os.path.join(seg, 'backdrop.png'); backdrop(bg)

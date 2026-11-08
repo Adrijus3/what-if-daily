@@ -1,0 +1,25 @@
+{
+ "pass": true,
+ "fails": [],
+ "duration_s": 199.1,
+ "expected_s": 199.1,
+ "size_mb": 90.1,
+ "fps": 60.0,
+ "res": "1920x1080",
+ "episodes": 3,
+ "audio_peak": 0.876,
+ "join_audio_db": [
+  -22.5,
+  -15.2,
+  -29.9,
+  -18.5,
+  -29.4,
+  -21.0,
+  -29.0
+ ],
+ "chapters": [
+  "0:00 #4 What if every shooting star landed?",
+  "1:05 #5 What if dinosaurs never went extinct?",
+  "2:12 #6 What if you could age backwards?"
+ ]
+}

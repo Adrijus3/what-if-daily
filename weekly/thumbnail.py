@@ -73,7 +73,8 @@ def main():
     k = len(picks); cw = int(min(250, (right - left) / (0.62 * (k - 1) + 1.08)))
     step = (right - left - cw * 1.08) / max(1, k - 1)
     angs = [-7, 4, -4][:k]
-    for i, e in enumerate(picks):
+    # drawn right-to-left: each card covers the LEFT edge of the one to its right (the mascot), so every card's prop/payoff on the right stays visible
+    for i, e in reversed(list(enumerate(picks))):
         f = frame(e['mp4'], float(e.get('cover_s', 2.8)), os.path.join(tmp, 'f.png'))
         cd = card(f, cw).rotate(angs[i], expand=True, resample=Image.BICUBIC)
         x = int(left + cw * 0.54 + i * step)
