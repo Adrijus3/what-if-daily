@@ -2,12 +2,12 @@
 
 The episode run takes the line dated TODAY, unless it fails the viral checklist or the no-repeat rules (then the next line).
 Sources: `[SCOUT]` trend scout · `[VIEWER @name]` viewer comment idea · `[BACKLOG]` starter list · `[DATA]` boosted by analytics.
-_Updated 2026-11-03 (Tuesday run, triggered by 2 new scout ideas). Metricool still reports only the same 3 TikTok videos (1515 views), 0 YouTube rows; no new performance data. No sequel (3 of 6 measured videos). Wed = regular (no qualifying viewer idea); Fri = Funny Friday. Today's line stays until the episode is posted._
+_Updated 2026-11-08 (Sunday weekly run). Metricool still reports only the same 3 TikTok videos (1515 views), 0 YouTube video rows; no new performance data, no sequel (3 of 6 measured videos). Wed = regular (no viewer ideas yet); Fri = Funny Friday. Hair idea (claimed 11-03, never posted) left out until the topic claim is cleared. Today's line stays until the episode is posted._
 
-2026-11-03 (Tuesday) | regular | [SCOUT] [F] What if you never cut your hair again? | score 23/25; No-Shave November just started; twist = hair stops at a terminal length
-2026-11-04 (Wednesday) | regular | [BACKLOG] [S] What if all the ice on Earth melted? | no qualifying viewer idea for Viewer Pick Wednesday; evergreen, new theme (Earth/climate)
-2026-11-05 (Thursday) | regular | [SCOUT] [S] What if fireworks exploded in space? | score 22/25; lands on Bonfire Night Nov 5; twist = total silence, perfect sphere
-2026-11-06 (Friday) | funny_friday | [BACKLOG] [F] What if you had to fight 100 ducks? | best funny pick with high share potential; avoids a third space-themed episode in 4 days
-2026-11-08 (Sunday) | regular | [SCOUT] [F] What if everyone on Earth held hands in one line? | score 22/25; very visual, evergreen; keeps the funny/science alternation
-2026-11-09 (Monday) | regular | [SCOUT] [S] What if every satellite vanished overnight? | score 21/25; moved back from Nov 5 so fireworks get the Bonfire Night slot; ISS spacewalk news
-2026-11-10 (Tuesday) | regular | [SCOUT] [F] What if you could hibernate all winter? | score 22/25; dark cold November mood, ESA/NASA torpor research; funny slot after a science day, no space theme
+2026-11-09 (Monday) | regular | [SCOUT] [S] What if Betelgeuse exploded tonight? | score 24/25; Betelgeuse fading news (Nov 3); twist = harmless but brighter than a half Moon in daytime
+2026-11-10 (Tuesday) | regular | [SCOUT] [F] What if you aged backwards like the immortal jellyfish? | score 23/25; evergreen, funny after a science day; twist = 'immortal' mostly a myth
+2026-11-11 (Wednesday) | regular | [BACKLOG] [S] What if all the ice on Earth melted? | no qualifying viewer idea for Viewer Pick Wednesday; new theme (Earth/climate)
+2026-11-12 (Thursday) | regular | [SCOUT] [F] What if you could hibernate all winter? | score 22/25; cold dark November mood, torpor research; body theme after Earth science
+2026-11-13 (Friday) | funny_friday | [SCOUT] [F] What if everyone on Earth held hands in one line? | score 22/25; very visual and shareable; avoids a second space theme this week
+2026-11-14 (Saturday) | regular | [SCOUT] [S] What if Earth had a second Moon? | score 22/25; mini-moon 2026 QQ8 news; 5 days after Betelgeuse, different theme (tides)
+2026-11-15 (Sunday) | regular | [SCOUT] [S] What if Earth had no seasons? | score 21/25; winter nights arriving; Earth theme, 4 days after ice melt
