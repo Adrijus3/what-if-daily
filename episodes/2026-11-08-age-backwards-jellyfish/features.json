@@ -1,0 +1,40 @@
+{
+ "date": "2026-11-08",
+ "slug": "age-backwards-jellyfish",
+ "title": "What if you could age backwards?",
+ "youtube_title": "What if you could age backwards like the immortal jellyfish? 🪼",
+ "format": "regular",
+ "kind": "funny",
+ "source": "SCOUT",
+ "duration_s": 60.0,
+ "hook_words": 6,
+ "hook_end_s": 1.73,
+ "first_payoff_s": 0.9,
+ "hook_pattern": "before_you_blink (rewind clock pops in on 'age')",
+ "twist_at_pct": 75,
+ "words_per_min": 173,
+ "max_gap_without_visual_change_s": 4,
+ "open_loop_by_s": 11.3,
+ "scenes": 1,
+ "caption_chars": 292,
+ "viewer_idea": false,
+ "cover_ms": 1900,
+ "scores": {
+  "curiosity": 5,
+  "relatable": 4,
+  "surprise": 5,
+  "visual": 5,
+  "comment": 4
+ },
+ "qa": {
+  "run_qa": "0 FAIL, 1 WARN (text-flash 'that,' 0.30 s, judged harmless)",
+  "structure": "PASS",
+  "audio_qa": "PASS",
+  "video_qa": "PASS",
+  "reviewer": "APPROVE (round 1, minor fixes applied, round 2 APPROVE)"
+ },
+ "fact_check": "PASS (after 3 wording fixes)",
+ "video_sha": "a6304d9a99643b944342c4cc4de2e8e2f19636ca",
+ "tiktok_post": 420764619,
+ "youtube_post": 420764736
+}

@@ -5,7 +5,6 @@ Sources: `[SCOUT]` trend scout · `[VIEWER @name]` viewer comment idea · `[BACK
 _Updated 2026-11-08 (Sunday weekly run). Metricool still reports only the same 3 TikTok videos (1515 views), 0 YouTube video rows; no new performance data, no sequel (3 of 6 measured videos). Wed = regular (no viewer ideas yet); Fri = Funny Friday. Hair idea (claimed 11-03, never posted) left out until the topic claim is cleared. Today's line stays until the episode is posted._
 
 2026-11-09 (Monday) | regular | [SCOUT] [S] What if Betelgeuse exploded tonight? | score 24/25; Betelgeuse fading news (Nov 3); twist = harmless but brighter than a half Moon in daytime
-2026-11-10 (Tuesday) | regular | [SCOUT] [F] What if you aged backwards like the immortal jellyfish? | score 23/25; evergreen, funny after a science day; twist = 'immortal' mostly a myth
 2026-11-11 (Wednesday) | regular | [BACKLOG] [S] What if all the ice on Earth melted? | no qualifying viewer idea for Viewer Pick Wednesday; new theme (Earth/climate)
 2026-11-12 (Thursday) | regular | [SCOUT] [F] What if you could hibernate all winter? | score 22/25; cold dark November mood, torpor research; body theme after Earth science
 2026-11-13 (Friday) | funny_friday | [SCOUT] [F] What if everyone on Earth held hands in one line? | score 22/25; very visual and shareable; avoids a second space theme this week

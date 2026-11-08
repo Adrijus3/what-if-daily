@@ -1,0 +1,39 @@
+{
+  "duration_s": 60,
+  "hook_end_s": 1.73,
+  "first_payoff_s": 0.9,
+  "max_gap_without_visual_change_s": 4,
+  "verdict": "PASS",
+  "fails": [],
+  "warns": [],
+  "detail": {
+    "hook_text": "What if you could age backwards?",
+    "hook_fallback": false,
+    "payoff_window_end_s": 1,
+    "max_gap_from_s": 20.25,
+    "max_gap_to_s": 24.25,
+    "hard_cuts_s": [],
+    "params": {
+      "PIX_TH": 40,
+      "PAY_ABS": 0.05,
+      "PAY_WIN": 0.3,
+      "PAY_RATIO": 3,
+      "PAY_BASE_S": 1.5,
+      "PAY_T0": 0.3,
+      "GAP_ABS": 0.03,
+      "GAP_WIN": 0.5,
+      "CUT_ABS": 0.6,
+      "CAP_Y0": 1090,
+      "CAP_Y1": 1490,
+      "FULL_H": 1920,
+      "WORD_MAX": 0.45,
+      "FAIL_PAYOFF": 3.5,
+      "WARN_PAYOFF": 3,
+      "WARN_HOOK": 2.5,
+      "WARN_GAP": 4
+    },
+    "frames": 276,
+    "render_w": 135,
+    "render_seconds": 24
+  }
+}

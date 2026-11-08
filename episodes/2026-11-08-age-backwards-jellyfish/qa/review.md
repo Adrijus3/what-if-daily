@@ -1,0 +1,5 @@
+# Independent review (Sonnet), 2026-11-08
+Round 1: **APPROVE** (no blocking issues; 11 minor notes). Fixed before the final render: pills lifted off the tank rim, "MELTS INTO A BLOB" pill synced with the crumple, nail-lens jellyfish beside the nail, polyp point aimed lower, comment bubble higher, worried brow/frown/sweat on "not really immortal / eaten / disease", larger green germs attached to the DISEASE pill.
+Round 2: **APPROVE**. Physical truth: the mascot is a human observer and never changes; "you'd shrink into a baby" lives only in the YOU? HUD card (baby badge redrawn with baby proportions); every jellyfish change is animated (droop, crumple, sink, polyp sprouts from the blob, bud pops from the polyp tip and grows, stalk withers into the rock); bubbles come from the bubbler stone; comment bubble comes out of his mouth. First payoff: the rewind clock at 0.9-1.3 s is confirmed as the first visual payoff vs the static 0 s frame. Loop seam: end and start frames match.
+Leftover (not blocking): the crumple reads more like a shrink at thumbnail size.
+Accepted WARN: text-flash "that," 0.30 s at 39.5 s (short comma chunk, deliberate).

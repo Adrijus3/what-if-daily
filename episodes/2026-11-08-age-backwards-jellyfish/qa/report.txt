@@ -1,0 +1,9 @@
+FRAME QA — 1800 frames, 60s — 0 FAIL, 1 WARN
+LOOP SEAM: pixel step 0.32 vs normal 0.35
+BUSIEST ARMS (deg per 2 s): {"left":{"deg":0,"t":60},"right":{"deg":206,"t":57}}
+
+CUTS:
+  loop       0s tank → tank: head moves 0px, size ×1, zoom ×1, arms turn 0°
+
+ISSUES:
+  WARN    39.5s (f1185) [text-flash] "that," is on screen for only 0.30 s
